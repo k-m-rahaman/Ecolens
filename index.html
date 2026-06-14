@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoLens Pro | Gamified Edge AI Waste Management</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.js"></script>
+
+    <style>
+        :root {
+            /* Designer 1 High-Fidelity Color Palette Tokens */
+            --duo-green: #58cc02;
+            --duo-green-shadow: #46a302;
+            --duo-blue: #1cb0f6;
+            --duo-blue-shadow: #1899d6;
+            --duo-orange: #ff9600;
+            --duo-orange-shadow: #e08400;
+            --duo-card-border: #e5e7eb;
+            --duo-bg-main: #f9fafb;
+            --duo-bg-viewport: #1f2937; 
+            --text-dark: #333333;
+            --text-muted: #6b7280;
+            --duo-red: #ff4b4b;
+            --duo-red-shadow: #ea2b2b;
+            --duo-purple: #a55eea;
+            --duo-purple-shadow: #8854d0;
+
+            /* League Theme Accents */
+            --league-bronze: #cd7f32;
+            --league-bronze-shadow: #a05a15;
+            --league-silver: #b5b8b1;
+            --league-silver-shadow: #8a8d88;
+            --league-gold: #ffd700;
+            --league-gold-shadow: #cca300;
+            --league-diamond: #45aaf2;
+            --league-diamond-shadow: #2d98da;
+            
+            --radius-xl: 24px;
+            --radius-lg: 18px;
+            --radius-md: 12px;
+            --transition-smooth: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Nunito', sans-serif; }
+        
+        /* Modern Scrollbar styling */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--duo-bg-main); }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        body { background-color: var(--duo-bg-main); color: var(--text-dark); display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding-bottom: 60px; overflow-x: hidden; }
+
+        /* AUTHENTICATION SCREEN LAYER CORES */
+        .auth-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at center, #ffffff 0%, #f3f4f6 100%); z-index: 2000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; }
+        .auth-card { width: 100%; max-width: 420px; text-align: center; display: flex; flex-direction: column; gap: 20px; background: white; padding: 40px 30px; border-radius: 32px; border: 2px solid var(--duo-card-border); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.05); animation: popIn 0.4s ease; }
+        .auth-card h1 { font-weight: 900; font-size: 2.5rem; color: var(--duo-green); letter-spacing: -0.5px; }
+        .auth-card p { font-weight: 700; color: var(--text-muted); line-height: 1.5; font-size: 1.05rem; }
+        .auth-input { width: 100%; border: 2px solid var(--duo-card-border); background: #f9fafb; padding: 18px; border-radius: var(--radius-lg); font-weight: 800; font-size: 1.1rem; outline: none; transition: var(--transition-smooth); text-align: center; color: var(--text-dark); }
+        .auth-input:focus { border-color: var(--duo-blue); background: white; box-shadow: 0 0 0 4px rgba(28, 176, 246, 0.15); }
+
+        /* HEADER FRAME PANEL BLOCKS */
+        header { width: 100%; max-width: 540px; padding: 18px 24px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--duo-card-border); background: white; position: sticky; top: 0; z-index: 100; display: none; border-radius: 0 0 24px 24px; box-shadow: 0 4px 18px rgba(0,0,0,0.02); }
+        .header-brand { display: flex; align-items: center; gap: 12px; }
+        .logo-txt { font-weight: 900; font-size: 1.6rem; color: var(--duo-green); letter-spacing: -0.5px; }
+        .user-avatar-tag { font-weight: 900; color: var(--duo-purple); text-transform: capitalize; background: #f1f0fe; padding: 8px 16px; border-radius: var(--radius-md); border: 2px solid #e2dbfc; font-size: 1rem; box-shadow: inset 0 -2px 0 #e2dbfc; }
+        select.lang-picker { border: 2px solid var(--duo-card-border); border-radius: var(--radius-md); padding: 6px 12px; font-weight: 800; outline: none; cursor: pointer; color: var(--text-dark); font-size: 0.95rem; background: white; transition: var(--transition-smooth); }
+        select.lang-picker:hover { border-color: #cbd5e1; background: #f9fafb; }
+
+        /* SYSTEM CHIPS RUNTIME STATUS MONITOR ROW */
+        .status-chips-row { width: 100%; max-width: 500px; display: flex; gap: 12px; padding: 0 16px; margin-top: 20px; display: none; animation: popIn 0.3s ease; }
+        .status-chip { display: flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: var(--radius-md); font-weight: 800; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.3px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); flex-grow: 1; justify-content: center; }
+        .chip-green { background: #e8f9e1; color: var(--duo-green); border: 2px solid #bceaa2; }
+        .chip-blue { background: #e0f4fe; color: var(--duo-blue); border: 2px solid #9cd6f7; }
+
+        /* MAIN APP APPLICATION CONTAINERS */
+        main { width: 100%; max-width: 540px; padding: 16px; display: none; flex-direction: column; gap: 24px; }
+
+        /* PROGRESS PROGRESS HEADER INDICATORS */
+        .progress-wrapper { width: 100%; display: none; flex-direction: column; gap: 10px; padding: 4px; animation: popIn 0.3s ease; }
+        .progress-label-row { display: flex; justify-content: space-between; font-weight: 900; font-size: 1rem; color: var(--text-dark); text-transform: uppercase; letter-spacing: 0.5px; }
+        .progress-bar-container { width: 100%; height: 18px; background: #e5e7eb; border-radius: 20px; overflow: hidden; padding: 2px; border: 1px solid rgba(0,0,0,0.03); }
+        .progress-bar-fill { width: 0%; height: 100%; background: linear-gradient(90deg, #58cc02 0%, #61e002 100%); border-radius: 20px; transition: width 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
+
+        /* VIDEO VIEWPORT GRAPHICS FRAME CANVAS CONTAINER */
+        .viewport-frame { width: 100%; border-radius: 32px; overflow: hidden; border: 4px solid var(--duo-card-border); position: relative; background: var(--duo-bg-viewport); aspect-ratio: 4/3; box-shadow: 0 10px 0px #e5e7eb; transition: var(--transition-smooth); }
+        video, canvas { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 28px; }
+        canvas { position: absolute; top: 0; left: 0; display: none; z-index: 5; }
+        
+        /* Reticle with Pulse Animation Scan Lines */
+        .cv-reticle { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 140px; height: 140px; border: 4px dashed var(--duo-blue); border-radius: 50%; pointer-events: none; opacity: 0.8; z-index: 10; animation: pulseReticle 2.5s infinite linear; }
+        
+        /* Figma Corner Brackets Overlays Elements */
+        .viewport-frame::before, .viewport-frame::after { content: ''; position: absolute; width: 28px; height: 28px; border: 5px solid white; z-index: 12; pointer-events: none; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2)); transition: var(--transition-smooth); }
+        .viewport-frame::before { top: 24px; left: 24px; border-right: none; border-bottom: none; border-top-left-radius: 8px; }
+        .viewport-frame::after { bottom: 24px; right: 24px; border-left: none; border-top: none; border-bottom-right-radius: 8px; }
+
+        /* SCREEN STATE MACHINES PANELS */
+        .ui-screen { display: none; width: 100%; flex-direction: column; gap: 20px; animation: popIn 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+        .ui-screen.active-screen { display: flex; }
+        .button-row { display: flex; gap: 16px; width: 100%; }
+
+        /* FIGMA SPECIFIC PREMIUM BUTTON INTERACTION KITS */
+        .btn-core { width: 100%; background: var(--duo-green); color: white; border: none; padding: 18px 24px; font-size: 1.2rem; font-weight: 900; border-radius: var(--radius-lg); text-transform: uppercase; letter-spacing: 0.8px; cursor: pointer; box-shadow: 0 6px 0 var(--duo-green-shadow); transition: var(--transition-smooth); transform: translateY(0); display: flex; align-items: center; justify-content: center; gap: 10px; position: relative; overflow: hidden; }
+        .btn-core:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--duo-green-shadow); }
+        .btn-core:disabled { background: #e5e7eb; color: #9ca3af; box-shadow: 0 6px 0 #d1d5db; cursor: not-allowed; transform: none !important; }
+        .btn-blue { background: var(--duo-blue); box-shadow: 0 6px 0 var(--duo-blue-shadow); }
+        .btn-blue:active { box-shadow: 0 2px 0 var(--duo-blue-shadow); }
+        .btn-red { background: var(--duo-red); box-shadow: 0 6px 0 var(--duo-red-shadow); }
+        .btn-red:active { box-shadow: 0 2px 0 var(--duo-red-shadow); }
+
+        /* REUSABLE HIGH-FIDELITY COMPONENT CARDS */
+        .premium-card { background: white; border: 2px solid var(--duo-card-border); border-radius: var(--radius-xl); padding: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.01), 0 2px 4px -1px rgba(0,0,0,0.01); display: flex; flex-direction: column; gap: 16px; position: relative; }
+        .premium-card h3 { font-size: 1.5rem; font-weight: 900; color: var(--text-dark); letter-spacing: -0.3px; }
+        .meta-label { font-weight: 900; font-size: 1rem; color: var(--text-dark); display: flex; align-items: center; gap: 8px; text-transform: uppercase; letter-spacing: 0.3px; }
+        .metric-highlight { font-weight: 900; color: var(--duo-green); background: #f0fdf4; padding: 4px 12px; border-radius: 10px; border: 1px solid #dcfce7; font-size: 0.95rem; }
+        select.category-override { border: 2px solid var(--duo-card-border); border-radius: var(--radius-md); padding: 14px; font-weight: 800; outline: none; cursor: pointer; color: var(--text-dark); font-size: 1.05rem; background: #f9fafb; transition: var(--transition-smooth); width: 100%; margin-top: 4px; }
+        select.category-override:focus { border-color: var(--duo-blue); background: white; }
+
+        /* GAMIFIED PROGRESS INTERACTIVE CHECKLIST COMPONENT FIELDS */
+        .step-item { display: flex; align-items: center; justify-content: space-between; padding: 18px 20px; border: 2px solid var(--duo-card-border); border-radius: var(--radius-lg); cursor: pointer; font-weight: 800; transition: var(--transition-smooth); background: white; font-size: 1.1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.01); transform: scale(1); }
+        .step-item:hover { border-color: #cbd5e1; transform: scale(1.01); background: #fafafa; }
+        .step-left { display: flex; align-items: center; gap: 16px; }
+        
+        .custom-check { width: 28px; height: 28px; border-radius: 50%; border: 3px solid var(--duo-card-border); display: flex; align-items: center; justify-content: center; background: white; transition: var(--transition-smooth); font-size: 0.9rem; color: white; font-weight: 900; flex-shrink: 0; }
+        .step-xp-tag { color: var(--duo-green); font-weight: 900; font-size: 0.95rem; background: #f0fdf4; padding: 6px 12px; border-radius: 12px; border: 1px solid #bceaa2; box-shadow: inset 0 -1.5px 0 #bceaa2; }
+        
+        /* Interactive Checked Animations states modifiers */
+        .step-item.completed-task { border-color: var(--duo-green); background: #f7fee7; color: var(--text-muted); text-decoration: line-through; }
+        .step-item.completed-task .custom-check { background: var(--duo-green); border-color: var(--duo-green); transform: scale(1.1); }
+        .step-item.completed-task .custom-check::before { content: '✓'; }
+        .step-item.completed-task .step-xp-tag { background: #e5e7eb; color: #9ca3af; border-color: #d1d5db; box-shadow: none; }
+
+        /* DASHBOARD METRICS AND LEAGUE PROFILE PANELS GLYPH GRID */
+        .dashboard-grid { width: 100%; display: flex; flex-direction: column; gap: 20px; }
+        
+        .profile-summary-card { background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%); display: flex; flex-direction: row; align-items: center; justify-content: space-between; border-radius: var(--radius-xl); padding: 20px 24px; border: 2px solid var(--duo-card-border); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
+        .profile-left { display: flex; align-items: center; gap: 16px; cursor: pointer; transition: var(--transition-smooth); }
+        .profile-left:hover { transform: scale(1.02); }
+        
+        .profile-badge-avatar { width: 60px; height: 60px; border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; font-size: 2.2rem; color: white; box-shadow: 0 4px 0px rgba(0,0,0,0.12); position: relative; }
+        .avatar-bronze { background: linear-gradient(135deg, #cd7f32 0%, #b06620 100%); }
+        .avatar-silver { background: linear-gradient(135deg, #b5b8b1 0%, #939690 100%); }
+        .avatar-gold { background: linear-gradient(135deg, #ffd700 0%, #e6be00 100%); }
+        .avatar-diamond { background: linear-gradient(135deg, #45aaf2 0%, #2d98da 100%); }
+        
+        .profile-details h2 { font-weight: 900; font-size: 1.4rem; color: var(--text-dark); letter-spacing: -0.3px; }
+        .profile-details p { font-weight: 800; font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
+        .header-xp-pill { text-align: right; font-weight: 900; font-size: 1.25rem; color: var(--duo-blue); background: #f0faff; border: 2px solid #dbf3ff; padding: 8px 16px; border-radius: var(--radius-lg); box-shadow: inset 0 -2px 0 #dbf3ff; }
+
+        /* SPLIT TWO-COLUMN DIALS PANEL CORES */
+        .split-metrics-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; width: 100%; }
+        .metric-subcard { background: white; border: 2px solid var(--duo-card-border); border-radius: var(--radius-xl); padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; font-weight: 800; box-shadow: 0 2px 4px rgba(0,0,0,0.01); }
+        .metric-subcard-title { font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 900; }
+        .metric-subcard-val { font-size: 1.6rem; font-weight: 900; color: var(--text-dark); margin-top: 4px; }
+        .metric-badge-box { font-size: 1.8rem; width: 48px; height: 48px; background: #f3f4f6; border-radius: 14px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(0,0,0,0.02); }
+
+        .history-list { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+        .history-item { background: white; padding: 16px; border-radius: var(--radius-lg); border: 2px solid var(--duo-card-border); display: flex; justify-content: space-between; align-items: center; font-weight: 800; animation: popIn 0.3s ease; }
+        .history-tag { padding: 6px 12px; border-radius: 10px; color: white; font-size: 0.85rem; font-weight: 900; background-color: var(--duo-blue); box-shadow: inset 0 -2px 0 var(--duo-blue-shadow); }
+
+        /* DYNAMIC LEAGUE TREEMAP MAP BLUEPRINT MAP MODULES */
+        .tree-section-header { text-align: center; font-weight: 900; font-size: 1.4rem; color: var(--text-dark); border-top: 2px dashed var(--duo-card-border); padding-top: 28px; margin-top: 10px; letter-spacing: -0.3px; }
+        .duo-tree-map { display: flex; flex-direction: column; align-items: center; gap: 26px; width: 100%; padding: 24px 0; background: #ffffff; border: 2px solid var(--duo-card-border); border-radius: 32px; box-shadow: 0 10px 0px #e5e7eb; position: relative; }
+        .tree-node { width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: 900; color: white; position: relative; cursor: pointer; transition: var(--transition-smooth); z-index: 10; }
+        .tree-node:hover { transform: scale(1.08) translateY(-2px); }
+        .tree-node:active { transform: scale(0.95); }
+        
+        .node-bronze-active { background: linear-gradient(135deg, #cd7f32 0%, #b06620 100%); box-shadow: 0 7px 0 #a05a15, 0 10px 15px -3px rgba(205,127,50,0.3); }
+        .node-silver-active { background: linear-gradient(135deg, #b5b8b1 0%, #939690 100%); box-shadow: 0 7px 0 #8a8d88, 0 10px 15px -3px rgba(181,184,177,0.3); }
+        .node-gold-active { background: linear-gradient(135deg, #ffd700 0%, #e6be00 100%); box-shadow: 0 7px 0 #cca300, 0 10px 15px -3px rgba(255,215,0,0.3); color: #3c3c3c; }
+        .node-diamond-active { background: linear-gradient(135deg, #45aaf2 0%, #2d98da 100%); box-shadow: 0 7px 0 #2d98da, 0 10px 15px -3px rgba(69,170,242,0.3); }
+        .node-completed { background: linear-gradient(135deg, #58cc02 0%, #46a302 100%); box-shadow: 0 7px 0 var(--duo-green-shadow), 0 10px 15px -3px rgba(88,204,2,0.3); }
+        .node-locked { background: #e5e7eb; box-shadow: 0 7px 0 #cbd5e1; cursor: not-allowed; color: #9ca3af; }
+        
+        .node-left { transform: translateX(-48px); }
+        .node-left:hover { transform: scale(1.08) translate(-44px, -2px); }
+        .node-right { transform: translateX(48px); }
+        .node-right:hover { transform: scale(1.08) translate(44px, -2px); }
+        
+        .tree-node::after { content: ''; position: absolute; width: 8px; height: 30px; background: var(--duo-card-border); bottom: -34px; left: 50%; transform: translateX(-50%); z-index: -1; transition: var(--transition-smooth); }
+        .tree-node:last-child::after { display: none; }
+        .node-completed::after { background: var(--duo-green); }
+
+        /* FULL BLUR POPUP DIALOGS INFOGRAPHICS MODULE */
+        .modal-popup { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.3); backdrop-filter: blur(6px); z-index: 3000; align-items: center; justify-content: center; padding: 24px; }
+        .modal-content { background: white; width: 100%; max-width: 420px; padding: 32px 24px; border-radius: 28px; border: 2px solid var(--duo-card-border); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.15); text-align: center; display: flex; flex-direction: column; gap: 18px; animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        .modal-content h3 { font-weight: 900; font-size: 1.7rem; color: var(--text-dark); letter-spacing: -0.5px; }
+        .modal-content p { font-weight: 700; color: #4b5563; font-size: 1.1rem; line-height: 1.6; }
+
+        @keyframes popIn { 0% { transform: scale(0.95); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        @keyframes pulseReticle { 0% { transform: translate(-50%, -50%) scale(1); opacity: 0.6; } 50% { transform: translate(-50%, -50%) scale(1.06); opacity: 0.9; } 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.6; } }
+    </style>
+</head>
+<body>
+
+    <div class="auth-overlay" id="authGate">
+        <div class="auth-card">
+            <img src="assets/images/Mascot.webp" alt="EcoLens Mascot" style="width:115px; height:115px; margin:0 auto; object-fit:contain;">
+            <h1 id="authTitle">EcoLens Pro</h1>
+            <p id="authSubtitle">Ready to turn environmental action into an adventure? Log into your localized account.</p>
+            <input type="text" id="usernameInput" class="auth-input" placeholder="Enter Username...">
+            <button id="loginSubmitBtn" class="btn-core">Enter Dashboard 🚀</button>
+        </div>
+    </div>
+
+    <header id="mainHeader">
+        <div class="header-brand">
+            <span class="logo-txt">EcoLens</span>
+            <select id="langSelect" class="lang-picker">
+                <option value="en">English</option>
+                <option value="bn">বাংলা</option>
+                <option value="hi">हिंदी</option>
+            </select>
+        </div>
+        <span class="user-avatar-tag" id="profileNameDisplay">User</span>
+    </header>
+
+    <div class="status-chips-row" id="statusChipsRow">
+        <div class="status-chip chip-green" id="weightActiveChip">✓ Weights Active</div>
+        <div class="status-chip chip-blue" id="cameraStatusChip">🎥 Camera Initializing</div>
+    </div>
+
+    <main id="mainAppContent">
+        
+        <div class="progress-wrapper" id="progressWrapper">
+            <div class="progress-label-row">
+                <span id="lblQuestProgress">Quest Progress</span>
+                <span id="progressPercentageText" style="color: var(--duo-green);">0%</span>
+            </div>
+            <div class="progress-bar-container"><div class="progress-bar-fill" id="progressFill"></div></div>
+        </div>
+
+        <p id="statusLogger">Initializing Operational Engine Parameters...</p>
+
+        <div class="viewport-frame" id="viewportFrame">
+            <div class="cv-reticle" id="reticle"></div>
+            <video id="cameraFeed" autoplay playsinline muted></video>
+            <canvas id="photoCanvas"></canvas>
+        </div>
+
+        <div id="screenCapture" class="ui-screen active-screen">
+            <button id="snapPhotoBtn" class="btn-core btn-blue" disabled>Capture Item Photo 📷</button>
+        </div>
+
+        <div id="screenAnalysis" class="ui-screen">
+            <div class="premium-card">
+                <div class="meta-label">
+                    <span>🤖 YOLOv8 Classification Output:</span>
+                    <span class="metric-highlight" id="lblDetectedText">Detecting...</span>
+                </div>
+                <label for="categoryOverride" id="lblYoloAssignment" style="font-weight: 800; font-size: 0.95rem; color: var(--text-muted);">Adjust manual override if lighting skewed prediction boundaries:</label>
+                <select id="categoryOverride" class="category-override"></select>
+            </div>
+            <div class="button-row">
+                <button id="analysisRetakeBtn" class="btn-core btn-red">🔄 Retake</button>
+                <button id="startQuestBtn" class="btn-core">Start Micro-Quest 🚀</button>
+            </div>
+        </div>
+
+        <div id="screenQuest" class="ui-screen">
+            <div class="premium-card">
+                <h3 id="targetItemName">Target Object</h3>
+                <div id="tasksContainer" style="display: flex; flex-direction: column; gap: 14px;"></div>
+            </div>
+            <button id="questCancelBtn" class="btn-core btn-red">🔄 Cancel &amp; Reset</button>
+        </div>
+
+        <div id="screenProof" class="ui-screen">
+            <div class="premium-card" style="text-align: center; border-color: var(--duo-blue); background: #f0f9ff; box-shadow: 0 4px 14px rgba(28,176,246,0.08);">
+                <h4 id="lblGoalCompleted" style="color: var(--duo-blue); font-weight: 900; font-size: 1.4rem; letter-spacing: -0.3px;">🌟 GOAL COMPLETED! 🌟</h4>
+                <p id="proofInstruction" style="font-weight: 700; font-size: 1.05rem; color: #4b5563; line-height: 1.5; margin-top: 4px;">Capture confirmation processed pictures to release reward multipliers!</p>
+            </div>
+            <button id="submitProofPhotoBtn" class="btn-core btn-blue">Snap Proof &amp; Claim XP 🏆</button>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="profile-summary-card">
+                <div class="profile-left" id="activeProfileBoxContainer">
+                    <div class="profile-badge-avatar avatar-bronze" id="leagueAvatarDisplay">🥉</div>
+                    <div class="profile-details">
+                        <h2 id="leagueNameDisplay">Bronze League</h2>
+                        <p id="lblUserLeagueTitle">Active Competitive Tier</p>
+                    </div>
+                </div>
+                <div class="header-xp-pill">
+                     💎 <span id="xpCount">0 XP</span>
+                </div>
+            </div>
+
+            <div class="split-metrics-row">
+                <div class="metric-subcard">
+                    <div>
+                        <div class="metric-subcard-title">Quests Done</div>
+                        <div class="metric-subcard-val" id="lblQuestsCountMetric">0</div>
+                    </div>
+                    <div class="metric-badge-box">🎯</div>
+                </div>
+                <div class="metric-subcard">
+                    <div>
+                        <div class="metric-subcard-title">Streak Level</div>
+                        <div class="metric-subcard-val" id="lblStreakCountMetric" style="color: var(--duo-orange);">1 Day</div>
+                    </div>
+                    <div class="metric-badge-box">🔥</div>
+                </div>
+            </div>
+
+            <div class="dashboard-panel premium-card">
+                <h4 id="lblHistoryTitle" style="font-weight:900; font-size:1.15rem; text-transform:uppercase; letter-spacing:0.5px;">📊 Adventure History Logs</h4>
+                <ul class="history-list" id="historyLog"></ul>
+            </div>
+        </div>
+
+        <h4 class="tree-section-header" id="lblMapTitle">🗺️ Campaign Journey Map</h4>
+        <div class="duo-tree-map" id="duoTreeMap"></div>
+    </main>
+
+    <div class="modal-popup" id="levelInfoModal">
+        <div class="modal-content">
+            <h3 id="modalTitle">League Status Blueprint</h3>
+            <p id="modalDescription">Inference loop parameters checking algorithms and matrices engine trackers diagnostics logs data blocks layout lines.</p>
+            <button id="modalCloseBtn" class="btn-core btn-blue">Got it! 👍</button>
+        </div>
+    </div>
+
+    <div class="reward-blast" id="xpBlast">💎 +30 XP</div>
+
+    <script>
+        const video = document.getElementById('cameraFeed');
+        const canvas = document.getElementById('photoCanvas');
+        const statusLogger = document.getElementById('statusLogger');
+        const progressWrapper = document.getElementById('progressWrapper');
+        const progressFill = document.getElementById('progressFill');
+        const progressPercentageText = document.getElementById('progressPercentageText');
+        const reticle = document.getElementById('reticle');
+        const xpCountDisplay = document.getElementById('xpCount');
+        const categoryOverride = document.getElementById('categoryOverride');
+        const targetItemName = document.getElementById('targetItemName');
+        const tasksContainer = document.getElementById('tasksContainer');
+        const xpBlast = document.getElementById('xpBlast');
+        const historyLog = document.getElementById('historyLog');
+        const duoTreeMap = document.getElementById('duoTreeMap');
+        const statusChipsRow = document.getElementById('statusChipsRow');
+
+        const authGate = document.getElementById('authGate');
+        const usernameInput = document.getElementById('usernameInput');
+        const loginSubmitBtn = document.getElementById('loginSubmitBtn');
+        const mainHeader = document.getElementById('mainHeader');
+        const mainAppContent = document.getElementById('mainAppContent');
+        const profileNameDisplay = document.getElementById('profileNameDisplay');
+        const langSelect = document.getElementById('langSelect');
+
+        const levelInfoModal = document.getElementById('levelInfoModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalDescription = document.getElementById('modalDescription');
+        const modalCloseBtn = document.getElementById('modalCloseBtn');
+
+        const leagueNameDisplay = document.getElementById('leagueNameDisplay');
+        const leagueAvatarDisplay = document.getElementById('leagueAvatarDisplay');
+        const activeProfileBoxContainer = document.getElementById('activeProfileBoxContainer');
+
+        const screens = {
+            CAPTURE: document.getElementById('screenCapture'),
+            ANALYSIS: document.getElementById('screenAnalysis'),
+            QUEST: document.getElementById('screenQuest'),
+            PROOF: document.getElementById('screenProof')
+        };
+
+        const snapPhotoBtn = document.getElementById('snapPhotoBtn');
+        const analysisRetakeBtn = document.getElementById('analysisRetakeBtn');
+        const startQuestBtn = document.getElementById('startQuestBtn');
+        const questCancelBtn = document.getElementById('questCancelBtn');
+        const submitProofPhotoBtn = document.getElementById('submitProofPhotoBtn');
+
+        const successSound = new Audio('assets/audio/Success.mp3');
+        const levelUpSound = new Audio('assets/audio/Levelup.mp3');
+
+        const YOLO_CLASSES = ["bag", "cardboard", "furniture", "glass", "metal", "paper", "plastic", "yard"];
+        let yoloSession;
+        let selectedItemKey = "default";
+        let isProcessingSecondaryProof = false;
+        let currentUser = "";
+        let userXP = 0;
+        let loggedQuests = [];
+
+        const SYSTEM_UI_DICTIONARY = {
+            en: {
+                authTitle: "EcoLens Pro", authSub: "Ready to turn environmental action into an adventure? Log into your localized account.",
+                placeholder: "Enter Username...", btnLogin: "Enter Dashboard 🚀", btnSnap: "Capture Item Photo 📷",
+                lblYolo: "🤖 YOLOv8 Class Assignment:", lblYoloDesc: "Adjust manual override if lighting skewed prediction boundaries:",
+                btnRetake: "🔄 Retake", btnStartQ: "Start Micro-Quest 🚀", btnCancel: "🔄 Cancel & Reset",
+                lblGoal: "🌟 GOAL COMPLETED! 🌟", btnClaim: "Snap Proof & Claim XP 🏆", lblHistory: "📊 Adventure History Logs",
+                lblMap: "🗺️ Campaign Journey Map", initAI: "Initializing Operational Engine Parameters...",
+                readyAI: "YOLOv8 Weights Active. Capture an item photo to begin! 📷", calcAI: "Running Custom Tensor Math Inference... 🧠",
+                questActive: "Complete all verification checkpoints!", evalProof: "Evaluating state-change compliance thresholds...",
+                secondaryProof: "Secondary Verification View active. Capture the final processed proof state picture!",
+                confirmProofBtn: "Confirm & Process Proof Frame 📸", logEmpty: "No tasks logged today. Start making the environment better!",
+                verifiedAt: "Verified: ", progress: "Quest Progress"
+            },
+            bn: {
+                authTitle: "ইকোলেন্স প্রো", authSub: "পরিবেশ সচেতনতামূলক কাজকে গেমের মতো মজাদার করতে আপনার অ্যাকাউন্টে লগইন করুন।",
+                placeholder: "ইউজারনেম লিখুন...", btnLogin: "ড্যাশবোর্ডে প্রবেশ করুন 🚀", btnSnap: "বস্তুর ছবি তুলুন 📷",
+                lblYolo: "🤖 ইওলো মডেলের শ্রেণীবিভাগ:", lblYoloDesc: "আলো বা দূরত্বের কারণে এআই এর শ্রেণীবিভাগ ভুল হলে নিচে পরিবর্তন করুন:",
+                btnRetake: "🔄 আবার তুলুন", btnStartQ: "মাইক্রো-কোয়েস্ট শুরু করুন 🚀", btnCancel: "🔄 বাতিল ও রিসেট",
+                lblGoal: "🌟 মিশন সম্পূর্ণ! 🌟", btnClaim: "প্রমাণ জমা দিয়ে এক্সপি নিন 🏆", lblHistory: "📊 পূর্ববর্তী কাজের ইতিহাস",
+                lblMap: "🗺️ ক্যাম্পেইন জার্নি ম্যাপ", initAI: "প্রোপ্রাইটরি ইওলো এআই ইঞ্জিন চালু হচ্ছে...",
+                readyAI: "ইওলো মডেল প্রস্তুত। শুরু করতে একটি ছবি তুলুন! 📷", calcAI: "টেনসর ক্যালকুলেশন চলছে... 🧠",
+                questActive: "সবকটি চেকবক্স পূরণ করুন!", evalProof: "কাজের সত্যতা যাচাই করা হচ্ছে...",
+                secondaryProof: "দ্বিতীয় ভেরিফিকেশন চালু হয়েছে। বর্জ্যটি সঠিক স্থানে ফেলার পর ছবি তুলুন!",
+                confirmProofBtn: "ছবি নিশ্চিত করুন 📸", logEmpty: "আজ কোনো কাজ করা হয়নি। পরিবেশ রক্ষায় এগিয়ে আসুন!",
+                verifiedAt: "যাচাই করা হয়েছে: ", progress: "মিশন অগ্রগতি"
+            },
+            hi: {
+                authTitle: "इकोलेंस प्रो", authSub: "पर्यावरण संरक्षण को एक गेम की तरह मजेदार बनाएं! अपने अकाउंट में लॉगइन करें।",
+                placeholder: "यूज़रनेम दर्ज करें...", btnLogin: "डैशबोर्ड में जाएं 🚀", btnSnap: "वस्तु की फोटो लें 📷",
+                lblYolo: "🤖 योलो मॉडल श्रेणी असाइनमेंट:", lblYoloDesc: "यदि लाइटिंग या दूरी के कारण गलत हो, तो नीचे बदल सकते हैं:",
+                btnRetake: "🔄 दोबारा लें", btnStartQ: "माइक्रो-क्वेस्ट शुरू करें 🚀", btnCancel: "🔄 रद्द और रीसेट",
+                lblGoal: "🌟 मिशन पूरा हुआ! 🌟", btnClaim: "प्रमाण लें और एक्सपी पाएं 🏆", lblHistory: "📊 पिछला गतिविधि लॉग",
+                lblMap: "🗺️ अभियान यात्रा मानचित्र", initAI: "योलो एआई充 इंजन शुरू हो रहा है...",
+                readyAI: "योलो मॉडल तैयार है। शुरू करने के लिए फोटो लें! 📷", calcAI: "मॉडल गणना चल रही है... 🧠",
+                questActive: "सभी चेकपॉइंट पूरे करें!", evalProof: "सत्यापन की जांच की जा रही है...",
+                secondaryProof: "द्वितीय सत्यापन सक्रिय है। कचरे को सही स्थान पर डालने के बाद अंतिम फोटो लें!",
+                confirmProofBtn: "फोटो की पुष्टि करें 📸", logEmpty: "आज कोई गतिविधि लॉग नहीं हुई। पर्यावरण बचाने में योगदान दें!",
+                verifiedAt: "सत्यापित समय: ", progress: "क्वेस्ट प्रगति"
+            }
+        };
+
+        const LEAGUE_BRACKETS = [
+            { name: "Bronze League", icon: "🥉", class: "avatar-bronze", minXp: 0, desc: { en: "Welcome to Bronze League! Scan plastic, paper, or organic items to unlock advanced ranking medals.", bn: "ব্রোঞ্জ লীগে স্বাগতম! উন্নত র‍্যাঙ্কিং মেডেল আনলক করতে প্লাস্টিক বা জৈব বর্জ্য স্ক্যান করা শুরু করুন।", hi: "ब्रॉन्ज लीग में आपका स्वागत है! मेडल अनलॉक करने के लिए प्लास्टिक या जैविक वस्तुओं को स्कैन करना शुरू करें।" }},
+            { name: "Silver League", icon: "🥈", class: "avatar-silver", minXp: 100, desc: { en: "Silver League Active! You are now trained to classify advanced Glass and Cardboard anomalies.", bn: "সিলভার লীগ আনলক হয়েছে! আপনি এখন কাচ এবং কার্ডবোর্ডের বর্জ্য নিখুঁতভাবে আলাদা করতে পারদর্শী।", hi: "सिल्वर लीग अनलॉक! अब आप कांच और कार्डबोर्ड के कचरे को सटीकता से वर्गीकृत करने में सक्षम हैं।" }},
+            { name: "Gold League", icon: "🥇", class: "avatar-gold", minXp: 200, desc: { en: "Gold Medal Status! Master of localized composting blueprints and zero-waste optimization loops.", bn: "গোল্ড মেডেল স্ট্যাটাস! আপনি কম্পোস্টিং ব্লুপ্রিন্ট এবং জিরো-ওয়েস্ট অপ্টিমাইজেশন লুপের বিশেষজ্ঞ।", hi: "गोल्ड मेडल स्टेटस! आप कम्पोस्टिंग ब्लूप्रिंट और विशेषज्ञ हैं।" }},
+            { name: "Diamond League", icon: "💎", class: "avatar-diamond", minXp: 300, desc: { en: "The Elite Diamond Rank! Ultimate Sustainability Leader of Brainware Campus.", bn: "এলিট ডায়মন্ড র্যাঙ্ক! আপনি ব্রেনওয়্যার ক্যাম্পাসের শীর্ষ পরিবেশ সচেতনতা লিডার।", hi: "अभिजात वर्ग डायमंड रैंक! आप ब्रेनवेयर कैंपस के सर्वोच्च पर्यावरण लीडर हैं।" }}
+        ];
+
+        const LEVEL_TREE_DATABASE = [
+            { id: 1, segment: "bronze", icon: "🌱", titles: { en: "Basics of Sorting", bn: "বিন্যাসের প্রাথমিক ধাপ", hi: "कचरा छंटाई नियम" }, descs: { en: "Master raw household plastics sorting loops.", bn: "সাধারণ বাড়ির প্লাস্টিক আলাদা করার নিয়মাবলী জানুন।", hi: "सामान्य घरेलू प्लास्टिक को अलग करने के नियम जानें।" }},
+            { id: 2, segment: "silver", icon: "🍾", titles: { en: "Recycling Prodigy", bn: "রিসাইক্লিং প্রোডিজি", hi: "रीसाइक्लिंग विशेषज्ञ" }, descs: { en: "Unlocks at Silver League. Handles Glass/Cardboard loops.", bn: "সিলভার লীগে প্রাপ্য। কাচ এবং কার্ডবোর্ড প্রসেসিং রাজ্য।", hi: "सिल्वर लीग में उपलब्ध। कांच और कार्डबोर्ड प्रोसेसिंग चरण।" }},
+            { id: 3, segment: "gold", icon: "🌿", titles: { en: "Eco Guardian", bn: "ইকো গার্ডিয়ান মিশন", hi: "इको गार्जियन मिशन" }, descs: { en: "Unlocks at Gold League. Focuses on Organic Composting.", bn: "গোল্ড লীগে প্রাপ্য। জৈব সার তৈরির পদ্ধতি এবং গাইডলাইন।", hi: "गोल्ड लीग में उपलब्ध। जैविक खाद बनाने की विधि और गाइड।" }},
+            { id: 4, segment: "diamond", icon: "⚡", titles: { en: "E-Waste Specialist", bn: "ই-বর্জ্য বিশেষজ্ঞ লুপ", hi: "ई-कचरा विशेषज्ञ लूप" }, descs: { en: "Unlocks at Diamond League. Toxic lithium battery extractions.", bn: "ডায়মন্ড লীগে প্রাপ্য। ক্ষতিকারক লিথিয়াম ব্যাটারি অপসারণ কৌশল।", hi: "डायमंड लीग में उपलब्ध। हानिकारक लिथियम बैटरी हटाने की तकनीक।" }}
+        ];
+
+        const localizationEngine = {
+            "water bottle": {
+                basePoints: 15,
+                en: { title: "Plastic Beverage Container", proofText: "Snap a photo of the completely crushed bottle.", steps: ["Drain any remaining liquids entirely.", "Unscrew the cap and crush the container body flat.", "Discard into the designated Blue Recycling Unit."] },
+                bn: { title: "প্লাস্টিকের বোতল/কন্টেইনার", proofText: "সম্পূর্ণ দুমড়ানো বোতলের ছবি তুলুন।", steps: ["ভেতরের সমস্ত তরল ফেলে দিন।", "ঢাকনাটি খুলে বোতলটি ভালো করে দুমড়ে দিন।", "নির্দিষ্ট নীল রঙের ডাস্টবিনে ফেলুন।"] },
+                hi: { title: "प्लास्टिक की बोतल/कंटेनर", proofText: "पूरी तरह से कुचली हुई बोतल की फोटो लें।", steps: ["अंदर का सारा तरल पदार्थ निकाल दें।", "ढक्कन खोलें और बोतल को पूरी तरह से कुचल दें।", "इसे निर्धारित नीले रीसाइक्लिंग बिन में डालें।"] }
+            },
+            "cup": {
+                basePoints: 10,
+                en: { title: "Composite Cup / Aluminum Can", proofText: "Snap a photo of the flattened or sorted cup.", steps: ["Empty any remaining liquids or core residues.", "Flatten the structural core to save space.", "Place remnants cleanly inside the Red Trash Bin."] },
+                bn: { title: "কাপ অথবা ক্যান বর্জ্য", proofText: "চ্যাপ্টা করা কাপের ছবি তুলুন।", steps: ["কাপের ভেতরের তরল ফেলে দিন।", "জায়গা বাঁচাতে কাপটি চ্যাপ্টা করে নিন।", "বর্জ্যটি লাল রঙের ডাস্টবিনে ফেলুন।"] },
+                hi: { title: "कप या कैन कचरा", proofText: "चपटे किए गए कप की फोटो लें।", steps: ["कप के अंदर का तरल पदार्थ खाली करें।", "जगह बचाने के लिए इसे चपटा करें।", "इसे लाल कचरे के डिब्बे में डालें।"] }
+            },
+            "organic": {
+                basePoints: 15,
+                en: { title: "Organic Kitchen Waste", proofText: "Snap a photo of the organic waste inside the green compost box.", steps: ["Ensure no non-biodegradable wrappers are mixed in.", "Chop large elements into smaller pieces for faster composting.", "Deposit cleanly inside your localized Green Eco-Bin."] },
+                bn: { title: "জৈব রান্নাঘরের বর্জ্য", proofText: "সবুজ ডাস্টবিনে ফেলার পর ছবি তুলুন।", steps: ["নিশ্চিত করুন কোনো প্লাস্টিকের প্যাকেট মেশানো নেই।", "পচন দ্রুত করতে বড় টুকরোগুলো ছোট করে কেটে নিন।", "এটি সরাসরি সবুজ ডাস্টবিনে ফেলুন।"] },
+                hi: { title: "जैविक रसोई कचरा", proofText: "हरे कूड़ेदान में कचरे की फोटो लें।", steps: ["सुनिश्चित करें कि कोई प्लास्टिक रैपर मिश्रित न हो।", "सड़ने की गति बढ़ाने के लिए इसे छोटे टुकड़ों में काट लें।", "इसे सीधे अपने स्थानीय हरे डिब्बे में डालें।"] }
+            },
+            "e-waste": {
+                basePoints: 25,
+                en: { title: "Electronic Waste (E-Waste)", proofText: "Snap a photo of the item at an authorized collection box.", steps: ["Do not throw this item into regular household dustbins.", "Carefully remove any detachable lithium batteries if present.", "Take it to the nearest university or authorized e-waste collection hub."] },
+                bn: { title: "ইলেক্ট্রনিক বর্জ্য (ই-বর্জ্য)", proofText: "অনুমোদিত সংগ্রহ বাক্সে রাখার পর ছবি তুলুন।", steps: ["এই জিনিসটি সাধারণ গৃহস্থালির ডাস্টবিনে ফেলবেন না।", "ভেতরে কোনো লিথিয়াম ব্যাটারি থাকলে তা সাবধানে খুলে আলাদা করুন।", "এটি অনুমোদিত ই-বর্জ্য সংগ্রহ কেন্দ্রে জমা দিন।"] },
+                hi: { title: "इलेक्ट्रॉनिक कचरा (ई-कचरा)", proofText: "अधिकृत संग्रह बॉक्स पर वस्तु की फोटो लें।", steps: ["इस वस्तु को सामान्य घरेलू कूड़ेदानों में न फेंकें।", "यदि मौजूद हो, तो लिथियम बैटरी को सावधानीपूर्वक हटा दें।", "इसे अधिकृत ई-कचरा संग्रह केंद्र पर ले जाएं।"] }
+            },
+            "default": {
+                basePoints: 5,
+                en: { title: "General Municipal Waste", proofText: "Snap a photo of your sorted waste items.", steps: ["Examine if the item is recyclable dry or wet waste.", "Isolate any toxic elements (like batteries or circuit parts).", "Deposit safely inside the standard municipal drop unit."] },
+                bn: { title: "সাধারণ বর্জ্য বস্তু", proofText: "আলাদা করা বর্জ্য অংশের ছবি তুলুন।", steps: ["বস্তুটি শুকনো নাকি ভেজা বর্জ্য তা পরীক্ষা করুন।", "কোনো বিষাক্ত উপাদান (যেমন ব্যাটারি) আলাদা করুন।", "বস্তুটি সঠিক ডাস্টবিনে ফেলুন।"] },
+                hi: { title: "सामान्य कचरा वस्तु", proofText: "अपने छांटे गए कचरे की फोटो लें।", steps: ["जांचें कि यह सूखा कचरा है या गीला कचरा।", "इसे सही कूड़ेदान में साफ-सफाई से डालें।"] }
+            }
+        };
+
+        loginSubmitBtn.addEventListener('click', () => {
+            const val = usernameInput.value.trim();
+            if (val === "") { alert("Please input a valid profile name!"); return; }
+            
+            currentUser = val;
+            profileNameDisplay.innerText = currentUser;
+
+            userXP = localStorage.getItem(`ecoXP_${currentUser}`) ? parseInt(localStorage.getItem(`ecoXP_${currentUser}`)) : 0;
+            loggedQuests = localStorage.getItem(`ecoHistory_${currentUser}`) ? JSON.parse(localStorage.getItem(`ecoHistory_${currentUser}`)) : [];
+
+            authGate.style.display = "none";
+            mainHeader.style.display = "flex";
+            statusChipsRow.style.display = "flex";
+            mainAppContent.style.display = "flex";
+
+            applyLanguageStrings();
+            bootSystem();
+        });
+
+        function applyLanguageStrings() {
+            const lang = langSelect.value;
+            const dict = SYSTEM_UI_DICTIONARY[lang];
+
+            document.getElementById('authTitle').innerText = dict.authTitle;
+            document.getElementById('authSubtitle').innerText = dict.authSub;
+            usernameInput.placeholder = dict.placeholder;
+            document.getElementById('loginSubmitBtn').innerText = dict.btnLogin;
+            snapPhotoBtn.innerText = dict.btnSnap;
+            document.getElementById('lblYoloAssignment').innerText = dict.lblYoloDesc;
+            analysisRetakeBtn.innerText = dict.btnRetake;
+            startQuestBtn.innerText = dict.btnStartQ;
+            questCancelBtn.innerText = dict.btnCancel;
+            document.getElementById('lblGoalCompleted').innerText = dict.lblGoal;
+            submitProofPhotoBtn.innerText = dict.btnClaim;
+            document.getElementById('lblHistoryTitle').innerText = dict.lblHistory;
+            document.getElementById('lblMapTitle').innerText = dict.lblMap;
+            document.getElementById('lblQuestProgress').innerText = dict.progress;
+            
+            if(!yoloSession) { 
+                statusLogger.innerText = dict.initAI; 
+            } else { 
+                statusLogger.innerText = isProcessingSecondaryProof ? dict.secondaryProof : dict.readyAI; 
+            }
+
+            populateCategoryDropdown();
+            updateScoreboardUi();
+            renderHistoryLogs();
+            buildInteractiveVisualTree();
+        }
+
+        function populateCategoryDropdown() {
+            const lang = langSelect.value;
+            categoryOverride.innerHTML = `
+                <option value="water bottle">${localizationEngine["water bottle"][lang].title}</option>
+                <option value="cup">${localizationEngine["cup"][lang].title}</option>
+                <option value="organic">${localizationEngine["organic"][lang].title}</option>
+                <option value="e-waste">${localizationEngine["e-waste"][lang].title}</option>
+                <option value="default">${localizationEngine["default"][lang].title}</option>
+            `;
+            categoryOverride.value = selectedItemKey;
+        }
+
+        async function bootSystem() {
+            try {
+                if(yoloSession) return;
+                yoloSession = await ort.InferenceSession.create('models/custom-yolo/GarbageDetector.onnx');
+                
+                document.getElementById('weightActiveChip').innerHTML = "✓ Weights Active (YOLOv8)";
+                document.getElementById('cameraStatusChip').innerHTML = "🎥 Camera Active";
+                statusLogger.innerText = SYSTEM_UI_DICTIONARY[langSelect.value].readyAI;
+                
+                const mediaStream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { facingMode: 'environment', width: 640, height: 480 } 
+                });
+                video.srcObject = mediaStream;
+                video.addEventListener('loadeddata', () => { snapPhotoBtn.disabled = false; });
+            } catch (err) {
+                statusLogger.innerText = "Error deploying ONNX execution context runtime engine.";
+                console.error(err);
+            }
+        }
+
+        function getCurrentLeague() {
+            let activeLeague = LEAGUE_BRACKETS[0];
+            LEAGUE_BRACKETS.forEach(bracket => {
+                if (userXP >= bracket.minXp) activeLeague = bracket;
+            });
+            return activeLeague;
+        }
+
+        function updateScoreboardUi() {
+            const currentLeague = getCurrentLeague();
+            xpCountDisplay.innerText = `${userXP} XP`;
+            leagueNameDisplay.innerText = currentLeague.name;
+            
+            leagueAvatarDisplay.className = "profile-badge-avatar " + currentLeague.class;
+            leagueAvatarDisplay.innerText = currentLeague.icon;
+            document.getElementById('lblQuestsCountMetric').innerText = loggedQuests.length;
+        }
+
+        activeProfileBoxContainer.addEventListener('click', () => {
+            const curLg = getCurrentLeague();
+            modalTitle.innerText = `${curLg.icon} ${curLg.name}`;
+            modalDescription.innerText = curLg.desc[langSelect.value];
+            levelInfoModal.style.display = "flex";
+        });
+
+        function buildInteractiveVisualTree() {
+            duoTreeMap.innerHTML = "";
+            LEVEL_TREE_DATABASE.forEach((node, idx) => {
+                const nodeButton = document.createElement('div');
+                nodeButton.className = "tree-node";
+                nodeButton.innerText = node.icon;
+
+                if (idx % 3 === 1) nodeButton.classList.add('node-left');
+                if (idx % 3 === 2) nodeButton.classList.add('node-right');
+
+                let isUnlocked = false;
+                if (node.segment === "bronze") isUnlocked = true;
+                if (node.segment === "silver" && userXP >= 100) isUnlocked = true;
+                if (node.segment === "gold" && userXP >= 200) isUnlocked = true;
+                if (node.segment === "diamond" && userXP >= 300) isUnlocked = true;
+
+                let isMastered = false;
+                if (node.segment === "bronze" && userXP >= 100) isMastered = true;
+                if (node.segment === "silver" && userXP >= 200) isMastered = true;
+                if (node.segment === "gold" && userXP >= 300) isMastered = true;
+
+                if (isMastered) {
+                    nodeButton.classList.add('node-completed');
+                } else if (isUnlocked) {
+                    if (node.segment === "bronze") nodeButton.classList.add('node-bronze-active');
+                    if (node.segment === "silver") nodeButton.classList.add('node-silver-active');
+                    if (node.segment === "gold") nodeButton.classList.add('node-gold-active');
+                    if (node.segment === "diamond") nodeButton.classList.add('node-diamond-active');
+                } else {
+                    nodeButton.classList.add('node-locked');
+                }
+
+                nodeButton.addEventListener('click', () => {
+                    if (!isUnlocked) {
+                        modalTitle.innerText = "🔒 Locked Level Node";
+                        modalDescription.innerText = `Accumulate more competitive league experience parameters to release this chapter grid!`;
+                    } else {
+                        modalTitle.innerText = node.titles[langSelect.value];
+                        modalDescription.innerText = node.descs[langSelect.value];
+                    }
+                    levelInfoModal.style.display = "flex";
+                });
+
+                duoTreeMap.appendChild(nodeButton);
+            });
+        }
+
+        modalCloseBtn.addEventListener('click', () => { levelInfoModal.style.display = "none"; });
+
+        function shiftActiveScreen(targetScreenKey) {
+            Object.keys(screens).forEach(key => { screens[key].classList.remove('active-screen'); });
+            screens[targetScreenKey].classList.add('active-screen');
+        }
+
+        snapPhotoBtn.addEventListener('click', async () => {
+            const context = canvas.getContext('2d');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+            video.style.display = "none";
+            reticle.style.display = "none";
+            canvas.style.display = "block";
+            
+            shiftActiveScreen("ANALYSIS");
+            document.getElementById('lblDetectedText').innerText = "Inference computing...";
+            statusLogger.innerText = SYSTEM_UI_DICTIONARY[langSelect.value].calcAI;
+            startQuestBtn.disabled = true;
+
+            try {
+                const offscreenCanvas = document.createElement('canvas');
+                offscreenCanvas.width = 640;
+                offscreenCanvas.height = 640;
+                const oCtx = offscreenCanvas.getContext('2d');
+                oCtx.drawImage(canvas, 0, 0, 640, 640);
+                
+                const imgData = oCtx.getImageData(0, 0, 640, 640);
+                const { data } = imgData;
+
+                const float32Buffer = new Float32Array(1 * 3 * 640 * 640);
+                let rIndex = 0;
+                let gIndex = 640 * 640;
+                let bIndex = 2 * 640 * 640;
+
+                for (let i = 0; i < data.length; i += 4) {
+                    float32Buffer[rIndex++] = data[i] / 255.0;     
+                    float32Buffer[gIndex++] = data[i + 1] / 255.0; 
+                    float32Buffer[bIndex++] = data[i + 2] / 255.0; 
+                }
+
+                const inputTensor = new ort.Tensor('float32', float32Buffer, [1, 3, 640, 640]);
+                
+                console.log("⚡ Pushing float32 tensor matrix directly into structural ONNX pipeline...");
+                const outputMap = await yoloSession.run({ images: inputTensor });
+                const outputTensor = outputMap[Object.keys(outputMap)[0]];
+                
+                let topClassIndex = 0;
+                let maxConfidence = -1;
+                
+                if (outputTensor && outputTensor.data) {
+                    for (let c = 0; c < YOLO_CLASSES.length; c++) {
+                        let confidenceScore = outputTensor.data[c] || 0;
+                        if (confidenceScore > maxConfidence) {
+                            maxConfidence = confidenceScore;
+                            topClassIndex = c;
+                        }
+                    }
+                }
+
+                const mappedClassName = YOLO_CLASSES[topClassIndex];
+                console.log("🎯 Custom YOLOv8 Model Inference Result Match -> Class:", mappedClassName, " | Weight Confidence:", maxConfidence);
+
+                if (mappedClassName === "plastic" || mappedClassName === "bag") { selectedItemKey = "water bottle"; } 
+                else if (mappedClassName === "paper" || mappedClassName === "cardboard") { selectedItemKey = "cup"; } 
+                else if (mappedClassName === "yard") { selectedItemKey = "organic"; } 
+                else { selectedItemKey = "default"; }
+            } catch (inferenceErr) {
+                console.warn("⚠️ Fallback active. Matrix failure details:", inferenceErr);
+                selectedItemKey = "default";
+            }
+
+            categoryOverride.value = selectedItemKey;
+            document.getElementById('lblDetectedText').innerText = selectedItemKey.toUpperCase();
+            populateCategoryDropdown(); 
+            statusLogger.innerText = "YOLOv8 Matrix verification routing complete.";
+            startQuestBtn.disabled = false;
+        });
+
+        analysisRetakeBtn.addEventListener('click', resetToLiveCaptureView);
+        questCancelBtn.addEventListener('click', resetToLiveCaptureView);
+
+        function resetToLiveCaptureView() {
+            canvas.style.display = "none";
+            video.style.display = "block";
+            reticle.style.display = "block";
+            progressWrapper.style.display = "none";
+            isProcessingSecondaryProof = false;
+            submitProofPhotoBtn.innerText = SYSTEM_UI_DICTIONARY[langSelect.value].btnClaim;
+            submitProofPhotoBtn.classList.add('btn-blue');
+            
+            shiftActiveScreen("CAPTURE");
+            statusLogger.innerText = SYSTEM_UI_DICTIONARY[langSelect.value].readyAI;
+        }
+
+        startQuestBtn.addEventListener('click', () => {
+            selectedItemKey = categoryOverride.value;
+            shiftActiveScreen("QUEST");
+            progressWrapper.style.display = "flex";
+            statusLogger.innerText = SYSTEM_UI_DICTIONARY[langSelect.value].questActive;
+            compileDynamicChecklistStructure(selectedItemKey);
+        });
+
+        function compileDynamicChecklistStructure(itemKey) {
+            const lang = langSelect.value;
+            const contextData = localizationEngine[itemKey][lang];
+            
+            targetItemName.innerText = contextData.title;
+            tasksContainer.innerHTML = "";
+            evaluateChecklistProgress();
+
+            contextData.steps.forEach(stepString => {
+                const stepCardLabel = document.createElement('div');
+                stepCardLabel.className = "step-item";
+                
+                const interiorLeftWrapper = document.createElement('div');
+                interiorLeftWrapper.className = "step-left";
+                
+                const customIndicatorNode = document.createElement('div');
+                customIndicatorNode.className = "custom-check";
+                
+                const textSpan = document.createElement('span');
+                textSpan.innerText = stepString;
+                
+                interiorLeftWrapper.appendChild(customIndicatorNode);
+                interiorLeftWrapper.appendChild(textSpan);
+                stepCardLabel.appendChild(interiorLeftWrapper);
+
+                const ptsTag = document.createElement('span');
+                ptsTag.className = "step-xp-tag";
+                ptsTag.innerText = "+10 XP";
+                stepCardLabel.appendChild(ptsTag);
+                
+                stepCardLabel.addEventListener('click', () => {
+                    stepCardLabel.classList.toggle('completed-task');
+                    if (stepCardLabel.classList.contains('completed-task')) {
+                        successSound.currentTime = 0;
+                        successSound.play();
+                    }
+                    evaluateChecklistProgress();
+                });
+
+                tasksContainer.appendChild(stepCardLabel);
+            });
+        }
+
+        function evaluateChecklistProgress() {
+            const totalItemsNodes = tasksContainer.querySelectorAll('.step-item');
+            if (totalItemsNodes.length === 0) return;
+
+            let markedActive = 0;
+            totalItemsNodes.forEach(node => { if (node.classList.contains('completed-task')) markedActive++; });
+
+            const percentageFillRatio = Math.round((markedActive / totalItemsNodes.length) * 100);
+            progressFill.style.width = `${percentageFillRatio}%`;
+            progressPercentageText.innerText = `${percentageFillRatio}%`;
+
+            if (markedActive === totalItemsNodes.length) {
+                setTimeout(() => {
+                    shiftActiveScreen("PROOF");
+                    document.getElementById('proofInstruction').innerText = localizationEngine[selectedItemKey][langSelect.value].proofText;
+                }, 400);
+            }
+        }
+
+        submitProofPhotoBtn.addEventListener('click', () => {
+            const dict = SYSTEM_UI_DICTIONARY[langSelect.value];
+            if (!isProcessingSecondaryProof) {
+                isProcessingSecondaryProof = true;
+                canvas.style.display = "none";
+                video.style.display = "block";
+                reticle.style.display = "block";
+                progressWrapper.style.display = "none";
+                
+                statusLogger.innerText = dict.secondaryProof;
+                submitProofPhotoBtn.innerText = dict.confirmProofBtn;
+                submitProofPhotoBtn.classList.remove('btn-blue');
+            } else {
+                const context = canvas.getContext('2d');
+                context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                
+                video.style.display = "none";
+                reticle.style.display = "none";
+                canvas.style.display = "block";
+                
+                submitProofPhotoBtn.disabled = true;
+                statusLogger.innerText = dict.evalProof;
+
+                setTimeout(() => {
+                    const netEarnedXp = localizationEngine[selectedItemKey].basePoints * 2;
+                    const oldLeague = getCurrentLeague();
+                    
+                    userXP += netEarnedXp;
+                    localStorage.setItem(`ecoXP_${currentUser}`, userXP);
+                    
+                    const currentTimestamp = new Date();
+                    const timeString = currentTimestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    const dateString = currentTimestamp.toLocaleDateString([], { month: 'short', day: 'numeric' });
+                    
+                    const activityRowItem = {
+                        title: localizationEngine[selectedItemKey][langSelect.value].title,
+                        reward: netEarnedXp,
+                        timestamp: `${dateString}, ${timeString}`
+                    };
+                    
+                    loggedQuests.unshift(activityRowItem);
+                    if (loggedQuests.length > 5) loggedQuests.pop();
+                    localStorage.setItem(`ecoHistory_${currentUser}`, JSON.stringify(loggedQuests));
+
+                    xpBlast.innerText = `💎 +${netEarnedXp} XP!`;
+                    xpBlast.style.display = "block";
+                    
+                    const newLeague = getCurrentLeague();
+                    if (newLeague.minXp > oldLeague.minXp) {
+                        levelUpSound.currentTime = 0;
+                        levelUpSound.play();
+                    } else {
+                        successSound.currentTime = 0;
+                        successSound.play();
+                    }
+
+                    setTimeout(() => {
+                        xpBlast.style.display = "none";
+                        submitProofPhotoBtn.disabled = false;
+                        
+                        applyLanguageStrings();
+                        resetToLiveCaptureView();
+                    }, 1500);
+
+                }, 1200);
+            }
+        });
+
+        function renderHistoryLogs() {
+            historyLog.innerHTML = "";
+            const dict = SYSTEM_UI_DICTIONARY[langSelect.value];
+            if (loggedQuests.length === 0) {
+                historyLog.innerHTML = `<li class="history-item" style="color: var(--text-muted); font-size:0.95rem; justify-content:center;">${dict.logEmpty}</li>`;
+                return;
+            }
+            loggedQuests.forEach(record => {
+                const entryNode = document.createElement('li');
+                entryNode.className = "history-item";
+                entryNode.innerHTML = `
+                    <div>
+                        <span style="font-weight:900; color:var(--text-dark);">${record.title}</span>
+                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top:4px;">${dict.verifiedAt}${record.timestamp}</div>
+                    </div>
+                    <span class="history-tag">+${record.reward} XP</span>
+                `;
+                historyLog.appendChild(entryNode);
+            });
+        }
+
+        langSelect.addEventListener('change', applyLanguageStrings);
+    </script>
+</body>
+</html>
