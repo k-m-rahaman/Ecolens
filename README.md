@@ -111,7 +111,7 @@ To initiate the edge-native AI runtime locally:
 
 ## 👥 Project Contribution Ledger
 
-# Kazi Mustafijur Rahaman — Project Lead / Full-Stack Core Software Development & AI Pipeline Automation
+#### Kazi Mustafijur Rahaman — Project Lead / Full-Stack Core Software Development & AI Pipeline Automation
 
 Automated the cloud-hosted Google Colab dataset formatting and neural training sequence (Tesla T4 Cloud GPU layout).
 
@@ -119,11 +119,11 @@ Programmed the custom browser-side tensor array transformer, FP16 matrix mapping
 
 Designed and coded the persistent multi-user account state tracking rules, native multi-language dictionaries, and responsive dashboard layouts.
 
-# Anisha — UI/UX Strategy & High-Fidelity Graphic Design (Designer 1)
+#### Anisha Aktar — UI/UX Strategy & High-Fidelity Graphic Design (Designer 1)
 
 Modeled the gamified design tokens, custom level tree maps, branding color palette arrays, and the modular 4-screen user journey framework in Figma.
 
-# Koyel — System Logic Architecture & Technical Flowcharts (Designer 2)
+#### Koyel Basu — System Logic Architecture & Technical Flowcharts (Designer 2)
 
 Blueprinted the technical architecture diagrams mapping the image pixel processing steps, downsampling canvas workflows, and the local storage cache cycles.
 
