@@ -44,7 +44,7 @@ To foster long-term recycling compliance and sustained user engagement, EcoLens 
 ## 🎨 Visual User Journey Map & Design System
 
 <p align="center">
-  <img src="design/ui-ux.jpg" alt="EcoLens Pro High Fidelity UI/UX Design Framework" width="100%" />
+  <img src="design/ui-ux.jpeg" alt="EcoLens Pro High Fidelity UI/UX Design Framework" width="100%" />
   <br />
   <em>Figure 1: Unified High-Fidelity UI/UX Layout Board delivered by Anisha.</em>
 </p>
