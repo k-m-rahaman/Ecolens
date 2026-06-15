@@ -130,7 +130,6 @@ Blueprinted the technical architecture diagrams mapping the image pixel processi
 ---
 
 <p align="center">
-  
   ## 🌍 Small Actions. Smarter AI. Cleaner Future.
   <br />
   ⭐ If you like this project, consider giving it a star – it helps support and grow EcoLens Pro.
