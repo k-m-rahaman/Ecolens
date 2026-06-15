@@ -103,7 +103,7 @@
         .button-row { display: flex; gap: 16px; width: 100%; }
 
         /* FIGMA SPECIFIC PREMIUM BUTTON INTERACTION KITS */
-        .btn-core { width: 100%; background: var(--duo-green); color: white; border: none; padding: 18px 24px; font-size: 1.2rem; font-weight: 900; border-radius: var(--radius-lg); text-transform: uppercase; letter-spacing: 0.8px; cursor: pointer; box-shadow: 0 6px 0 var(--duo-green-shadow); transition: var(--transition-smooth); transform: translateY(0); display: flex; align-items: center; justify-content: center; gap: 10px; position: relative; overflow: hidden; }
+        .btn-core { width: 100%; background: var(--duo-green); color: white; border: none; padding: 18px 24px; font-size: 1.2rem; font-weight: 900; border-radius: var(--radius-lg); text-transform: uppercase; letter-spacing: 0.8px; cursor: pointer; box-shadow: 0 6px 0px var(--duo-green-shadow); transition: var(--transition-smooth); transform: translateY(0); display: flex; align-items: center; justify-content: center; gap: 10px; position: relative; overflow: hidden; }
         .btn-core:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--duo-green-shadow); }
         .btn-core:disabled { background: #e5e7eb; color: #9ca3af; box-shadow: 0 6px 0 #d1d5db; cursor: not-allowed; transform: none !important; }
         .btn-blue { background: var(--duo-blue); box-shadow: 0 6px 0 var(--duo-blue-shadow); }
@@ -159,7 +159,7 @@
 
         .history-list { list-style: none; display: flex; flex-direction: column; gap: 12px; }
         .history-item { background: white; padding: 16px; border-radius: var(--radius-lg); border: 2px solid var(--duo-card-border); display: flex; justify-content: space-between; align-items: center; font-weight: 800; animation: popIn 0.3s ease; }
-        .history-tag { padding: 6px 12px; border-radius: 10px; color: white; font-size: 0.85rem; font-weight: 900; background-color: var(--duo-blue); box-shadow: inset 0 -2px 0 var(--duo-blue-shadow); }
+        .history-tag { padding: 6px 12px; border-radius: 10px; color: white; font-size: 0.85rem; font-weight: 900; background-color: var(--duo-blue); box-shadow: inset 0 -2px 0 #1899d6; }
 
         /* DYNAMIC LEAGUE TREEMAP MAP BLUEPRINT MAP MODULES */
         .tree-section-header { text-align: center; font-weight: 900; font-size: 1.4rem; color: var(--text-dark); border-top: 2px dashed var(--duo-card-border); padding-top: 28px; margin-top: 10px; letter-spacing: -0.3px; }
@@ -172,7 +172,7 @@
         .node-silver-active { background: linear-gradient(135deg, #b5b8b1 0%, #939690 100%); box-shadow: 0 7px 0 #8a8d88, 0 10px 15px -3px rgba(181,184,177,0.3); }
         .node-gold-active { background: linear-gradient(135deg, #ffd700 0%, #e6be00 100%); box-shadow: 0 7px 0 #cca300, 0 10px 15px -3px rgba(255,215,0,0.3); color: #3c3c3c; }
         .node-diamond-active { background: linear-gradient(135deg, #45aaf2 0%, #2d98da 100%); box-shadow: 0 7px 0 #2d98da, 0 10px 15px -3px rgba(69,170,242,0.3); }
-        .node-completed { background: linear-gradient(135deg, #58cc02 0%, #46a302 100%); box-shadow: 0 7px 0 var(--duo-green-shadow), 0 10px 15px -3px rgba(88,204,2,0.3); }
+        .node-completed { background: linear-gradient(135deg, #58cc02 0%, #46a302 100%); box-shadow: 0 7px 0 #46a302, 0 10px 15px -3px rgba(88,204,2,0.3); }
         .node-locked { background: #e5e7eb; box-shadow: 0 7px 0 #cbd5e1; cursor: not-allowed; color: #9ca3af; }
         
         .node-left { transform: translateX(-48px); }
@@ -189,6 +189,9 @@
         .modal-content { background: white; width: 100%; max-width: 420px; padding: 32px 24px; border-radius: 28px; border: 2px solid var(--duo-card-border); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.15); text-align: center; display: flex; flex-direction: column; gap: 18px; animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
         .modal-content h3 { font-weight: 900; font-size: 1.7rem; color: var(--text-dark); letter-spacing: -0.5px; }
         .modal-content p { font-weight: 700; color: #4b5563; font-size: 1.1rem; line-height: 1.6; }
+
+        #statusLogger { text-align: center; font-weight: 900; color: var(--text-muted); font-size: 0.95rem; }
+        .reward-blast { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 3.5rem; z-index: 3000; animation: blastOut 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; display: none; pointer-events: none; font-weight: 900; color: var(--duo-blue); text-shadow: 0 4px 0px rgba(0,0,0,0.1); }
 
         @keyframes popIn { 0% { transform: scale(0.95); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
         @keyframes pulseReticle { 0% { transform: translate(-50%, -50%) scale(1); opacity: 0.6; } 50% { transform: translate(-50%, -50%) scale(1.06); opacity: 0.9; } 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.6; } }
@@ -418,7 +421,7 @@
                 lblYolo: "🤖 योलो मॉडल श्रेणी असाइनमेंट:", lblYoloDesc: "यदि लाइटिंग या दूरी के कारण गलत हो, तो नीचे बदल सकते हैं:",
                 btnRetake: "🔄 दोबारा लें", btnStartQ: "माइक्रो-क्वेस्ट शुरू करें 🚀", btnCancel: "🔄 रद्द और रीसेट",
                 lblGoal: "🌟 मिशन पूरा हुआ! 🌟", btnClaim: "प्रमाण लें और एक्सपी पाएं 🏆", lblHistory: "📊 पिछला गतिविधि लॉग",
-                lblMap: "🗺️ अभियान यात्रा मानचित्र", initAI: "योलो एआई充 इंजन शुरू हो रहा है...",
+                lblMap: "🗺️ अभियान यात्रा मानचित्र", initAI: "योलो एआई इंजन शुरू हो रहा है...",
                 readyAI: "योलो मॉडल तैयार है। शुरू करने के लिए फोटो लें! 📷", calcAI: "मॉडल गणना चल रही है... 🧠",
                 questActive: "सभी चेकपॉइंट पूरे करें!", evalProof: "सत्यापन की जांच की जा रही है...",
                 secondaryProof: "द्वितीय सत्यापन सक्रिय है। कचरे को सही स्थान पर डालने के बाद अंतिम फोटो लें!",
@@ -438,7 +441,7 @@
             { id: 1, segment: "bronze", icon: "🌱", titles: { en: "Basics of Sorting", bn: "বিন্যাসের প্রাথমিক ধাপ", hi: "कचरा छंटाई नियम" }, descs: { en: "Master raw household plastics sorting loops.", bn: "সাধারণ বাড়ির প্লাস্টিক আলাদা করার নিয়মাবলী জানুন।", hi: "सामान्य घरेलू प्लास्टिक को अलग करने के नियम जानें।" }},
             { id: 2, segment: "silver", icon: "🍾", titles: { en: "Recycling Prodigy", bn: "রিসাইক্লিং প্রোডিজি", hi: "रीसाइक्लिंग विशेषज्ञ" }, descs: { en: "Unlocks at Silver League. Handles Glass/Cardboard loops.", bn: "সিলভার লীগে প্রাপ্য। কাচ এবং কার্ডবোর্ড প্রসেসিং রাজ্য।", hi: "सिल्वर लीग में उपलब्ध। कांच और कार्डबोर्ड प्रोसेसिंग चरण।" }},
             { id: 3, segment: "gold", icon: "🌿", titles: { en: "Eco Guardian", bn: "ইকো গার্ডিয়ান মিশন", hi: "इको गार्जियन मिशन" }, descs: { en: "Unlocks at Gold League. Focuses on Organic Composting.", bn: "গোল্ড লীগে প্রাপ্য। জৈব সার তৈরির পদ্ধতি এবং গাইডলাইন।", hi: "गोल्ड लीग में उपलब्ध। जैविक खाद बनाने की विधि और गाइड।" }},
-            { id: 4, segment: "diamond", icon: "⚡", titles: { en: "E-Waste Specialist", bn: "ই-বর্জ্য বিশেষজ্ঞ লুপ", hi: "ई-कचरा विशेषज्ञ लूप" }, descs: { en: "Unlocks at Diamond League. Toxic lithium battery extractions.", bn: "ডায়মন্ড লীগে প্রাপ্য। ক্ষতিকারক লিথিয়াম ব্যাটারি অপসারণ কৌশল।", hi: "डायमंड लीग में उपलब्ध। हानिकारक लिथियम बैटरी हटाने की तकनीक।" }}
+            { id: 4, segment: "diamond", icon: "⚡", titles: { en: "E-Waste Specialist", bn: "ই-বর্জ্য বিশেষজ্ঞ লুপ", hi: "ई-कचरा विशेषज्ञ लूप" }, descs: { en: "Unlocks at Diamond League. Toxic lithium battery extractions.", bn: "ডায়मंंड लीग में उपलब्ध। हानिकारक लिथियम बैटरी हटाने की तकनीक।" }}
         ];
 
         const localizationEngine = {
@@ -693,18 +696,31 @@
                 const mappedClassName = YOLO_CLASSES[topClassIndex];
                 console.log("🎯 Custom YOLOv8 Model Inference Result Match -> Class:", mappedClassName, " | Weight Confidence:", maxConfidence);
 
-                if (mappedClassName === "plastic" || mappedClassName === "bag") { selectedItemKey = "water bottle"; } 
-                else if (mappedClassName === "paper" || mappedClassName === "cardboard") { selectedItemKey = "cup"; } 
-                else if (mappedClassName === "yard") { selectedItemKey = "organic"; } 
-                else { selectedItemKey = "default"; }
+                // Direct categorical mapping array matrices setup configurations
+                if (mappedClassName === "plastic" || mappedClassName === "bag") { 
+                    selectedItemKey = "water bottle"; 
+                } else if (mappedClassName === "paper" || mappedClassName === "cardboard") { 
+                    selectedItemKey = "cup"; 
+                } else if (mappedClassName === "yard") { 
+                    selectedItemKey = "default"; 
+                } else if (mappedClassName === "glass" || mappedClassName === "metal") {
+                    selectedItemKey = "e-waste";
+                } else { 
+                    selectedItemKey = "default"; 
+                }
+
+                // Force layout text element to display universal text
+                document.getElementById('lblDetectedText').innerText = "OBJECT DETECTED";
+
             } catch (inferenceErr) {
                 console.warn("⚠️ Fallback active. Matrix failure details:", inferenceErr);
                 selectedItemKey = "default";
+                document.getElementById('lblDetectedText').innerText = "OBJECT DETECTED";
             }
 
-            categoryOverride.value = selectedItemKey;
-            document.getElementById('lblDetectedText').innerText = selectedItemKey.toUpperCase();
+            // Core state routing synchronization overloads sequence
             populateCategoryDropdown(); 
+            categoryOverride.value = selectedItemKey;
             statusLogger.innerText = "YOLOv8 Matrix verification routing complete.";
             startQuestBtn.disabled = false;
         });
