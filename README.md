@@ -1,22 +1,24 @@
-<div align="center">
-    <img src="assets/images/Mascot.webp" alt="EcoLens Pro Mascot" width="130" style="margin-bottom: 15px; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.06));"/>
-    <h1 style="border-bottom: none; margin-bottom: 8px; font-weight: 900; font-size: 3rem; color: #58cc02; letter-spacing: -1px;">EcoLens Pro</h1>
-    <p style="font-size: 1.3rem; color: #4b5563; font-weight: 700; max-width: 600px; margin-top: 0; line-height: 1.4;">
-        A Decentralized Edge-AI Computer Vision Ecosystem for Localized Municipal Solid Waste Management & Behavioral Gamification
-    </p>
-    
-    <div style="margin: 18px 0 28px 0; display: flex; justify-content: center; gap: 8px; flex-wrap: wrap;">
-        <img src="https://img.shields.io/badge/Architecture-Edge--AI-1cb0f6?style=for-the-badge&logo=cpu&logoColor=white" alt="Edge AI Badge"/>
-        <img src="https://img.shields.io/badge/Model-YOLOv8--Nano-58cc02?style=for-the-badge&logo=analytics&logoColor=white" alt="YOLOv8 Badge"/>
-        <img src="https://img.shields.io/badge/Inference-ONNX%20Runtime-a55eea?style=for-the-badge&logo=webassembly&logoColor=white" alt="ONNX Runtime Badge"/>
-        <img src="https://img.shields.io/badge/Deployment-GitHub%20Pages-333333?style=for-the-badge&logo=github&logoColor=white" alt="Deployment Badge"/>
-    </div>
-</div>
+# EcoLens Pro
+
+<p align="center">
+  <img src="assets/images/Mascot.webp" alt="EcoLens Pro Mascot" width="130" />
+</p>
+
+<p align="center">
+  <b>A Decentralized Edge-AI Computer Vision Ecosystem for Localized Municipal Solid Waste Management & Behavioral Gamification</b>
+</p>
+
+<p align="center">
+  <a href="#"><img src="https://img.shields.io/badge/Architecture-Edge--AI-1cb0f6?style=for-the-badge&logo=cpu&logoColor=white" alt="Edge AI Badge"/></a>
+  <a href="#"><img src="https://img.shields.io/badge/Model-YOLOv8--Nano-58cc02?style=for-the-badge&logo=analytics&logoColor=white" alt="YOLOv8 Badge"/></a>
+  <a href="#"><img src="https://img.shields.io/badge/Inference-ONNX%20Runtime-a55eea?style=for-the-badge&logo=webassembly&logoColor=white" alt="ONNX Runtime Badge"/></a>
+  <a href="#"><img src="https://img.shields.io/badge/Deployment-GitHub%20Pages-333333?style=for-the-badge&logo=github&logoColor=white" alt="Deployment Badge"/></a>
+</p>
 
 ---
 
 ## 📖 Executive Summary
-Traditional smart recycling frameworks rely heavily on centralized cloud compute servers, introducing high API network latency, continuous data overhead overheads, and persistent privacy barriers. 
+Traditional smart recycling frameworks rely heavily on centralized cloud compute servers, introducing high API network latency, continuous data overhead costs, and persistent privacy barriers. 
 
 **EcoLens Pro** introduces a decentralized architectural paradigm. Engineered explicitly for student communities and smart campus deployment, it utilizes an optimized, fine-tuned **YOLOv8-Nano** deep neural network model compiled directly into an **ONNX binary**. By performing high-speed tensor calculations locally inside the web browser's viewport execution pipeline via WebAssembly, EcoLens processes complex object classification loops completely client-side with absolute zero server latency.
 
@@ -27,7 +29,7 @@ Traditional smart recycling frameworks rely heavily on centralized cloud compute
 ### 🧠 1. Real-Time Computer Vision Pipeline
 * **Dataset & Augmentation:** Fine-tuned utilizing a balanced imagery collection targeting regional municipal recycling materials (clear plastics, fiber papers, green yard organics, glass anomalies, and composite cardboard).
 * **Cloud Compilation Loop:** Trained on an enterprise cloud-hosted **Tesla T4 GPU** infrastructure inside Google Colab over 30 full back-propagation neural optimization cycles (`epochs=30`).
-* **Half-Precision Precision Optimization:** Exported and compiled into an optimized **ONNX (Open Neural Network Exchange)** runtime structure with FP16 half-precision quantization calibration. This compressed the heavy deep learning network into a ultra-compact **5.9 MB binary tensor matrix**.
+* **Half-Precision Optimization:** Exported and compiled into an optimized **ONNX (Open Neural Network Exchange)** runtime structure with FP16 half-precision quantization calibration. This compressed the heavy deep learning network into an ultra-compact **5.9 MB binary tensor matrix**.
 * **Client-Side Image Preprocessing:** The application captures raw data frames from the hardware camera feed via WebRTC, binds them to an HTML5 `<canvas>`, downsamples the coordinates to a strict $640 \times 640$ grid, standardizes pixel values (dividing by `255.0`), and builds a flat **Planar CHW (Channel, Height, Width) format array `[1, 3, 640, 640]`** to push straight into the local engine memory block.
 
 ### 🕹️ 2. High-Fidelity Behavioral Gamification Engine
@@ -41,10 +43,11 @@ To foster long-term recycling compliance and sustained user engagement, EcoLens 
 
 ## 🗺️ Visual User Journey Map
 
-<div align="center">
-    <img src="design/user_journey_flow.png" alt="EcoLens 4-Screen User Flow Grid" width="100%" style="border-radius: 20px; border: 2px solid #e5e7eb; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05); margin: 15px 0;"/>
-    <p style="font-size: 0.95rem; color: #6b7280; font-style: italic; margin-top: 8px; font-weight: 600;">Figure 1: High-Fidelity 4-Screen State Machine Wireframe Framework (Shutter View $\rightarrow$ AI Verification $\rightarrow$ Gamified Checklist $\rightarrow$ Proof Gate Modifier Grid)</p>
-</div>
+<p align="center">
+  <img src="design/user_journey_flow.png" alt="EcoLens 4-Screen User Flow Grid" width="100%" />
+  <br />
+  <em>Figure 1: High-Fidelity 4-Screen State Machine Wireframe Framework (Shutter View &rarr; AI Verification &rarr; Gamified Checklist &rarr; Proof Gate Modifier Grid)</em>
+</p>
 
 ---
 
@@ -65,16 +68,51 @@ EcoLensProjectRoot/
 └── design/
     ├── user_journey_flow.png    # High-Fidelity 4-Screen User Journey Flowchart
     └── ui_component_library.png # Figma Modular Global UI Component Library
-
+```
 ---
 
 ## 🚀 Installation & Local Deployment Setup
+
 To initiate the edge-native AI runtime locally:
 
-Clone or download this project directory workspace setup folder to your computer hardware.
+1. Clone or download this project directory workspace setup folder to your computer hardware.
 
-Verify that your fine-tuned weights file sits precisely at: models/custom-yolo/GarbageDetector.onnx.
+2. Verify that your fine-tuned weights file sits precisely at: models/custom-yolo/GarbageDetector.onnx.
 
-Open the directory workspace using VS Code, and launch the Go Live server extension on the bottom status bar (http://127.0.0.1:5500).
+3. Open the directory workspace using VS Code, and launch the Go Live server extension on the bottom status bar (http://127.0.0.1:5500).
 
-Input your profile name into the authentication gate modal window, approve device camera stream clearance, and press F12 to open the developer console to track the live tensor matrix execution parameters.
+4. Input your profile name into the authentication gate modal window, approve device camera stream clearance, and press F12 to open the developer console to track the live tensor matrix execution parameters.
+
+---
+
+## 👥 Project Contribution Ledger
+
+# Kazi Mustafijur Rahaman — Project Lead / Full-Stack Core Software Development & AI Pipeline Automation
+
+Automated the cloud-hosted Google Colab dataset formatting and neural training sequence (Tesla T4 Cloud GPU layout).
+
+Programmed the custom browser-side tensor array transformer, FP16 matrix mapping loop, and ort.InferenceSession initialization.
+
+Designed and coded the persistent multi-user account state tracking rules, native multi-language dictionaries, and responsive dashboard layouts.
+
+# Anisha — UI/UX Strategy & High-Fidelity Graphic Design (Designer 1)
+
+Modeled the gamified design tokens, custom level tree maps, branding color palette arrays, and the modular 4-screen user journey framework in Figma.
+
+# Koyel — System Logic Architecture & Technical Flowcharts (Designer 2)
+
+Blueprinted the technical architecture diagrams mapping the image pixel processing steps, downsampling canvas workflows, and the local storage cache cycles.
+
+---
+
+```markdown
+<div align="center">
+
+## 🌍 Small Actions. Smarter AI. Cleaner Future.
+
+⭐ If you like this project, consider giving it a star — it helps support and grow EcoLens Pro.
+
+Made with ❤️ for sustainability, innovation, and a greener tomorrow.
+
+</div>
+```
