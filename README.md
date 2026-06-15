@@ -51,6 +51,30 @@ To foster long-term recycling compliance and sustained user engagement, EcoLens 
 
 ---
 
+## 📊 Client-Side Technical Architecture Framework
+
+> **System Architecture & Flowcharts Designed by:** Koyel (Technical Systems Designer)
+
+### 🧠 Diagram 1: Client-Side AI Tensor Pipeline
+This diagram tracks the end-to-end mathematical transformation of a raw browser camera frame into a multi-dimensional array tensor layer sequence running locally via WebAssembly runtime environments.
+
+<p align="center">
+  <img src="design/flowchart/pipeline_chart.png" alt="EcoLens Pro AI Tensor Pipeline Flowchart" width="100%" />
+  <br />
+  <em>Figure 2: Raw frame downsampling, mathematical normalization, matrix transposition, and ONNX WebAssembly session evaluation routing loop designed by Koyel.</em>
+</p>
+
+### 🕹️ Diagram 2: Gamified State Persistence Sync Loop
+The application operates entirely on the client side without an external backend. The flowchart below maps how user achievements, task completions, and XP tracking synchronize directly with the device's internal browser cache interface.
+
+<p align="center">
+  <img src="design/flowchart/sync_loop_chart.png" alt="EcoLens Pro State Persistence Flowchart" width="100%" />
+  <br />
+  <em>Figure 3: Client-side gamification pipeline and LocalStorage synchronization map designed by Koyel.</em>
+</p>
+
+---
+
 ## 📂 System Directory Structure
 ```text
 EcoLensProjectRoot/
