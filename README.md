@@ -41,12 +41,12 @@ To foster long-term recycling compliance and sustained user engagement, EcoLens 
 
 ---
 
-## 🗺️ Visual User Journey Map
+## 🎨 Visual User Journey Map & Design System
 
 <p align="center">
-  <img src="design/user_journey_flow.png" alt="EcoLens 4-Screen User Flow Grid" width="100%" />
+  <img src="design/ui-ux.jpg" alt="EcoLens Pro High Fidelity UI/UX Design Framework" width="100%" />
   <br />
-  <em>Figure 1: High-Fidelity 4-Screen State Machine Wireframe Framework (Shutter View &rarr; AI Verification &rarr; Gamified Checklist &rarr; Proof Gate Modifier Grid)</em>
+  <em>Figure 1: Unified High-Fidelity UI/UX Layout Board delivered by Anisha.</em>
 </p>
 
 ---
