@@ -10,7 +10,6 @@
 
     <style>
         :root {
-            /* Designer 1 High-Fidelity Color Palette Tokens */
             --duo-green: #58cc02;
             --duo-green-shadow: #46a302;
             --duo-blue: #1cb0f6;
@@ -25,18 +24,7 @@
             --duo-red: #ff4b4b;
             --duo-red-shadow: #ea2b2b;
             --duo-purple: #a55eea;
-            --duo-purple-shadow: #8854d0;
 
-            /* League Theme Accents */
-            --league-bronze: #cd7f32;
-            --league-bronze-shadow: #a05a15;
-            --league-silver: #b5b8b1;
-            --league-silver-shadow: #8a8d88;
-            --league-gold: #ffd700;
-            --league-gold-shadow: #cca300;
-            --league-diamond: #45aaf2;
-            --league-diamond-shadow: #2d98da;
-            
             --radius-xl: 24px;
             --radius-lg: 18px;
             --radius-md: 12px;
@@ -45,155 +33,122 @@
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Nunito', sans-serif; }
         
-        /* Modern Scrollbar styling */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: var(--duo-bg-main); }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
         body { background-color: var(--duo-bg-main); color: var(--text-dark); display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding-bottom: 60px; overflow-x: hidden; }
 
-        /* AUTHENTICATION SCREEN LAYER CORES */
         .auth-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at center, #ffffff 0%, #f3f4f6 100%); z-index: 2000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; }
-        .auth-card { width: 100%; max-width: 420px; text-align: center; display: flex; flex-direction: column; gap: 20px; background: white; padding: 40px 30px; border-radius: 32px; border: 2px solid var(--duo-card-border); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.05); animation: popIn 0.4s ease; }
-        .auth-card h1 { font-weight: 900; font-size: 2.5rem; color: var(--duo-green); letter-spacing: -0.5px; }
+        .auth-card { width: 100%; max-width: 420px; text-align: center; display: flex; flex-direction: column; gap: 20px; background: white; padding: 40px 30px; border-radius: 32px; border: 2px solid var(--duo-card-border); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.05); }
+        .auth-card h1 { font-weight: 900; font-size: 2.5rem; color: var(--duo-green); }
         .auth-card p { font-weight: 700; color: var(--text-muted); line-height: 1.5; font-size: 1.05rem; }
-        .auth-input { width: 100%; border: 2px solid var(--duo-card-border); background: #f9fafb; padding: 18px; border-radius: var(--radius-lg); font-weight: 800; font-size: 1.1rem; outline: none; transition: var(--transition-smooth); text-align: center; color: var(--text-dark); }
-        .auth-input:focus { border-color: var(--duo-blue); background: white; box-shadow: 0 0 0 4px rgba(28, 176, 246, 0.15); }
+        .auth-input { width: 100%; border: 2px solid var(--duo-card-border); background: #f9fafb; padding: 18px; border-radius: var(--radius-lg); font-weight: 800; font-size: 1.1rem; outline: none; text-align: center; color: var(--text-dark); }
+        .auth-input:focus { border-color: var(--duo-blue); background: white; }
 
-        /* HEADER FRAME PANEL BLOCKS */
-        header { width: 100%; max-width: 540px; padding: 18px 24px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--duo-card-border); background: white; position: sticky; top: 0; z-index: 100; display: none; border-radius: 0 0 24px 24px; box-shadow: 0 4px 18px rgba(0,0,0,0.02); }
+        header { width: 100%; max-width: 540px; padding: 18px 24px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--duo-card-border); background: white; position: sticky; top: 0; z-index: 100; display: none; border-radius: 0 0 24px 24px; }
         .header-brand { display: flex; align-items: center; gap: 12px; }
-        .logo-txt { font-weight: 900; font-size: 1.6rem; color: var(--duo-green); letter-spacing: -0.5px; }
-        .user-avatar-tag { font-weight: 900; color: var(--duo-purple); text-transform: capitalize; background: #f1f0fe; padding: 8px 16px; border-radius: var(--radius-md); border: 2px solid #e2dbfc; font-size: 1rem; box-shadow: inset 0 -2px 0 #e2dbfc; }
-        select.lang-picker { border: 2px solid var(--duo-card-border); border-radius: var(--radius-md); padding: 6px 12px; font-weight: 800; outline: none; cursor: pointer; color: var(--text-dark); font-size: 0.95rem; background: white; transition: var(--transition-smooth); }
-        select.lang-picker:hover { border-color: #cbd5e1; background: #f9fafb; }
+        .logo-txt { font-weight: 900; font-size: 1.6rem; color: var(--duo-green); }
+        .user-avatar-tag { font-weight: 900; color: var(--duo-purple); text-transform: capitalize; background: #f1f0fe; padding: 8px 16px; border-radius: var(--radius-md); border: 2px solid #e2dbfc; }
+        select.lang-picker { border: 2px solid var(--duo-card-border); border-radius: var(--radius-md); padding: 6px 12px; font-weight: 800; outline: none; cursor: pointer; font-size: 0.95rem; background: white; }
 
-        /* SYSTEM CHIPS RUNTIME STATUS MONITOR ROW */
-        .status-chips-row { width: 100%; max-width: 500px; display: flex; gap: 12px; padding: 0 16px; margin-top: 20px; display: none; animation: popIn 0.3s ease; }
-        .status-chip { display: flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: var(--radius-md); font-weight: 800; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.3px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); flex-grow: 1; justify-content: center; }
+        .status-chips-row { width: 100%; max-width: 500px; display: flex; gap: 12px; padding: 0 16px; margin-top: 20px; display: none; }
+        .status-chip { display: flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: var(--radius-md); font-weight: 800; font-size: 0.85rem; text-transform: uppercase; flex-grow: 1; justify-content: center; }
         .chip-green { background: #e8f9e1; color: var(--duo-green); border: 2px solid #bceaa2; }
         .chip-blue { background: #e0f4fe; color: var(--duo-blue); border: 2px solid #9cd6f7; }
 
-        /* MAIN APP APPLICATION CONTAINERS */
         main { width: 100%; max-width: 540px; padding: 16px; display: none; flex-direction: column; gap: 24px; }
 
-        /* PROGRESS PROGRESS HEADER INDICATORS */
-        .progress-wrapper { width: 100%; display: none; flex-direction: column; gap: 10px; padding: 4px; animation: popIn 0.3s ease; }
-        .progress-label-row { display: flex; justify-content: space-between; font-weight: 900; font-size: 1rem; color: var(--text-dark); text-transform: uppercase; letter-spacing: 0.5px; }
-        .progress-bar-container { width: 100%; height: 18px; background: #e5e7eb; border-radius: 20px; overflow: hidden; padding: 2px; border: 1px solid rgba(0,0,0,0.03); }
-        .progress-bar-fill { width: 0%; height: 100%; background: linear-gradient(90deg, #58cc02 0%, #61e002 100%); border-radius: 20px; transition: width 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        .progress-wrapper { width: 100%; display: none; flex-direction: column; gap: 10px; padding: 4px; }
+        .progress-label-row { display: flex; justify-content: space-between; font-weight: 900; font-size: 1rem; color: var(--text-dark); text-transform: uppercase; }
+        .progress-bar-container { width: 100%; height: 18px; background: #e5e7eb; border-radius: 20px; overflow: hidden; padding: 2px; }
+        .progress-bar-fill { width: 0%; height: 100%; background: linear-gradient(90deg, #58cc02 0%, #61e002 100%); border-radius: 20px; transition: width 0.4s ease; }
 
-        /* VIDEO VIEWPORT GRAPHICS FRAME CANVAS CONTAINER */
-        .viewport-frame { width: 100%; border-radius: 32px; overflow: hidden; border: 4px solid var(--duo-card-border); position: relative; background: var(--duo-bg-viewport); aspect-ratio: 4/3; box-shadow: 0 10px 0px #e5e7eb; transition: var(--transition-smooth); }
+        .viewport-frame { width: 100%; border-radius: 32px; overflow: hidden; border: 4px solid var(--duo-card-border); position: relative; background: var(--duo-bg-viewport); aspect-ratio: 4/3; box-shadow: 0 10px 0px #e5e7eb; }
         video, canvas { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 28px; }
         canvas { position: absolute; top: 0; left: 0; display: none; z-index: 5; }
         
-        /* Reticle with Pulse Animation Scan Lines */
         .cv-reticle { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 140px; height: 140px; border: 4px dashed var(--duo-blue); border-radius: 50%; pointer-events: none; opacity: 0.8; z-index: 10; animation: pulseReticle 2.5s infinite linear; }
-        
-        /* Figma Corner Brackets Overlays Elements */
-        .viewport-frame::before, .viewport-frame::after { content: ''; position: absolute; width: 28px; height: 28px; border: 5px solid white; z-index: 12; pointer-events: none; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2)); transition: var(--transition-smooth); }
-        .viewport-frame::before { top: 24px; left: 24px; border-right: none; border-bottom: none; border-top-left-radius: 8px; }
-        .viewport-frame::after { bottom: 24px; right: 24px; border-left: none; border-top: none; border-bottom-right-radius: 8px; }
 
-        /* SCREEN STATE MACHINES PANELS */
-        .ui-screen { display: none; width: 100%; flex-direction: column; gap: 20px; animation: popIn 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+        .ui-screen { display: none; width: 100%; flex-direction: column; gap: 20px; }
         .ui-screen.active-screen { display: flex; }
         .button-row { display: flex; gap: 16px; width: 100%; }
 
-        /* FIGMA SPECIFIC PREMIUM BUTTON INTERACTION KITS */
-        .btn-core { width: 100%; background: var(--duo-green); color: white; border: none; padding: 18px 24px; font-size: 1.2rem; font-weight: 900; border-radius: var(--radius-lg); text-transform: uppercase; letter-spacing: 0.8px; cursor: pointer; box-shadow: 0 6px 0px var(--duo-green-shadow); transition: var(--transition-smooth); transform: translateY(0); display: flex; align-items: center; justify-content: center; gap: 10px; position: relative; overflow: hidden; }
+        .btn-core { width: 100%; background: var(--duo-green); color: white; border: none; padding: 18px 24px; font-size: 1.2rem; font-weight: 900; border-radius: var(--radius-lg); text-transform: uppercase; cursor: pointer; box-shadow: 0 6px 0px var(--duo-green-shadow); transition: var(--transition-smooth); display: flex; align-items: center; justify-content: center; gap: 10px; }
         .btn-core:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--duo-green-shadow); }
-        .btn-core:disabled { background: #e5e7eb; color: #9ca3af; box-shadow: 0 6px 0 #d1d5db; cursor: not-allowed; transform: none !important; }
+        .btn-core:disabled { background: #e5e7eb; color: #9ca3af; box-shadow: 0 6px 0 #d1d5db; cursor: not-allowed; }
         .btn-blue { background: var(--duo-blue); box-shadow: 0 6px 0 var(--duo-blue-shadow); }
         .btn-blue:active { box-shadow: 0 2px 0 var(--duo-blue-shadow); }
         .btn-red { background: var(--duo-red); box-shadow: 0 6px 0 var(--duo-red-shadow); }
         .btn-red:active { box-shadow: 0 2px 0 var(--duo-red-shadow); }
 
-        /* REUSABLE HIGH-FIDELITY COMPONENT CARDS */
-        .premium-card { background: white; border: 2px solid var(--duo-card-border); border-radius: var(--radius-xl); padding: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.01), 0 2px 4px -1px rgba(0,0,0,0.01); display: flex; flex-direction: column; gap: 16px; position: relative; }
-        .premium-card h3 { font-size: 1.5rem; font-weight: 900; color: var(--text-dark); letter-spacing: -0.3px; }
-        .meta-label { font-weight: 900; font-size: 1rem; color: var(--text-dark); display: flex; align-items: center; gap: 8px; text-transform: uppercase; letter-spacing: 0.3px; }
+        .premium-card { background: white; border: 2px solid var(--duo-card-border); border-radius: var(--radius-xl); padding: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.01); display: flex; flex-direction: column; gap: 16px; }
+        .premium-card h3 { font-size: 1.5rem; font-weight: 900; color: var(--text-dark); }
+        .meta-label { font-weight: 900; font-size: 1rem; color: var(--text-dark); display: flex; align-items: center; gap: 8px; text-transform: uppercase; }
         .metric-highlight { font-weight: 900; color: var(--duo-green); background: #f0fdf4; padding: 4px 12px; border-radius: 10px; border: 1px solid #dcfce7; font-size: 0.95rem; }
-        select.category-override { border: 2px solid var(--duo-card-border); border-radius: var(--radius-md); padding: 14px; font-weight: 800; outline: none; cursor: pointer; color: var(--text-dark); font-size: 1.05rem; background: #f9fafb; transition: var(--transition-smooth); width: 100%; margin-top: 4px; }
-        select.category-override:focus { border-color: var(--duo-blue); background: white; }
+        select.category-override { border: 2px solid var(--duo-card-border); border-radius: var(--radius-md); padding: 14px; font-weight: 800; outline: none; cursor: pointer; color: var(--text-dark); font-size: 1.05rem; background: #f9fafb; width: 100%; margin-top: 4px; }
 
-        /* GAMIFIED PROGRESS INTERACTIVE CHECKLIST COMPONENT FIELDS */
-        .step-item { display: flex; align-items: center; justify-content: space-between; padding: 18px 20px; border: 2px solid var(--duo-card-border); border-radius: var(--radius-lg); cursor: pointer; font-weight: 800; transition: var(--transition-smooth); background: white; font-size: 1.1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.01); transform: scale(1); }
-        .step-item:hover { border-color: #cbd5e1; transform: scale(1.01); background: #fafafa; }
+        .step-item { display: flex; align-items: center; justify-content: space-between; padding: 18px 20px; border: 2px solid var(--duo-card-border); border-radius: var(--radius-lg); cursor: pointer; font-weight: 800; background: white; font-size: 1.1rem; }
+        .step-item:hover { border-color: #cbd5e1; background: #fafafa; }
         .step-left { display: flex; align-items: center; gap: 16px; }
         
-        .custom-check { width: 28px; height: 28px; border-radius: 50%; border: 3px solid var(--duo-card-border); display: flex; align-items: center; justify-content: center; background: white; transition: var(--transition-smooth); font-size: 0.9rem; color: white; font-weight: 900; flex-shrink: 0; }
-        .step-xp-tag { color: var(--duo-green); font-weight: 900; font-size: 0.95rem; background: #f0fdf4; padding: 6px 12px; border-radius: 12px; border: 1px solid #bceaa2; box-shadow: inset 0 -1.5px 0 #bceaa2; }
+        .custom-check { width: 28px; height: 28px; border-radius: 50%; border: 3px solid var(--duo-card-border); display: flex; align-items: center; justify-content: center; background: white; font-size: 0.9rem; color: white; font-weight: 900; flex-shrink: 0; }
+        .step-xp-tag { color: var(--duo-green); font-weight: 900; font-size: 0.95rem; background: #f0fdf4; padding: 6px 12px; border-radius: 12px; border: 1px solid #bceaa2; }
         
-        /* Interactive Checked Animations states modifiers */
         .step-item.completed-task { border-color: var(--duo-green); background: #f7fee7; color: var(--text-muted); text-decoration: line-through; }
-        .step-item.completed-task .custom-check { background: var(--duo-green); border-color: var(--duo-green); transform: scale(1.1); }
+        .step-item.completed-task .custom-check { background: var(--duo-green); border-color: var(--duo-green); }
         .step-item.completed-task .custom-check::before { content: '✓'; }
-        .step-item.completed-task .step-xp-tag { background: #e5e7eb; color: #9ca3af; border-color: #d1d5db; box-shadow: none; }
 
-        /* DASHBOARD METRICS AND LEAGUE PROFILE PANELS GLYPH GRID */
         .dashboard-grid { width: 100%; display: flex; flex-direction: column; gap: 20px; }
         
-        .profile-summary-card { background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%); display: flex; flex-direction: row; align-items: center; justify-content: space-between; border-radius: var(--radius-xl); padding: 20px 24px; border: 2px solid var(--duo-card-border); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); }
-        .profile-left { display: flex; align-items: center; gap: 16px; cursor: pointer; transition: var(--transition-smooth); }
-        .profile-left:hover { transform: scale(1.02); }
+        .profile-summary-card { background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%); display: flex; flex-direction: row; align-items: center; justify-content: space-between; border-radius: var(--radius-xl); padding: 20px 24px; border: 2px solid var(--duo-card-border); }
+        .profile-left { display: flex; align-items: center; gap: 16px; cursor: pointer; }
         
-        .profile-badge-avatar { width: 60px; height: 60px; border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; font-size: 2.2rem; color: white; box-shadow: 0 4px 0px rgba(0,0,0,0.12); position: relative; }
+        .profile-badge-avatar { width: 60px; height: 60px; border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; font-size: 2.2rem; color: white; }
         .avatar-bronze { background: linear-gradient(135deg, #cd7f32 0%, #b06620 100%); }
         .avatar-silver { background: linear-gradient(135deg, #b5b8b1 0%, #939690 100%); }
         .avatar-gold { background: linear-gradient(135deg, #ffd700 0%, #e6be00 100%); }
         .avatar-diamond { background: linear-gradient(135deg, #45aaf2 0%, #2d98da 100%); }
         
-        .profile-details h2 { font-weight: 900; font-size: 1.4rem; color: var(--text-dark); letter-spacing: -0.3px; }
-        .profile-details p { font-weight: 800; font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
-        .header-xp-pill { text-align: right; font-weight: 900; font-size: 1.25rem; color: var(--duo-blue); background: #f0faff; border: 2px solid #dbf3ff; padding: 8px 16px; border-radius: var(--radius-lg); box-shadow: inset 0 -2px 0 #dbf3ff; }
+        .profile-details h2 { font-weight: 900; font-size: 1.4rem; color: var(--text-dark); }
+        .profile-details p { font-weight: 800; font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; margin-top: 2px; }
+        .header-xp-pill { text-align: right; font-weight: 900; font-size: 1.25rem; color: var(--duo-blue); background: #f0faff; border: 2px solid #dbf3ff; padding: 8px 16px; border-radius: var(--radius-lg); }
 
-        /* SPLIT TWO-COLUMN DIALS PANEL CORES */
         .split-metrics-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; width: 100%; }
-        .metric-subcard { background: white; border: 2px solid var(--duo-card-border); border-radius: var(--radius-xl); padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; font-weight: 800; box-shadow: 0 2px 4px rgba(0,0,0,0.01); }
-        .metric-subcard-title { font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 900; }
+        .metric-subcard { background: white; border: 2px solid var(--duo-card-border); border-radius: var(--radius-xl); padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; font-weight: 800; }
+        .metric-subcard-title { font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; font-weight: 900; }
         .metric-subcard-val { font-size: 1.6rem; font-weight: 900; color: var(--text-dark); margin-top: 4px; }
-        .metric-badge-box { font-size: 1.8rem; width: 48px; height: 48px; background: #f3f4f6; border-radius: 14px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(0,0,0,0.02); }
+        .metric-badge-box { font-size: 1.8rem; width: 48px; height: 48px; background: #f3f4f6; border-radius: 14px; display: flex; align-items: center; justify-content: center; }
 
         .history-list { list-style: none; display: flex; flex-direction: column; gap: 12px; }
-        .history-item { background: white; padding: 16px; border-radius: var(--radius-lg); border: 2px solid var(--duo-card-border); display: flex; justify-content: space-between; align-items: center; font-weight: 800; animation: popIn 0.3s ease; }
-        .history-tag { padding: 6px 12px; border-radius: 10px; color: white; font-size: 0.85rem; font-weight: 900; background-color: var(--duo-blue); box-shadow: inset 0 -2px 0 #1899d6; }
+        .history-item { background: white; padding: 16px; border-radius: var(--radius-lg); border: 2px solid var(--duo-card-border); display: flex; justify-content: space-between; align-items: center; font-weight: 800; }
+        .history-tag { padding: 6px 12px; border-radius: 10px; color: white; font-size: 0.85rem; font-weight: 900; background-color: var(--duo-blue); }
 
-        /* DYNAMIC LEAGUE TREEMAP MAP BLUEPRINT MAP MODULES */
-        .tree-section-header { text-align: center; font-weight: 900; font-size: 1.4rem; color: var(--text-dark); border-top: 2px dashed var(--duo-card-border); padding-top: 28px; margin-top: 10px; letter-spacing: -0.3px; }
+        .tree-section-header { text-align: center; font-weight: 900; font-size: 1.4rem; color: var(--text-dark); border-top: 2px dashed var(--duo-card-border); padding-top: 28px; margin-top: 10px; }
         .duo-tree-map { display: flex; flex-direction: column; align-items: center; gap: 26px; width: 100%; padding: 24px 0; background: #ffffff; border: 2px solid var(--duo-card-border); border-radius: 32px; box-shadow: 0 10px 0px #e5e7eb; position: relative; }
         .tree-node { width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: 900; color: white; position: relative; cursor: pointer; transition: var(--transition-smooth); z-index: 10; }
         .tree-node:hover { transform: scale(1.08) translateY(-2px); }
-        .tree-node:active { transform: scale(0.95); }
         
-        .node-bronze-active { background: linear-gradient(135deg, #cd7f32 0%, #b06620 100%); box-shadow: 0 7px 0 #a05a15, 0 10px 15px -3px rgba(205,127,50,0.3); }
-        .node-silver-active { background: linear-gradient(135deg, #b5b8b1 0%, #939690 100%); box-shadow: 0 7px 0 #8a8d88, 0 10px 15px -3px rgba(181,184,177,0.3); }
-        .node-gold-active { background: linear-gradient(135deg, #ffd700 0%, #e6be00 100%); box-shadow: 0 7px 0 #cca300, 0 10px 15px -3px rgba(255,215,0,0.3); color: #3c3c3c; }
-        .node-diamond-active { background: linear-gradient(135deg, #45aaf2 0%, #2d98da 100%); box-shadow: 0 7px 0 #2d98da, 0 10px 15px -3px rgba(69,170,242,0.3); }
-        .node-completed { background: linear-gradient(135deg, #58cc02 0%, #46a302 100%); box-shadow: 0 7px 0 #46a302, 0 10px 15px -3px rgba(88,204,2,0.3); }
+        .node-bronze-active { background: linear-gradient(135deg, #cd7f32 0%, #b06620 100%); box-shadow: 0 7px 0 #a05a15; }
+        .node-silver-active { background: linear-gradient(135deg, #b5b8b1 0%, #939690 100%); box-shadow: 0 7px 0 #8a8d88; }
+        .node-gold-active { background: linear-gradient(135deg, #ffd700 0%, #e6be00 100%); box-shadow: 0 7px 0 #cca300; color: #3c3c3c; }
+        .node-diamond-active { background: linear-gradient(135deg, #45aaf2 0%, #2d98da 100%); box-shadow: 0 7px 0 #2d98da; }
+        .node-completed { background: linear-gradient(135deg, #58cc02 0%, #46a302 100%); box-shadow: 0 7px 0 #46a302; }
         .node-locked { background: #e5e7eb; box-shadow: 0 7px 0 #cbd5e1; cursor: not-allowed; color: #9ca3af; }
         
         .node-left { transform: translateX(-48px); }
-        .node-left:hover { transform: scale(1.08) translate(-44px, -2px); }
         .node-right { transform: translateX(48px); }
-        .node-right:hover { transform: scale(1.08) translate(44px, -2px); }
         
-        .tree-node::after { content: ''; position: absolute; width: 8px; height: 30px; background: var(--duo-card-border); bottom: -34px; left: 50%; transform: translateX(-50%); z-index: -1; transition: var(--transition-smooth); }
+        .tree-node::after { content: ''; position: absolute; width: 8px; height: 30px; background: var(--duo-card-border); bottom: -34px; left: 50%; transform: translateX(-50%); z-index: -1; }
         .tree-node:last-child::after { display: none; }
         .node-completed::after { background: var(--duo-green); }
 
-        /* FULL BLUR POPUP DIALOGS INFOGRAPHICS MODULE */
         .modal-popup { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.3); backdrop-filter: blur(6px); z-index: 3000; align-items: center; justify-content: center; padding: 24px; }
-        .modal-content { background: white; width: 100%; max-width: 420px; padding: 32px 24px; border-radius: 28px; border: 2px solid var(--duo-card-border); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.15); text-align: center; display: flex; flex-direction: column; gap: 18px; animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
-        .modal-content h3 { font-weight: 900; font-size: 1.7rem; color: var(--text-dark); letter-spacing: -0.5px; }
-        .modal-content p { font-weight: 700; color: #4b5563; font-size: 1.1rem; line-height: 1.6; }
+        .modal-content { background: white; width: 100%; max-width: 420px; padding: 32px 24px; border-radius: 28px; border: 2px solid var(--duo-card-border); text-align: center; display: flex; flex-direction: column; gap: 18px; }
 
         #statusLogger { text-align: center; font-weight: 900; color: var(--text-muted); font-size: 0.95rem; }
-        .reward-blast { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 3.5rem; z-index: 3000; animation: blastOut 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; display: none; pointer-events: none; font-weight: 900; color: var(--duo-blue); text-shadow: 0 4px 0px rgba(0,0,0,0.1); }
+        .reward-blast { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 3.5rem; z-index: 3000; display: none; pointer-events: none; font-weight: 900; color: var(--duo-blue); }
 
-        @keyframes popIn { 0% { transform: scale(0.95); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
         @keyframes pulseReticle { 0% { transform: translate(-50%, -50%) scale(1); opacity: 0.6; } 50% { transform: translate(-50%, -50%) scale(1.06); opacity: 0.9; } 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.6; } }
     </style>
 </head>
@@ -254,8 +209,10 @@
                     <span>🤖 YOLOv8 Classification Output:</span>
                     <span class="metric-highlight" id="lblDetectedText">Detecting...</span>
                 </div>
-                <label for="categoryOverride" id="lblYoloAssignment" style="font-weight: 800; font-size: 0.95rem; color: var(--text-muted);">Confirmed category selection (Manual override enabled):</label>
-                <!-- Fully interactive dropdown so you can manually select or keep AI detection -->
+                <label for="categoryOverride" id="lblYoloAssignment" style="font-weight: 800; font-size: 0.95rem; color: var(--text-muted);">
+                    Don't know how to decompose/reuse an item? Select its exact category below:
+                </label>
+                <!-- Fully interactive categorization dropdown -->
                 <select id="categoryOverride" class="category-override"></select>
             </div>
             <div class="button-row">
@@ -273,9 +230,9 @@
         </div>
 
         <div id="screenProof" class="ui-screen">
-            <div class="premium-card" style="text-align: center; border-color: var(--duo-blue); background: #f0f9ff; box-shadow: 0 4px 14px rgba(28,176,246,0.08);">
-                <h4 id="lblGoalCompleted" style="color: var(--duo-blue); font-weight: 900; font-size: 1.4rem; letter-spacing: -0.3px;">🌟 GOAL COMPLETED! 🌟</h4>
-                <p id="proofInstruction" style="font-weight: 700; font-size: 1.05rem; color: #4b5563; line-height: 1.5; margin-top: 4px;">Capture confirmation processed pictures to release reward multipliers!</p>
+            <div class="premium-card" style="text-align: center; border-color: var(--duo-blue); background: #f0f9ff;">
+                <h4 id="lblGoalCompleted" style="color: var(--duo-blue); font-weight: 900; font-size: 1.4rem;">🌟 GOAL COMPLETED! 🌟</h4>
+                <p id="proofInstruction" style="font-weight: 700; font-size: 1.05rem; color: #4b5563; margin-top: 4px;">Capture confirmation pictures to claim your XP!</p>
             </div>
             <button id="submitProofPhotoBtn" class="btn-core btn-blue">Snap Proof &amp; Claim XP 🏆</button>
         </div>
@@ -312,7 +269,7 @@
             </div>
 
             <div class="dashboard-panel premium-card">
-                <h4 id="lblHistoryTitle" style="font-weight:900; font-size:1.15rem; text-transform:uppercase; letter-spacing:0.5px;">📊 Adventure History Logs</h4>
+                <h4 id="lblHistoryTitle" style="font-weight:900; font-size:1.15rem; text-transform:uppercase;">📊 Adventure History Logs</h4>
                 <ul class="history-list" id="historyLog"></ul>
             </div>
         </div>
@@ -324,7 +281,7 @@
     <div class="modal-popup" id="levelInfoModal">
         <div class="modal-content">
             <h3 id="modalTitle">League Status Blueprint</h3>
-            <p id="modalDescription">Inference loop parameters checking algorithms and matrices engine trackers diagnostics logs data blocks layout lines.</p>
+            <p id="modalDescription">System diagnostics information.</p>
             <button id="modalCloseBtn" class="btn-core btn-blue">Got it! 👍</button>
         </div>
     </div>
@@ -391,42 +348,38 @@
         let demoOverrideActive = false;
 
         // ==========================================
-        // 1. PRESENTATION HOTKEYS (FAILSAFE DEMO MODE)
+        // 1. RELIABLE PRESENTATION HOTKEY LISTENER
         // ==========================================
-        // Press keys 1-4 on your keyboard during demo to force exact item target
-        document.addEventListener('keydown', (e) => {
-            if (e.key === '1') {
-                selectedItemKey = 'water bottle';
-                demoOverrideActive = true;
-                if (categoryOverride) categoryOverride.value = 'water bottle';
-                statusLogger.innerText = "⚡ Demo Hotkey Activated: Plastic Bottle Target Locked";
-            } else if (e.key === '2') {
-                selectedItemKey = 'cup';
-                demoOverrideActive = true;
-                if (categoryOverride) categoryOverride.value = 'cup';
-                statusLogger.innerText = "⚡ Demo Hotkey Activated: Paper Cup Target Locked";
-            } else if (e.key === '3') {
-                selectedItemKey = 'organic';
-                demoOverrideActive = true;
-                if (categoryOverride) categoryOverride.value = 'organic';
-                statusLogger.innerText = "⚡ Demo Hotkey Activated: Organic Waste Target Locked";
-            } else if (e.key === '4') {
-                selectedItemKey = 'e-waste';
-                demoOverrideActive = true;
-                if (categoryOverride) categoryOverride.value = 'e-waste';
-                statusLogger.innerText = "⚡ Demo Hotkey Activated: E-Waste Target Locked";
+        window.addEventListener('keydown', (e) => {
+            const key = e.key || e.code;
+            if (key === '1' || key === 'Digit1' || key === 'Numpad1') {
+                triggerHotkeyLock('water bottle', '⚡ Hotkey Locked: Plastic & Bottles');
+            } else if (key === '2' || key === 'Digit2' || key === 'Numpad2') {
+                triggerHotkeyLock('cup', '⚡ Hotkey Locked: Paper & Packaging');
+            } else if (key === '3' || key === 'Digit3' || key === 'Numpad3') {
+                triggerHotkeyLock('organic', '⚡ Hotkey Locked: Organic & Compost');
+            } else if (key === '4' || key === 'Digit4' || key === 'Numpad4') {
+                triggerHotkeyLock('e-waste', '⚡ Hotkey Locked: E-Waste & Tech');
             }
         });
+
+        function triggerHotkeyLock(itemKey, logMsg) {
+            selectedItemKey = itemKey;
+            demoOverrideActive = true;
+            if (categoryOverride) categoryOverride.value = itemKey;
+            if (statusLogger) statusLogger.innerText = logMsg;
+            console.log("Failsafe Hotkey Triggered -> Target Key:", itemKey);
+        }
 
         const SYSTEM_UI_DICTIONARY = {
             en: {
                 authTitle: "EcoLens Pro", authSub: "Ready to turn environmental action into an adventure? Log into your localized account.",
                 placeholder: "Enter Username...", btnLogin: "Enter Dashboard 🚀", btnSnap: "Capture Item Photo 📷",
-                lblYolo: "🤖 YOLOv8 Class Assignment:", lblYoloDesc: "Confirmed category selection (Manual override enabled):",
+                lblYolo: "🤖 YOLOv8 Class Assignment:", lblYoloDesc: "Select or verify waste group manually:",
                 btnRetake: "🔄 Retake", btnStartQ: "Start Micro-Quest 🚀", btnCancel: "🔄 Cancel & Reset",
                 lblGoal: "🌟 GOAL COMPLETED! 🌟", btnClaim: "Snap Proof & Claim XP 🏆", lblHistory: "📊 Adventure History Logs",
                 lblMap: "🗺️ Campaign Journey Map", initAI: "Initializing Operational Engine Parameters...",
-                readyAI: "YOLOv8 Weights Active. Capture an item photo to begin! 📷 [Hotkeys: 1=Bottle, 2=Cup, 3=Organic, 4=E-Waste]", 
+                readyAI: "YOLOv8 Weights Active. Scan item or use Hotkeys: [1=Plastics, 2=Paper, 3=Organic, 4=E-Waste]", 
                 calcAI: "Running Custom Tensor Math Inference... 🧠",
                 questActive: "Complete all verification checkpoints!", evalProof: "Evaluating state-change compliance thresholds...",
                 secondaryProof: "Secondary Verification View active. Capture the final processed proof state picture!",
@@ -434,88 +387,90 @@
                 verifiedAt: "Verified: ", progress: "Quest Progress"
             },
             bn: {
-                authTitle: "ইকোলেন্স প্রো", authSub: "পরিবেশ সচেতনতামূলক কাজকে গেমের মতো মজাদার করতে আপনার অ্যাকাউন্টে লগইন করুন।",
+                authTitle: "ইকোলেন্স প্রো", authSub: "পরিবেশ সচেতনতামূলক কাজকে গেমের মতো মজাদার করতে অ্যাকাউন্টে লগইন করুন।",
                 placeholder: "ইউজারনেম লিখুন...", btnLogin: "ড্যাশবোর্ডে প্রবেশ করুন 🚀", btnSnap: "বস্তুর ছবি তুলুন 📷",
-                lblYolo: "🤖 ইওলো মডেলের শ্রেণীবিভাগ:", lblYoloDesc: "নিশ্চিত বর্জ্য বিভাগ (ম্যাুয়াল ওভাররাইড সক্ষম):",
+                lblYolo: "🤖 ইওলো মডেলের শ্রেণীবিভাগ:", lblYoloDesc: "বর্জ্য গ্রুপটি ম্যানুয়ালি নির্বাচন বা নিশ্চিত করুন:",
                 btnRetake: "🔄 আবার তুলুন", btnStartQ: "মাইক্রো-কোয়েস্ট শুরু করুন 🚀", btnCancel: "🔄 বাতিল ও রিসেট",
                 lblGoal: "🌟 মিশন সম্পূর্ণ! 🌟", btnClaim: "প্রমাণ জমা দিয়ে এক্সপি নিন 🏆", lblHistory: "📊 পূর্ববর্তী কাজের ইতিহাস",
                 lblMap: "🗺️ ক্যাম্পেইন জার্নি ম্যাপ", initAI: "প্রোপ্রাইটরি ইওলো এআই ইঞ্জিন চালু হচ্ছে...",
                 readyAI: "ইওলো মডেল প্রস্তুত। শুরু করতে একটি ছবি তুলুন! 📷", calcAI: "টেনসর ক্যালকুলেশন চলছে... 🧠",
                 questActive: "সবকটি চেকবক্স পূরণ করুন!", evalProof: "কাজের সত্যতা যাচাই করা হচ্ছে...",
-                secondaryProof: "দ্বিতীয় ভেরিফিকেশন চালু হয়েছে। বর্জ্যটি সঠিক স্থানে ফেলার পর ছবি তুলুন!",
-                confirmProofBtn: "ছবি নিশ্চিত করুন 📸", logEmpty: "আজ কোনো কাজ করা হয়নি। পরিবেশ রক্ষায় এগিয়ে আসুন!",
+                secondaryProof: "দ্বিতীয় ভেরিফিকেশন চালু হয়েছে। ছবি তুলুন!",
+                confirmProofBtn: "ছবি নিশ্চিত করুন 📸", logEmpty: "আজ কোনো কাজ করা হয়নি।",
                 verifiedAt: "যাচাই করা হয়েছে: ", progress: "মিশন অগ্রগতি"
             },
             hi: {
-                authTitle: "इकोलेंस प्रो", authSub: "पर्यावरण संरक्षण को एक गेम की तरह मजेदार बनाएं! अपने अकाउंट में लॉगइन करें।",
+                authTitle: "इकोलेंस प्रो", authSub: "पर्यावरण संरक्षण को एक गेम की तरह मजेदार बनाएं! लॉगइन करें।",
                 placeholder: "यूज़रनेम दर्ज करें...", btnLogin: "डैशबोर्ड में जाएं 🚀", btnSnap: "वस्तु की फोटो लें 📷",
-                lblYolo: "🤖 योलो मॉडल श्रेणी असाइनमेंट:", lblYoloDesc: "पुष्ट कचरा श्रेणी (मैनुअल ओवरराइड सक्षम):",
+                lblYolo: "🤖 योलो मॉडल श्रेणी असाइनमेंट:", lblYoloDesc: "मैन्युअल रूप से कचरा समूह चुनें या पुष्टि करें:",
                 btnRetake: "🔄 दोबारा लें", btnStartQ: "माइक्रो-क्वेस्ट शुरू करें 🚀", btnCancel: "🔄 रद्द और रीसेट",
                 lblGoal: "🌟 मिशन पूरा हुआ! 🌟", btnClaim: "प्रमाण लें और एक्सपी पाएं 🏆", lblHistory: "📊 पिछला गतिविधि लॉग",
                 lblMap: "🗺️ अभियान यात्रा मानचित्र", initAI: "योलो एआई इंजन शुरू हो रहा है...",
                 readyAI: "योलो मॉडल तैयार है। शुरू करने के लिए फोटो लें! 📷", calcAI: "मॉडल गणना चल रही है... 🧠",
                 questActive: "सभी चेकपॉइंट पूरे करें!", evalProof: "सत्यापन की जांच की जा रही है...",
-                secondaryProof: "द्वितीय सत्यापन सक्रिय है। कचरे को सही स्थान पर डालने के बाद अंतिम फोटो लें!",
-                confirmProofBtn: "फोटो की पुष्टि करें 📸", logEmpty: "आज कोई गतिविधि लॉग नहीं हुई। पर्यावरण बचाने में योगदान दें!",
+                secondaryProof: "द्वितीय सत्यापन सक्रिय है। फोटो लें!",
+                confirmProofBtn: "फोटो की पुष्टि करें 📸", logEmpty: "आज कोई गतिविधि लॉग नहीं हुई।",
                 verifiedAt: "सत्यापित समय: ", progress: "क्वेस्ट प्रगति"
             }
         };
 
         const LEAGUE_BRACKETS = [
-            { name: "Bronze League", icon: "🥉", class: "avatar-bronze", minXp: 0, desc: { en: "Welcome to Bronze League! Scan plastic, paper, or organic items to unlock advanced ranking medals.", bn: "ব্রোঞ্জ লীগে স্বাগতম! উন্নত র‍্যাঙ্কিং মেডেল আনলক করতে প্লাস্টিক বা জৈব বর্জ্য স্ক্যান করা শুরু করুন।", hi: "ब्रॉन्ज लीग में आपका स्वागत है! मेडल अनलॉक करने के लिए प्लास्टिक या जैविक वस्तुओं को स्कैन करना शुरू करें।" }},
-            { name: "Silver League", icon: "🥈", class: "avatar-silver", minXp: 250, desc: { en: "Silver League Active! You are now trained to classify advanced Glass and Cardboard anomalies.", bn: "সিলভার লীগ আনলক হয়েছে! আপনি এখন কাচ এবং কার্ডবোর্ডের বর্জ্য নিখুঁতভাবে আলাদা করতে পারদর্শী।", hi: "सिल्वर लीग अनलॉक! अब आप कांच और कार्डबोर्ड के कचरे को सटीकता से वर्गीकृत करने में सक्षम हैं।" }},
-            { name: "Gold League", icon: "🥇", class: "avatar-gold", minXp: 700, desc: { en: "Gold Medal Status! Master of localized composting blueprints and zero-waste optimization loops.", bn: "গোল্ড মেডেল স্ট্যাটাস! আপনি কম্পোস্টিং ব্লুপ্রিন্ট এবং জিরো-ওয়েস্ট অপ্টিমাইজেশন লুপের বিশেষজ্ঞ।", hi: "गोल्ड मेडल स्टेटस! आप कम्पोस्टिंग ब्लूप्रिंट और विशेषज्ञ हैं।" }},
-            { name: "Diamond League", icon: "💎", class: "avatar-diamond", minXp: 1350, desc: { en: "The Elite Diamond Rank! Ultimate Sustainability Leader of Brainware Campus.", bn: "এলিট ডায়মন্ড র্যাঙ্ক! আপনি ব্রেনওয়্যার ক্যাম্পাসের শীর্ষ পরিবেশ সচেতনতা লিডার।", hi: "अभिजात वर्ग डायमंड रैंक! आप ब्रेनवेयर कैंपस के सर्वोच्च पर्यावरण लीडर हैं।" }}
+            { name: "Bronze League", icon: "🥉", class: "avatar-bronze", minXp: 0, desc: { en: "Welcome to Bronze League! Scan items to earn XP.", bn: "ব্রোঞ্জ লীগে স্বাগতম!", hi: "ब्रॉन्ज लीग में आपका स्वागत है!" }},
+            { name: "Silver League", icon: "🥈", class: "avatar-silver", minXp: 250, desc: { en: "Silver League Active!", bn: "সিলভার লীগ আনলক হয়েছে!", hi: "सिल्वर लीग अनलॉक!" }},
+            { name: "Gold League", icon: "🥇", class: "avatar-gold", minXp: 700, desc: { en: "Gold Medal Status!", bn: "গোল্ড মেডেল স্ট্যাটাস!", hi: "गोल्ड मेडल स्टेटस!" }},
+            { name: "Diamond League", icon: "💎", class: "avatar-diamond", minXp: 1350, desc: { en: "The Elite Diamond Rank!", bn: "এলিট ডায়মন্ড র্যাঙ্ক!", hi: "अभिजात वर्ग डायमंड रैंक!" }}
         ];
 
-        // 10-Level Campaign Map (Level 1 -> Level 2 Threshold at 100 XP)
+        // 10-Level Journey Map (Level 1 -> Level 2 at 100 XP)
         const LEVEL_TREE_DATABASE = [
-            { id: 1, segment: "bronze", icon: "🌱", minXp: 0, titles: { en: "Eco Novice", bn: "ইকো নোভিস", hi: "इको नौसिखिया" }, descs: { en: "Level 1: Scan your first waste item to cross 100 XP!", bn: "লেভেল ১: ১০০ এক্সপি পার করতে আপনার প্রথম বর্জ্য স্ক্যান করুন!", hi: "लेवल 1: 100 XP पार करने के लिए अपना पहला कचरा स्कैन करें!" }},
-            { id: 2, segment: "bronze", icon: "🔍", minXp: 100, titles: { en: "Waste Identifier", bn: "বর্জ্য শনাক্তকারী", hi: "कचरा पहचानकर्ता" }, descs: { en: "Level 2 Reached! Master category identification.", bn: "লেভেল ২ অর্জিত! বর্জ্য বিভাগ নিখুঁতভাবে চিহ্নিত করতে শিখুন।", hi: "लेवल 2 हासिल हुआ! श्रेणियों की पहचान में महारत हासिल करें।" }},
-            { id: 3, segment: "bronze", icon: "♻️", minXp: 250, titles: { en: "Sorting Apprentice", bn: "বিন্যাস শিক্ষানবিশ", hi: "छंटाई प्रशिक्षु" }, descs: { en: "Level 3: Sort common municipal and campus waste.", bn: "লেভেল ৩: সাধারণ বর্জ্য স্থানান্তরিত করতে পারদর্শী হন।", hi: "लेवल 3: सामान्य कचरे को प्रभावी ढंग से छांटें।" }},
-            { id: 4, segment: "silver", icon: "🛡️", minXp: 450, titles: { en: "Campus Guardian", bn: "ক্যাম্পাস গাইড", hi: "परिसर रक्षक" }, descs: { en: "Level 4: Handle glass and composite recyclables.", bn: "লেভেল ৪: কাচ এবং যৌগিক বর্জ্য সামলান।", hi: "लेवल 4: कांच और मिश्रित रीसाइक्लिंग संभालें।" }},
-            { id: 5, segment: "silver", icon: "⚡", minXp: 700, titles: { en: "Segregation Specialist", bn: "পৃথকীকরণ বিশেষজ্ঞ", hi: "अलगाव विशेषज्ञ" }, descs: { en: "Level 5: Master complex material segregation.", bn: "লেভেল ৫: জটিল উপাদান পৃথক করতে পারদর্শী হন।", hi: "लेवल 5: जटिल सामग्रियों को अलग करने में माहिर हों।" }},
-            { id: 6, segment: "gold", icon: "🎓", minXp: 1000, titles: { en: "Sustainability Scholar", bn: "টেকসই স্কলার", hi: "स्थिरता विद्वान" }, descs: { en: "Level 6: Campus zero-waste ambassador status.", bn: "লেভেল ৬: ক্যাম্পাস জিরো-ওয়েস্ট মিশন লিডার।", hi: "लेवल 6: परिसर जीरो-वेस्ट राजदूत दर्जा।" }},
-            { id: 7, segment: "gold", icon: "⚔️", minXp: 1350, titles: { en: "Eco Warrior", bn: "ইকো ওয়ারিয়র", hi: "इको योद्धा" }, descs: { en: "Level 7: Lead composting and organic processing.", bn: "লেভেল ৭: জৈব সার প্রক্রিয়াকরণের নেতৃত্ব দিন।", hi: "लेवल 7: जैविक खाद बनाने का नेतृत्व करें।" }},
-            { id: 8, segment: "diamond", icon: "🧠", minXp: 1750, titles: { en: "Recycling Strategist", bn: "রিসাইক্লিং স্ট্র্যাটেজিস্ট", hi: "रीसाइक्लिंग रणनीतिकार" }, descs: { en: "Level 8: Electronic waste safe disposal expert.", bn: "লেভেল ৮: ই-বর্জ্য নিরাপদ বিন্যাস বিশেষজ্ঞ।", hi: "लेवल 8: ई-कचरा सुरक्षित निपटान विशेषज्ञ।" }},
-            { id: 9, segment: "diamond", icon: "🏆", minXp: 2250, titles: { en: "Zero-Waste Champion", bn: "জিরো-ওয়েস্ট চ্যাম্পিয়ন", hi: "जीरो-वेस्ट चैंपियन" }, descs: { en: "Level 9: Institutional zero-waste optimization.", bn: "লেভেল ৯: ক্যাম্পাস বর্জ্য হ্রাস সিস্টেম অপ্টিমাইজার।", hi: "लेवल 9: संस्थागत कचरा कमी के चैंपियन।" }},
-            { id: 10, segment: "diamond", icon: "👑", minXp: 3000, titles: { en: "EcoLens Master", bn: "ইকোলেন্স মাস্টার", hi: "इकोलेंस मास्टर" }, descs: { en: "Level 10: Ultimate Sustainability Leader.", bn: "লেভেল ১০: সর্বোচ্চ পরিবেশ নেতা।", hi: "लेवल 10: परम पर्यावरण नेता।" }}
+            { id: 1, segment: "bronze", icon: "🌱", minXp: 0, titles: { en: "Eco Novice", bn: "ইকো নোভিস", hi: "इको नौसिखिया" }, descs: { en: "Level 1: Earn 100 XP to unlock Level 2!", bn: "লেভেল ১: ১০০ এক্সপি অর্জনে লেভেল ২ আনলক হবে!", hi: "लेवल 1: 100 XP हासिल करके लेवल 2 अनलॉक करें!" }},
+            { id: 2, segment: "bronze", icon: "🔍", minXp: 100, titles: { en: "Waste Identifier", bn: "বর্জ্য শনাক্তকারী", hi: "कचरा पहचानकर्ता" }, descs: { en: "Level 2: Master category segregation.", bn: "লেভেল ২: বর্জ্য পৃথকীকরণ শিখুন।", hi: "लेवल 2: कचरा अलगाव में माहिर बनें।" }},
+            { id: 3, segment: "bronze", icon: "♻️", minXp: 250, titles: { en: "Sorting Apprentice", bn: "বিন্যাস শিক্ষানবিশ", hi: "छंटाई प्रशिक्षु" }, descs: { en: "Level 3: Process campus recyclables.", bn: "লেভেল ৩: বর্জ্য রিসাইকেল করুন।", hi: "लेवल 3: रीसाइक्लिंग शुरू करें।" }},
+            { id: 4, segment: "silver", icon: "🛡️", minXp: 450, titles: { en: "Campus Guardian", bn: "ক্যাম্পাস গাইড", hi: "परिसर रक्षक" }, descs: { en: "Level 4: Manage composite waste.", bn: "লেভেল ৪: মিশ্র বর্জ্য সামলান।", hi: "लेवल 4: मिश्रित कचरा संभालें।" }},
+            { id: 5, segment: "silver", icon: "⚡", minXp: 700, titles: { en: "Segregation Specialist", bn: "পৃথকীকরণ বিশেষজ্ঞ", hi: "अलगाव विशेषज्ञ" }, descs: { en: "Level 5: Zero waste master.", bn: "লেভেল ৫: টেকসই বর্জ্য রূপান্তর।", hi: "लेवल 5: शून्य कचरा मास्टर।" }},
+            { id: 6, segment: "gold", icon: "🎓", minXp: 1000, titles: { en: "Sustainability Scholar", bn: "টেকসই স্কলার", hi: "स्थिरता विद्वान" }, descs: { en: "Level 6: Campus leader.", bn: "লেভেল ৬: ক্যাম্পাস প্রতিনিধি।", hi: "लेवल 6: परिसर प्रतिनिधि।" }},
+            { id: 7, segment: "gold", icon: "⚔️", minXp: 1350, titles: { en: "Eco Warrior", bn: "ইকো ওয়ারিয়র", hi: "इको योद्धा" }, descs: { en: "Level 7: Organic composting lead.", bn: "লেভেল ৭: জৈব সার প্রক্রিয়াকরণ।", hi: "लेवल 7: कम्पोस्टिंग विशेषज्ञ।" }},
+            { id: 8, segment: "diamond", icon: "🧠", minXp: 1750, titles: { en: "Recycling Strategist", bn: "রিসাইক্লিং স্ট্র্যাটেজিস্ট", hi: "रीसाइक्लिंग रणनीतिकार" }, descs: { en: "Level 8: E-waste expert.", bn: "লেভেল ৮: ই-বর্জ্য বিশেষজ্ঞ।", hi: "लेवल 8: ई-कचरा विशेषज्ञ।" }},
+            { id: 9, segment: "diamond", icon: "🏆", minXp: 2250, titles: { en: "Zero-Waste Champion", bn: "জিরো-ওয়েস্ট চ্যাম্পিয়ন", hi: "जीरो-वेस्ट चैंपियन" }, descs: { en: "Level 9: Institutional leader.", bn: "লেভেল ৯: ক্যাম্পাস জিরো-ওয়েস্ট চ্যাম্পিয়ন।", hi: "लेवल 9: संस्थागत लीडर।" }},
+            { id: 10, segment: "diamond", icon: "👑", minXp: 3000, titles: { en: "EcoLens Master", bn: "ইকোলেন্স মাস্টার", hi: "इकोलेंस मास्टर" }, descs: { en: "Level 10: Ultimate Sustainability Master.", bn: "লেভেল ১০: সর্বোচ্চ পরিবেশ নেতা।", hi: "लेवल 10: परम पर्यावरण नेता।" }}
         ];
 
-        // Dynamic Task Pool for Task Randomization
+        // ==========================================
+        // 2. EXPANDED 4-GROUP TASK & POOL DATABASE
+        // ==========================================
         const DYNAMIC_TASK_POOLS = {
             "water bottle": [
-                { primary: ["Drain any remaining liquids entirely.", "Unscrew the cap and crush the container body flat.", "Discard into the designated Blue Recycling Unit."], bonus: "Check bottom for PETE recycling code symbol." },
-                { primary: ["Rinse interior to clear sugar/flavor residues.", "Separate plastic ring from bottle neck.", "Drop crushed bottle into the Blue Bin."], bonus: "Ensure container is 100% dry before dropping." },
-                { primary: ["Compress bottle vertically to save bin volume.", "Keep bottle cap loose for air evacuation.", "Place inside Campus Dry Waste Bin."], bonus: "Sanitize cap before placing in bin." }
+                { primary: ["Drain all remaining liquids entirely.", "Unscrew plastic cap & crush container body flat.", "Deposit into the Blue Recycling Bin."], bonus: "Check bottom for PETE #1 recycling code." },
+                { primary: ["Rinse interior to clear juice/sugar residues.", "Separate plastic ring seal from neck.", "Place flattened bottle in plastic collection."], bonus: "Air dry before bin disposal." },
+                { primary: ["Compress bottle vertically to reduce bin volume.", "Keep cap loose for air evacuation.", "Transfer to Dry Waste Bin."], bonus: "Sanitize cap before recycling." }
             ],
             "cup": [
-                { primary: ["Empty any remaining liquids or core residues.", "Flatten the structural core to save space.", "Place remnants cleanly inside the Red Trash Bin."], bonus: "Separate plastic lid from paper cup base." },
-                { primary: ["Wipe inner lining dry with tissue.", "Stack cup neatly if multiple cups exist.", "Deposit in non-recyclable or composite bin."], bonus: "Check if cup lining is compostable PLA." },
-                { primary: ["Remove cardboard sleeve for separate recycling.", "Flatten cup horizontally.", "Drop into designated waste stream."], bonus: "Keep sleeve dry for paper recycling." }
+                { primary: ["Empty liquid residues completely.", "Flatten cup structure to minimize volume.", "Deposit inside Red Trash Bin."], bonus: "Separate plastic lid from paper base." },
+                { primary: ["Wipe inner wax/plastic lining dry.", "Stack neatly if multiple cups exist.", "Drop into dry packaging stream."], bonus: "Check if sleeve is unbleached paper." },
+                { primary: ["Remove cardboard sleeve for paper recycling.", "Flatten base cup horizontally.", "Dispose in composite sorting bin."], bonus: "Keep sleeve clean and dry." }
             ],
             "organic": [
-                { primary: ["Ensure no non-biodegradable wrappers are mixed in.", "Chop large elements into smaller pieces for faster composting.", "Deposit cleanly inside your localized Green Eco-Bin."], bonus: "Avoid mixing citrus peels with worm compost." },
-                { primary: ["Separate food scraps from plastic/foil packaging.", "Break down organic peel/residue.", "Transfer to Campus Compost Collection Point."], bonus: "Keep moisture content balanced." },
-                { primary: ["Isolate wet kitchen waste from paper napkins.", "Place organic material into Green Organics Bin.", "Seal compost lid tightly."], bonus: "Ensure zero metal foil contamination." }
+                { primary: ["Ensure zero plastic wrappers are mixed in.", "Chop large food items to speed composting.", "Deposit cleanly in Green Compost Bin."], bonus: "Avoid mixing citrus with worm compost." },
+                { primary: ["Isolate organic peel/scraps from foil packaging.", "Break down items into small fragments.", "Drop off at Campus Compost Hub."], bonus: "Balance green & brown compost ratio." },
+                { primary: ["Separate wet kitchen waste from napkins.", "Place organic material into Green Organics Unit.", "Seal compost container lid."], bonus: "Ensure zero foil contamination." }
             ],
             "e-waste": [
-                { primary: ["Do not throw this item into regular household dustbins.", "Carefully remove any detachable lithium batteries if present.", "Take it to the nearest university or authorized e-waste collection hub."], bonus: "Tape over exposed battery terminals." },
-                { primary: ["Store in a dry container away from heat.", "Check for recyclable copper/circuit parts.", "Hand over to E-Waste Collection Drive."], bonus: "Ensure no liquid contact." },
-                { primary: ["Isolate broken electronic casing safely.", "Disconnect wires and cables.", "Drop off at Campus Tech Disposal Bin."], bonus: "Bundle wires with eco-friendly ties." }
+                { primary: ["Do not throw into regular trash bins.", "Safely remove detachable lithium batteries if present.", "Take to designated E-Waste Hub."], bonus: "Tape over exposed battery contacts." },
+                { primary: ["Keep in a dry container away from moisture.", "Isolate circuit boards and copper cables.", "Hand over to certified recycling drive."], bonus: "Avoid puncturing battery cells." },
+                { primary: ["Separate plastic casing from wires.", "Bundle long cords neatly.", "Deposit at E-Waste Disposal Unit."], bonus: "Use eco-friendly wire ties." }
             ],
             "default": [
-                { primary: ["Examine if the item is recyclable dry or wet waste.", "Isolate any toxic elements (like batteries or circuit parts).", "Deposit safely inside the standard municipal drop unit."], bonus: "Wipe clean before sorting." },
-                { primary: ["Separate paper/cardboard from plastic wrappers.", "Flatten dry packaging.", "Place in Municipal Sort Bin."], bonus: "Check for local waste symbols." }
+                { primary: ["Examine if item is dry recyclable or wet waste.", "Isolate hazardous or battery components.", "Deposit safely in standard drop unit."], bonus: "Wipe clean before sorting." },
+                { primary: ["Separate paper packaging from plastic film.", "Flatten dry boxes or shells.", "Place in Municipal Sort Bin."], bonus: "Check local eco symbols." }
             ]
         };
 
         const localizationEngine = {
-            "water bottle": { basePoints: 15, en: { title: "Plastic Beverage Container", proofText: "Snap a photo of the completely crushed bottle." }, bn: { title: "প্লাস্টিকের বোতল/কন্টেইনার", proofText: "সম্পূর্ণ দুমড়ানো বোতলের ছবি তুলুন।" }, hi: { title: "प्लास्टिक की बोतल/कंटेनर", proofText: "पूरी तरह से कुचली हुई बोतल की फोटो लें।" } },
-            "cup": { basePoints: 10, en: { title: "Composite Cup / Aluminum Can", proofText: "Snap a photo of the flattened or sorted cup." }, bn: { title: "কাপ অথবা ক্যান বর্জ্য", proofText: "চ্যাপ্টা করা কাপের ছবি তুলুন।" }, hi: { title: "कप या कैन कचरा", proofText: "चपटे किए गए कप की फोटो लें।" } },
-            "organic": { basePoints: 15, en: { title: "Organic Kitchen Waste", proofText: "Snap a photo of the organic waste inside the green compost box." }, bn: { title: "জৈব রান্নাঘরের বর্জ্য", proofText: "সবুজ ডাস্টবিনে ফেলার পর ছবি তুলুন।" }, hi: { title: "जैविक रसोई कचरा", proofText: "हरे कूड़ेदान में कचरे की फोटो लें।" } },
-            "e-waste": { basePoints: 25, en: { title: "Electronic Waste (E-Waste)", proofText: "Snap a photo of the item at an authorized collection box." }, bn: { title: "ইলেক্ট্রনিক বর্জ্য (ই-বর্জ্য)", proofText: "অনুমোদিত সংগ্রহ বাক্সে রাখার পর ছবি তুলুন।" }, hi: { title: "इलेक्ट्रॉनिक कचरा (ई-कचरा)", proofText: "अधिकृत संग्रह बॉक्स पर वस्तु की फोटो लें।" } },
-            "default": { basePoints: 5, en: { title: "General Municipal Waste", proofText: "Snap a photo of your sorted waste items." }, bn: { title: "সাধারণ বর্জ্য বস্তু", proofText: "আলাদা করা বর্জ্য অংশের ছবি তুলুন।" }, hi: { title: "सामान्य कचरा वस्तु", proofText: "अपने छांटे गए कचरे की फोटो लें।" } }
+            "water bottle": { basePoints: 15, en: { title: "Group 1: Plastics & Bottles (PET/Jug/Films/Straws)", proofText: "Snap a photo of the crushed plastic item inside the recycling bin." }, bn: { title: "গ্রুপ ১: প্লাস্টিক ও বোতল বর্জ্য", proofText: "ছবি তুলুন।" }, hi: { title: "समूह 1: प्लास्टिक और बोतल कचरा", proofText: "फोटो लें।" } },
+            "cup": { basePoints: 10, en: { title: "Group 2: Paper & Packaging (Cardboard/Cup/Carton)", proofText: "Snap a photo of the flattened paper item." }, bn: { title: "গ্রুপ ২: কাগজ ও প্যাকেজিং", proofText: "ছবি তুলুন।" }, hi: { title: "समूह 2: कागज और पैकेजिंग", proofText: "फोटो लें।" } },
+            "organic": { basePoints: 15, en: { title: "Group 3: Organic & Compost (Peels/Scraps/Leaves)", proofText: "Snap a photo of the organic waste inside the compost bin." }, bn: { title: "গ্রুপ ৩: জৈব পচনশীল বর্জ্য", proofText: "ছবি তুলুন।" }, hi: { title: "समूह 3: जैविक और कम्पोस्ट कचरा", proofText: "फोटो लें।" } },
+            "e-waste": { basePoints: 25, en: { title: "Group 4: E-Waste & Hazardous (Batteries/Cables/Circuits)", proofText: "Snap a photo of the item at the E-Waste Collection Box." }, bn: { title: "গ্রুপ ৪: ই-বর্জ্য ও বিপজ্জনক বর্জ্য", proofText: "ছবি তুলুন।" }, hi: { title: "समूह 4: ई-कचरा और खतरनाक कचरा", proofText: "फोटो लें।" } },
+            "default": { basePoints: 5, en: { title: "General Municipal Waste", proofText: "Snap a photo of your sorted waste." }, bn: { title: "সাধারণ বর্জ্য", proofText: "ছবি তুলুন।" }, hi: { title: "सामान्य कचरा", proofText: "फोटो लें।" } }
         };
 
         loginSubmitBtn.addEventListener('click', () => {
@@ -571,11 +526,11 @@
         function populateCategoryDropdown() {
             const lang = langSelect.value;
             categoryOverride.innerHTML = `
-                <option value="water bottle">${localizationEngine["water bottle"][lang].title}</option>
-                <option value="cup">${localizationEngine["cup"][lang].title}</option>
-                <option value="organic">${localizationEngine["organic"][lang].title}</option>
-                <option value="e-waste">${localizationEngine["e-waste"][lang].title}</option>
-                <option value="default">${localizationEngine["default"][lang].title}</option>
+                <option value="water bottle">🥤 Group 1: Plastics & Bottles (PET/Jugs/Wrappers/Straws)</option>
+                <option value="cup">📦 Group 2: Paper & Packaging (Cardboard/Cups/Cartons/News)</option>
+                <option value="organic">🍌 Group 3: Organic & Compost (Food Scraps/Peels/Leaves)</option>
+                <option value="e-waste">🔋 Group 4: E-Waste & Tech (Batteries/Cables/Circuits/Bulbs)</option>
+                <option value="default">🗑️ General Municipal Mixed Waste</option>
             `;
             categoryOverride.value = selectedItemKey;
         }
@@ -769,7 +724,7 @@
 
             populateCategoryDropdown(); 
             categoryOverride.value = selectedItemKey;
-            statusLogger.innerText = "AI Verification Complete. Press 'Start Micro-Quest' to continue.";
+            statusLogger.innerText = "AI Verification Complete. Confirm group or manually adjust dropdown below.";
             startQuestBtn.disabled = false;
             
             demoOverrideActive = false;
@@ -800,7 +755,7 @@
         });
 
         // ==========================================
-        // 2. RANDOMIZED & ROTATING QUEST GENERATOR
+        // 3. RANDOMIZED & ROTATING QUEST ENGINE
         // ==========================================
         function compileDynamicChecklistStructure(itemKey) {
             const lang = langSelect.value;
@@ -810,23 +765,19 @@
             tasksContainer.innerHTML = "";
             evaluateChecklistProgress();
 
-            // Select a randomized task variation pool for this scan session
             const poolSet = DYNAMIC_TASK_POOLS[itemKey] || DYNAMIC_TASK_POOLS["default"];
             const randomIndex = Math.floor(Math.random() * poolSet.length);
             const activePool = poolSet[randomIndex];
 
-            // Shuffle primary step order dynamically
             let stepsToRender = [...activePool.primary];
             stepsToRender.sort(() => Math.random() - 0.5);
 
-            // Render main steps
             stepsToRender.forEach(stepString => {
                 renderTaskCard(stepString, "+10 XP");
             });
 
-            // Render optional bonus step
             if (activePool.bonus) {
-                renderTaskCard(`🌟 Bonus: ${activePool.bonus}`, "+15 XP", true);
+                renderTaskCard(`🌟 Bonus Quest: ${activePool.bonus}`, "+15 XP", true);
             }
         }
 
