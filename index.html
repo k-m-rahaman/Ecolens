@@ -212,7 +212,7 @@
                 <label for="categoryOverride" id="lblYoloAssignment" style="font-weight: 800; font-size: 0.95rem; color: var(--text-muted);">
                     Don't know how to decompose/reuse an item? Select its exact category below:
                 </label>
-                <!-- Fully interactive categorization dropdown -->
+                <!-- 4 Major Categories built into the Manual Fallback System -->
                 <select id="categoryOverride" class="category-override"></select>
             </div>
             <div class="button-row">
@@ -346,14 +346,15 @@
         let userXP = 0;
         let loggedQuests = [];
         let demoOverrideActive = false;
+        let sessionEarnedXP = 0; // Dynamic XP Tracker
 
         // ==========================================
-        // 1. RELIABLE PRESENTATION HOTKEY LISTENER
+        // 1. RELIABLE PRESENTATION HOTKEY LISTENER (Global Window Event)
         // ==========================================
         window.addEventListener('keydown', (e) => {
             const key = e.key || e.code;
             if (key === '1' || key === 'Digit1' || key === 'Numpad1') {
-                triggerHotkeyLock('water bottle', '⚡ Hotkey Locked: Plastic & Bottles');
+                triggerHotkeyLock('water bottle', '⚡ Hotkey Locked: Plastics & Bottles');
             } else if (key === '2' || key === 'Digit2' || key === 'Numpad2') {
                 triggerHotkeyLock('cup', '⚡ Hotkey Locked: Paper & Packaging');
             } else if (key === '3' || key === 'Digit3' || key === 'Numpad3') {
@@ -466,22 +467,31 @@
         };
 
         const localizationEngine = {
-            "water bottle": { basePoints: 15, en: { title: "Group 1: Plastics & Bottles (PET/Jug/Films/Straws)", proofText: "Snap a photo of the crushed plastic item inside the recycling bin." }, bn: { title: "গ্রুপ ১: প্লাস্টিক ও বোতল বর্জ্য", proofText: "ছবি তুলুন।" }, hi: { title: "समूह 1: प्लास्टिक और बोतल कचरा", proofText: "फोटो लें।" } },
-            "cup": { basePoints: 10, en: { title: "Group 2: Paper & Packaging (Cardboard/Cup/Carton)", proofText: "Snap a photo of the flattened paper item." }, bn: { title: "গ্রুপ ২: কাগজ ও প্যাকেজিং", proofText: "ছবি তুলুন।" }, hi: { title: "समूह 2: कागज और पैकेजिंग", proofText: "फोटो लें।" } },
-            "organic": { basePoints: 15, en: { title: "Group 3: Organic & Compost (Peels/Scraps/Leaves)", proofText: "Snap a photo of the organic waste inside the compost bin." }, bn: { title: "গ্রুপ ৩: জৈব পচনশীল বর্জ্য", proofText: "ছবি তুলুন।" }, hi: { title: "समूह 3: जैविक और कम्पोस्ट कचरा", proofText: "फोटो लें।" } },
-            "e-waste": { basePoints: 25, en: { title: "Group 4: E-Waste & Hazardous (Batteries/Cables/Circuits)", proofText: "Snap a photo of the item at the E-Waste Collection Box." }, bn: { title: "গ্রুপ ৪: ই-বর্জ্য ও বিপজ্জনক বর্জ্য", proofText: "ছবি তুলুন।" }, hi: { title: "समूह 4: ई-कचरा और खतरनाक कचरा", proofText: "फोटो लें।" } },
-            "default": { basePoints: 5, en: { title: "General Municipal Waste", proofText: "Snap a photo of your sorted waste." }, bn: { title: "সাধারণ বর্জ্য", proofText: "ছবি তুলুন।" }, hi: { title: "सामान्य कचरा", proofText: "फोटो लें।" } }
+            "water bottle": { en: { title: "Group 1: Plastics & Bottles (PET/Jug/Films)", proofText: "Snap a photo of the crushed plastic item inside the recycling bin." }, bn: { title: "গ্রুপ ১: প্লাস্টিক ও বোতল বর্জ্য", proofText: "ছবি তুলুন।" }, hi: { title: "समूह 1: प्लास्टिक और बोतल कचरा", proofText: "फोटो लें।" } },
+            "cup": { en: { title: "Group 2: Paper & Packaging (Cardboard/Cup/Carton)", proofText: "Snap a photo of the flattened paper item." }, bn: { title: "গ্রুপ ২: কাগজ ও প্যাকেজিং", proofText: "ছবি তুলুন।" }, hi: { title: "समूह 2: कागज और पैकेजिंग", proofText: "फोटो लें।" } },
+            "organic": { en: { title: "Group 3: Organic & Compost (Peels/Scraps/Leaves)", proofText: "Snap a photo of the organic waste inside the compost bin." }, bn: { title: "গ্রুপ ৩: জৈব পচনশীল বর্জ্য", proofText: "ছবি তুলুন।" }, hi: { title: "समूह 3: जैविक और कम्पोस्ट कचरा", proofText: "फोटो लें।" } },
+            "e-waste": { en: { title: "Group 4: E-Waste & Hazardous (Batteries/Cables/Circuits)", proofText: "Snap a photo of the item at the E-Waste Collection Box." }, bn: { title: "গ্রুপ ৪: ই-বর্জ্য ও বিপজ্জনক বর্জ্য", proofText: "ছবি তুলুন।" }, hi: { title: "समूह 4: ई-कचरा और खतरनाक कचरा", proofText: "फोटो लें।" } },
+            "default": { en: { title: "General Municipal Waste", proofText: "Snap a photo of your sorted waste." }, bn: { title: "সাধারণ বর্জ্য", proofText: "ছবি তুলুন।" }, hi: { title: "सामान्य कचरा", proofText: "फोटो लें।" } }
         };
 
+        // SAFELY LOAD DATA & PREVENT CORRUPTION BUGS
         loginSubmitBtn.addEventListener('click', () => {
             const val = usernameInput.value.trim();
             if (val === "") { alert("Please input a valid profile name!"); return; }
-            
             currentUser = val;
             profileNameDisplay.innerText = currentUser;
 
-            userXP = localStorage.getItem(`ecoXP_${currentUser}`) ? parseInt(localStorage.getItem(`ecoXP_${currentUser}`)) : 0;
-            loggedQuests = localStorage.getItem(`ecoHistory_${currentUser}`) ? JSON.parse(localStorage.getItem(`ecoHistory_${currentUser}`)) : [];
+            // Safe parsing to fix the "XP Stuck at 80" bug
+            userXP = parseInt(localStorage.getItem(`ecoXP_${currentUser}`)) || 0;
+            if (isNaN(userXP)) userXP = 0; 
+
+            // Safe JSON parsing to fix the "History Log not updating" bug
+            try {
+                loggedQuests = JSON.parse(localStorage.getItem(`ecoHistory_${currentUser}`));
+                if (!Array.isArray(loggedQuests)) loggedQuests = [];
+            } catch(e) {
+                loggedQuests = [];
+            }
 
             authGate.style.display = "none";
             mainHeader.style.display = "flex";
@@ -506,10 +516,12 @@
             startQuestBtn.innerText = dict.btnStartQ;
             questCancelBtn.innerText = dict.btnCancel;
             document.getElementById('lblGoalCompleted').innerText = dict.lblGoal;
-            submitProofPhotoBtn.innerText = dict.btnClaim;
             document.getElementById('lblHistoryTitle').innerText = dict.lblHistory;
             document.getElementById('lblMapTitle').innerText = dict.lblMap;
             document.getElementById('lblQuestProgress').innerText = dict.progress;
+            
+            // Prevent button text overwriting during proof processing
+            submitProofPhotoBtn.innerText = isProcessingSecondaryProof ? dict.confirmProofBtn : dict.btnClaim;
             
             if(!yoloSession) { 
                 statusLogger.innerText = dict.initAI; 
@@ -550,7 +562,7 @@
                 video.srcObject = mediaStream;
                 video.addEventListener('loadeddata', () => { snapPhotoBtn.disabled = false; });
             } catch (err) {
-                statusLogger.innerText = "Error deploying ONNX execution context runtime engine.";
+                statusLogger.innerText = "Error: Camera or Model Failed. Please check permissions.";
                 console.error(err);
             }
         }
@@ -664,7 +676,6 @@
                 }
 
                 const inputTensor = new ort.Tensor('float32', float32Buffer, [1, 3, 640, 640]);
-                
                 const outputMap = await yoloSession.run({ images: inputTensor });
                 const outputTensor = outputMap[Object.keys(outputMap)[0]];
                 
@@ -715,11 +726,11 @@
                 }
 
                 const confidencePercent = Math.min(99, Math.max(84, Math.round((maxConfidence > 0 ? maxConfidence : 0.88) * 100)));
-                document.getElementById('lblDetectedText').innerText = `${localizationEngine[selectedItemKey][langSelect.value].title} (${confidencePercent}%)`;
+                document.getElementById('lblDetectedText').innerText = `AI Prediction Confidence: ${confidencePercent}%`;
 
             } catch (inferenceErr) {
                 console.warn("⚠️ Fallback active:", inferenceErr);
-                document.getElementById('lblDetectedText').innerText = `${localizationEngine[selectedItemKey][langSelect.value].title} (88%)`;
+                document.getElementById('lblDetectedText').innerText = `AI Prediction Confidence: 88%`;
             }
 
             populateCategoryDropdown(); 
@@ -727,7 +738,7 @@
             statusLogger.innerText = "AI Verification Complete. Confirm group or manually adjust dropdown below.";
             startQuestBtn.disabled = false;
             
-            demoOverrideActive = false;
+            demoOverrideActive = false; // Reset Hotkey Lock
         });
 
         analysisRetakeBtn.addEventListener('click', resetToLiveCaptureView);
@@ -763,7 +774,7 @@
             
             targetItemName.innerText = contextData.title;
             tasksContainer.innerHTML = "";
-            evaluateChecklistProgress();
+            sessionEarnedXP = 0;
 
             const poolSet = DYNAMIC_TASK_POOLS[itemKey] || DYNAMIC_TASK_POOLS["default"];
             const randomIndex = Math.floor(Math.random() * poolSet.length);
@@ -773,17 +784,20 @@
             stepsToRender.sort(() => Math.random() - 0.5);
 
             stepsToRender.forEach(stepString => {
-                renderTaskCard(stepString, "+10 XP");
+                renderTaskCard(stepString, "+10 XP", false);
             });
 
             if (activePool.bonus) {
                 renderTaskCard(`🌟 Bonus Quest: ${activePool.bonus}`, "+15 XP", true);
             }
+
+            evaluateChecklistProgress();
         }
 
         function renderTaskCard(stepString, xpTagText, isBonus = false) {
             const stepCardLabel = document.createElement('div');
-            stepCardLabel.className = "step-item";
+            // Distinguish classes for logic tracking
+            stepCardLabel.className = "step-item" + (isBonus ? " bonus-task" : " primary-task");
             if (isBonus) stepCardLabel.style.borderColor = "var(--duo-orange)";
             
             const interiorLeftWrapper = document.createElement('div');
@@ -822,17 +836,25 @@
         }
 
         function evaluateChecklistProgress() {
-            const totalItemsNodes = tasksContainer.querySelectorAll('.step-item');
-            if (totalItemsNodes.length === 0) return;
+            const primaryNodes = tasksContainer.querySelectorAll('.primary-task');
+            if (primaryNodes.length === 0) return;
 
-            let markedActive = 0;
-            totalItemsNodes.forEach(node => { if (node.classList.contains('completed-task')) markedActive++; });
+            let markedPrimary = 0;
+            primaryNodes.forEach(node => { if (node.classList.contains('completed-task')) markedPrimary++; });
 
-            const percentageFillRatio = Math.round((markedActive / totalItemsNodes.length) * 100);
+            // Progress bar only cares about Primary Tasks
+            const percentageFillRatio = Math.round((markedPrimary / primaryNodes.length) * 100);
             progressFill.style.width = `${percentageFillRatio}%`;
             progressPercentageText.innerText = `${percentageFillRatio}%`;
 
-            if (markedActive === totalItemsNodes.length) {
+            if (markedPrimary === primaryNodes.length) {
+                // Dynamically Calculate Actual XP from completed tasks!
+                let totalXP = 0;
+                tasksContainer.querySelectorAll('.completed-task .step-xp-tag').forEach(tag => {
+                    totalXP += parseInt(tag.innerText.replace(/\D/g, '')) || 0;
+                });
+                sessionEarnedXP = totalXP;
+
                 setTimeout(() => {
                     shiftActiveScreen("PROOF");
                     document.getElementById('proofInstruction').innerText = localizationEngine[selectedItemKey][langSelect.value].proofText;
@@ -864,7 +886,8 @@
                 statusLogger.innerText = dict.evalProof;
 
                 setTimeout(() => {
-                    const netEarnedXp = localizationEngine[selectedItemKey].basePoints * 2;
+                    // Pull exact XP dynamically gathered from tasks
+                    const netEarnedXp = sessionEarnedXP > 0 ? sessionEarnedXP : 30; 
                     const oldLeague = getCurrentLeague();
                     
                     userXP += netEarnedXp;
