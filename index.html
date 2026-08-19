@@ -72,7 +72,7 @@
 
         .ui-screen { display: none; width: 100%; flex-direction: column; gap: 20px; }
         .ui-screen.active-screen { display: flex; }
-        .button-row { display: flex; gap: 16px; width: 100%; }
+        .button-col { display: flex; flex-direction: column; gap: 12px; width: 100%; }
 
         .btn-core { width: 100%; background: var(--duo-green); color: white; border: none; padding: 18px 24px; font-size: 1.2rem; font-weight: 900; border-radius: var(--radius-lg); text-transform: uppercase; cursor: pointer; box-shadow: 0 6px 0px var(--duo-green-shadow); transition: var(--transition-smooth); display: flex; align-items: center; justify-content: center; gap: 10px; }
         .btn-core:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--duo-green-shadow); }
@@ -81,6 +81,8 @@
         .btn-blue:active { box-shadow: 0 2px 0 var(--duo-blue-shadow); }
         .btn-red { background: var(--duo-red); box-shadow: 0 6px 0 var(--duo-red-shadow); }
         .btn-red:active { box-shadow: 0 2px 0 var(--duo-red-shadow); }
+        .btn-purple { background: var(--duo-purple); box-shadow: 0 6px 0 #8b4dd8; }
+        .btn-purple:active { box-shadow: 0 2px 0 #8b4dd8; }
 
         .premium-card { background: white; border: 2px solid var(--duo-card-border); border-radius: var(--radius-xl); padding: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.01); display: flex; flex-direction: column; gap: 16px; }
         .premium-card h3 { font-size: 1.5rem; font-weight: 900; color: var(--text-dark); }
@@ -235,7 +237,7 @@
                     <span class="metric-highlight" id="lblDetectedText">Detecting...</span>
                 </div>
 
-                <!-- SMART BIN ROUTING & RECYCLING GUIDE (New Upgrade) -->
+                <!-- SMART BIN ROUTING & RECYCLING GUIDE -->
                 <div class="smart-bin-card" id="smartBinContainer">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
                         <span style="font-size:0.8rem; font-weight:900; color:var(--text-muted); text-transform:uppercase;" id="lblSmartBinHeader">Smart Bin Destination:</span>
@@ -263,9 +265,12 @@
                 
                 <select id="categoryOverride" class="category-override"></select>
             </div>
-            <div class="button-row">
-                <button id="analysisRetakeBtn" class="btn-core btn-red">🔄 Retake</button>
+            
+            <div class="button-col">
                 <button id="startQuestBtn" class="btn-core">Start Micro-Quest 🚀</button>
+                <!-- NEW DIY UPCYCLE BUTTON (Appears only for recyclables) -->
+                <button id="upcycleBtn" class="btn-core btn-purple" style="display:none;">🎨 Creative Upcycle (DIY)</button>
+                <button id="analysisRetakeBtn" class="btn-core btn-red">🔄 Retake</button>
             </div>
         </div>
 
@@ -409,6 +414,7 @@
         const snapPhotoBtn = document.getElementById('snapPhotoBtn');
         const analysisRetakeBtn = document.getElementById('analysisRetakeBtn');
         const startQuestBtn = document.getElementById('startQuestBtn');
+        const upcycleBtn = document.getElementById('upcycleBtn');
         const questCancelBtn = document.getElementById('questCancelBtn');
         const submitProofPhotoBtn = document.getElementById('submitProofPhotoBtn');
 
@@ -597,6 +603,9 @@
                 if (itemKey === "non-biodegradable") {
                     this.data.divertedKg += 0.08;
                     this.data.co2SavedKg += 0.12;
+                } else if (itemKey === "upcycle") {
+                    this.data.divertedKg += 0.15;
+                    this.data.co2SavedKg += 0.20; // Higher ESG reward for upcycling
                 } else if (itemKey === "biodegradable") {
                     this.data.divertedKg += 0.15;
                     this.data.co2SavedKg += 0.10;
@@ -671,7 +680,8 @@
                 lblVoice: "🔊 Voice Assistant", btnListen: "▶ Listen",
                 lblQuestsDone: "Quests Done", lblStreakLevel: "Streak Level",
                 livingWarning: "⚠️ Living Being Detected! Please point the camera at discarded waste items only.",
-                lblSmartBin: "Smart Bin Destination:"
+                lblSmartBin: "Smart Bin Destination:",
+                btnDisposeBin: "🗑️ Throw in Smart Bin", btnUpcycle: "🎨 Creative Upcycle (DIY)"
             },
             bn: {
                 authTitle: "ইকোলেন্স প্রো", authSub: "ক্যাম্পাস স্মার্ট বিন বর্জ্য ব্যবস্থাপনা ও টেকসই পরিবেশ ট্র্যাকার।",
@@ -690,7 +700,8 @@
                 lblVoice: "🔊 ভয়েস সহকারী", btnListen: "▶ শুনুন",
                 lblQuestsDone: "সম্পূর্ণ কোয়েস্ট", lblStreakLevel: "স্ট্রিক লেভেল",
                 livingWarning: "⚠️ জীবিত প্রাণী শনাক্ত হয়েছে! অনুগ্রহ করে কেবল নির্জীব বর্জ্যের ছবি তুলুন।",
-                lblSmartBin: "স্মার্ট বিন গন্তব্য:"
+                lblSmartBin: "স্মার্ট বিন গন্তব্য:",
+                btnDisposeBin: "🗑️ স্মার্ট বিনে ফেলুন", btnUpcycle: "🎨 ক্রিয়েটিভ আপসাইকেল (DIY)"
             },
             hi: {
                 authTitle: "इकोलेंस प्रो", authSub: "स्मार्ट बिन कचरा प्रबंधन और स्थिरता पारिस्थितिकी तंत्र।",
@@ -709,7 +720,8 @@
                 lblVoice: "🔊 वॉइस असिस्टेंट", btnListen: "▶ सुनें",
                 lblQuestsDone: "पूरे किए गए क्वेस्ट", lblStreakLevel: "स्ट्रिक लेवल",
                 livingWarning: "⚠️ जीवित प्राणी पहचाना गया है! कृपया केवल निर्जीव कचरे की फोटो लें।",
-                lblSmartBin: "स्मार्ट डस्टबिन गंतव्य:"
+                lblSmartBin: "स्मार्ट डस्टबिन गंतव्य:",
+                btnDisposeBin: "🗑️ स्मार्ट डिब्बे में डालें", btnUpcycle: "🎨 रचनात्मक अपसाइकिल (DIY)"
             }
         };
 
@@ -749,6 +761,10 @@
             "inert": [
                 { primary: ["Gather soil, stones, or construction debris.", "Ensure zero plastics are mixed in the rubble.", "Dispose of in the Grey heavy waste bin."], bonus: "Bag dust to prevent air pollution." }
             ],
+            "upcycle": [
+                { primary: ["Clean the item thoroughly.", "Safely cut or modify the material.", "Repurpose it into a planter, pen stand, or decor."], bonus: "Share your creation to inspire others!" },
+                { primary: ["Wash and air dry the container.", "Apply eco-friendly paint or decorations.", "Use it as a storage organizer."], bonus: "Take a picture and post it online!" }
+            ],
             "default": [
                 { primary: ["Examine if item is biodegradable or non-biodegradable.", "Isolate any hazardous components.", "Deposit safely in the designated smart bin."], bonus: "Wipe clean before sorting." }
             ]
@@ -759,6 +775,7 @@
             "non-biodegradable": { en: { title: "♻️ Non-Biodegradable (Recyclable)", proofText: "Snap a photo of the crushed item in the Blue Bin." }, bn: { title: "♻️ নন-বায়োডিগ্রেডেবল (পুনর্ব্যবহারযোগ্য)", proofText: "নীল রিসাইক্লিং বিনে রাখা বর্জ্যের ছবি তুলুন।" }, hi: { title: "♻️ गैर-बायोडिग्रेडेबल (रीसाइक्लिंग योग्य)", proofText: "नीले रीसाइक्लिंग बिन में रखी वस्तु की फोटो लें।" } },
             "hazardous": { en: { title: "⚠️ Hazardous / E-Waste", proofText: "Snap a photo at the Red Hazardous Kiosk." }, bn: { title: "⚠️ বিপজ্জনক / ই-বর্জ্য", proofText: "লাল ই-বর্জ্য সংগ্রহ কিওস্কে জমার ছবি তুলুন।" }, hi: { title: "⚠️ खतरनाक / ई-कचरा", proofText: "लाल ई-कचरा बॉक्स में रखे आइटम की फोटो लें।" } },
             "inert": { en: { title: "🧱 Inert Heavy Waste", proofText: "Snap a photo of the debris in the Grey Bin." }, bn: { title: "🧱 নিষ্ক্রিয় ভারী বর্জ্য", proofText: "ধূসর ভারী বর্জ্য বিনে জমার ছবি তুলুন।" }, hi: { title: "🧱 अक्रिय भारी मलबा", proofText: "ग्रे भारी कचरे के डिब्बे में मलबे की फोटो लें।" } },
+            "upcycle": { en: { title: "🎨 DIY Upcycle Project", proofText: "Snap a photo of your new upcycled creation!" }, bn: { title: "🎨 DIY আপসাইকেল প্রজেক্ট", proofText: "আপনার নতুন তৈরি জিনিসটির ছবি তুলুন!" }, hi: { title: "🎨 DIY अपसाइकिल प्रोजेक्ट", proofText: "अपने नए बनाए गए आइटम की फोटो लें!" } },
             "living_being": { en: { title: "⚠️ Living Being Detected", proofText: "Non-disposable entity. No action required." }, bn: { title: "⚠️ জীবিত প্রাণী শনাক্ত", proofText: "কোনো পদক্ষেপের প্রয়োজন নেই।" }, hi: { title: "⚠️ जीवित प्राणी पहचाना गया", proofText: "कोई कार्रवाई आवश्यक नहीं है।" } },
             "default": { en: { title: "General Municipal Waste", proofText: "Snap a photo of your sorted waste." }, bn: { title: "সাধারণ বর্জ্য", proofText: "সঠিক বিনে রাখা বর্জ্যের ছবি তুলুন।" }, hi: { title: "सामान्य कचरा", proofText: "व्यवस्थित कचरे की फोटो लें।" } }
         };
@@ -802,7 +819,7 @@
             document.getElementById('lblDetectionHeadline').innerText = dict.lblYolo;
             document.getElementById('lblYoloAssignment').innerText = dict.lblYoloDesc;
             analysisRetakeBtn.innerText = dict.btnRetake;
-            startQuestBtn.innerText = dict.btnStartQ;
+            
             questCancelBtn.innerText = dict.btnCancel;
             document.getElementById('lblGoalCompleted').innerText = dict.lblGoal;
             document.getElementById('lblHistoryTitle').innerText = dict.lblHistory;
@@ -820,6 +837,7 @@
             document.getElementById('lblStreakLevel').innerText = dict.lblStreakLevel;
             document.getElementById('lblSmartBinHeader').innerText = dict.lblSmartBin;
             livingBeingWarning.innerText = dict.livingWarning;
+            upcycleBtn.innerText = dict.btnUpcycle;
 
             submitProofPhotoBtn.innerText = isProcessingSecondaryProof ? dict.confirmProofBtn : dict.btnClaim;
             statusLogger.innerText = isProcessingSecondaryProof ? dict.secondaryProof : dict.readyAI; 
@@ -863,12 +881,14 @@
 
         function handleCategorySelectionChange() {
             const lang = langSelect.value;
+            const dict = SYSTEM_UI_DICTIONARY[lang];
             const config = SMART_BIN_CONFIG[selectedItemKey] || SMART_BIN_CONFIG["non-biodegradable"];
 
             if (selectedItemKey === "living_being") {
                 livingBeingWarning.style.display = "block";
                 document.getElementById('smartBinContainer').style.display = "none";
                 startQuestBtn.disabled = true;
+                upcycleBtn.style.display = "none";
             } else {
                 livingBeingWarning.style.display = "none";
                 document.getElementById('smartBinContainer').style.display = "flex";
@@ -877,6 +897,15 @@
                 binTargetBadge.className = "bin-badge " + config.badgeClass;
                 binTargetBadge.innerText = config.badgeText[lang] || config.badgeText['en'];
                 binRecycleGuide.innerHTML = config.guideText[lang] || config.guideText['en'];
+
+                // DYNAMIC OPTION: If it is recyclable, show Upcycle / DIY option!
+                if (selectedItemKey === "non-biodegradable") {
+                    upcycleBtn.style.display = "flex";
+                    startQuestBtn.innerText = dict.btnDisposeBin;
+                } else {
+                    upcycleBtn.style.display = "none";
+                    startQuestBtn.innerText = dict.btnStartQ;
+                }
             }
         }
 
@@ -1097,6 +1126,7 @@
             statusLogger.innerText = SYSTEM_UI_DICTIONARY[langSelect.value].readyAI;
         }
 
+        // TRIGGER NORMAL BIN DISPOSAL
         startQuestBtn.addEventListener('click', () => {
             selectedItemKey = categoryOverride.value;
             if (selectedItemKey === "living_being") return;
@@ -1105,6 +1135,15 @@
             progressWrapper.style.display = "flex";
             statusLogger.innerText = SYSTEM_UI_DICTIONARY[langSelect.value].questActive;
             compileDynamicChecklistStructure(selectedItemKey);
+        });
+
+        // TRIGGER CREATIVE DIY UPCYCLE
+        upcycleBtn.addEventListener('click', () => {
+            selectedItemKey = "upcycle"; 
+            shiftActiveScreen("QUEST");
+            progressWrapper.style.display = "flex";
+            statusLogger.innerText = SYSTEM_UI_DICTIONARY[langSelect.value].questActive;
+            compileDynamicChecklistStructure("upcycle");
         });
 
         function compileDynamicChecklistStructure(itemKey) {
