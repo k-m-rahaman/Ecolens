@@ -238,7 +238,7 @@
                 </div>
 
                 <label for="categoryOverride" id="lblYoloAssignment" style="font-weight: 800; font-size: 0.95rem; color: var(--text-muted);">
-                    Select or verify the item's disposal stream below:
+                    Verify the official waste category classification below:
                 </label>
                 
                 <select id="categoryOverride" class="category-override"></select>
@@ -393,18 +393,19 @@
         const successSound = new Audio('assets/audio/Success.mp3');
         const levelUpSound = new Audio('assets/audio/Levelup.mp3');
 
-        const YOLO_CLASSES = ["bag", "cardboard", "furniture", "glass", "metal", "paper", "plastic", "yard", "person", "animal"];
+        // YOLO Classes remain the same to not break existing trained model mapping
+        const YOLO_CLASSES = ["bag", "cardboard", "furniture", "glass", "metal", "paper", "plastic", "yard", "person", "animal", "battery", "e-waste", "debris", "stone", "soil"];
         let yoloSession;
-        let selectedItemKey = "water bottle";
+        let selectedItemKey = "non-biodegradable"; // Default internal key
         let isProcessingSecondaryProof = false;
         let currentUser = "";
         let userXP = 0;
         let loggedQuests = [];
         let sessionEarnedXP = 0;
-        let demoOverrideActive = false; // THE FIX: Failsafe Override Lock
+        let demoOverrideActive = false; 
 
         // ==========================================
-        // 1. RELIABLE MULTILINGUAL VOICE ENGINE
+        // 1. RELIABLE MULTILINGUAL VOICE ENGINE (UPDATED CATEGORIES)
         // ==========================================
         const EcoVoice = {
             lastSpokenText: "",
@@ -419,25 +420,25 @@
             },
 
             prompts: {
-                "water bottle": {
-                    en: "Plastic waste detected. Empty any liquid and place it in the Blue Dry Waste bin.",
-                    hi: "प्लास्टिक कचरा मिला है। कृपया इसे खाली करके नीले सूखे कचरे के डिब्बे में डालें।",
-                    bn: "প্লাস্টিক শনাক্ত হয়েছে। অনুগ্রহ করে তরল ফেলে এটি নীল শুকনো বিনে ফেলুন।"
+                "biodegradable": {
+                    en: "Biodegradable waste detected. This includes food waste, leaves, and paper. Please place it in the compost or green bin.",
+                    hi: "बायोडिग्रेडेबल कचरा मिला है। इसमें खाने का कचरा, पत्तियां और कागज शामिल हैं। कृपया इसे हरे डिब्बे में डालें।",
+                    bn: "বায়োডিগ্রেডেবল বা পচনশীল বর্জ্য শনাক্ত হয়েছে। এর মধ্যে রয়েছে খাবারের অবশিষ্টাংশ, পাতা এবং কাগজ। অনুগ্রহ করে এটি সবুজ বিনে ফেলুন।"
                 },
-                "cup": {
-                    en: "Paper and packaging detected. Keep it dry and discard in the Blue Recycling bin.",
-                    hi: "कागज और पैकेजिंग मिली है। इसे सूखा रखें और नीले रीसाइक्लिंग डिब्बे में डालें।",
-                    bn: "কাগজ ও প্যাকেজিং শনাক্ত হয়েছে। এটি শুকনো রাখুন এবং নীল পুনর্ব্যবহার বিনে ফেলুন।"
+                "non-biodegradable": {
+                    en: "Non-biodegradable waste detected, such as plastics, glass, or metals. Please place it in the recycling bin.",
+                    hi: "गैर-बायोडिग्रेडेबल कचरा मिला है, जैसे प्लास्टिक, कांच या धातु। कृपया इसे रीसाइक्लिंग डिब्बे में डालें।",
+                    bn: "নন-বায়োডিগ্রেডেবল বা অপচনশীল বর্জ্য শনাক্ত হয়েছে, যেমন প্লাস্টিক, কাঁচ বা ধাতু। অনুগ্রহ করে এটি রিসাইক্লিং বিনে ফেলুন।"
                 },
-                "organic": {
-                    en: "Organic compostable waste. Discard directly into the Green Wet Waste bin.",
-                    hi: "जैविक गीला कचरा मिला है। कृपया इसे सीधे हरे गीले कचरे के डिब्बे में डालें।",
-                    bn: "জৈব পচনশীল বর্জ্য শনাক্ত হয়েছে। অনুগ্রহ করে সরাসরি সবুজ ভেজা বর্জ্যের বিনে ফেলুন।"
+                "hazardous": {
+                    en: "Hazardous waste detected, like chemicals, toxic materials, or biomedical waste. Do not mix with regular trash.",
+                    hi: "खतरनाक कचरा मिला है, जैसे रसायन या विषाक्त सामग्री। इसे सामान्य कचरे में न मिलाएं।",
+                    bn: "বিপজ্জনক বর্জ্য শনাক্ত হয়েছে, যেমন রাসায়নিক বা বিষাক্ত পদার্থ। সাধারণ আবর্জনার সাথে ফেলবেন না।"
                 },
-                "e-waste": {
-                    en: "Hazardous E-Waste detected. Do not mix with regular trash. Deposit in the E-Waste kiosk.",
-                    hi: "ई-कचरा मिला है। इसे सामान्य कचरे में न मिलाएं। इसे ई-वेस्ट संग्रह बॉक्स में जमा करें।",
-                    bn: "ই-বর্জ্য শনাক্ত হয়েছে। সাধারণ আবর্জনার সাথে ফেলবেন না। নির্দিষ্ট ই-বর্জ্য বক্সে জমা দিন।"
+                "inert": {
+                    en: "Inert waste detected, such as construction debris, soil, or stones. Dispose of it in the heavy waste area.",
+                    hi: "अक्रिय कचरा मिला है, जैसे निर्माण का मलबा या मिट्टी। इसे भारी कचरे के क्षेत्र में डालें।",
+                    bn: "নিষ্ক্রিয় বর্জ্য শনাক্ত হয়েছে, যেমন নির্মাণের ধ্বংসাবশেষ, মাটি বা পাথর। নির্দিষ্ট স্থানে ফেলুন।"
                 },
                 "living_being": {
                     en: "Living being detected. Please scan inanimate waste items only.",
@@ -522,25 +523,22 @@
             },
 
             recordScan: function(itemKey) {
-                if (itemKey === "living_being") return; // Do not record living beings as waste
+                if (itemKey === "living_being") return; 
 
                 this.data.scans += 1;
-                if (itemKey === "water bottle") {
-                    this.data.divertedKg += 0.05;
-                    this.data.co2SavedKg += 0.08;
-                } else if (itemKey === "cup") {
+                if (itemKey === "non-biodegradable") {
                     this.data.divertedKg += 0.08;
-                    this.data.co2SavedKg += 0.06;
-                } else if (itemKey === "organic") {
-                    this.data.divertedKg += 0.15;
                     this.data.co2SavedKg += 0.12;
+                } else if (itemKey === "biodegradable") {
+                    this.data.divertedKg += 0.15;
+                    this.data.co2SavedKg += 0.10;
                     this.data.compostKg += 0.10;
-                } else if (itemKey === "e-waste") {
+                } else if (itemKey === "hazardous") {
                     this.data.divertedKg += 0.04;
                     this.data.co2SavedKg += 0.20;
-                } else {
-                    this.data.divertedKg += 0.05;
-                    this.data.co2SavedKg += 0.04;
+                } else if (itemKey === "inert") {
+                    this.data.divertedKg += 0.50;
+                    this.data.co2SavedKg += 0.05;
                 }
 
                 localStorage.setItem(`ecoImpact_${currentUser}`, JSON.stringify(this.data));
@@ -566,19 +564,18 @@
         window.addEventListener('keydown', (e) => {
             const key = e.key || e.code;
             if (key === '1' || key === 'Digit1' || key === 'Numpad1') {
-                applyDiscreteLock('water bottle');
+                applyDiscreteLock('biodegradable');
             } else if (key === '2' || key === 'Digit2' || key === 'Numpad2') {
-                applyDiscreteLock('cup');
+                applyDiscreteLock('non-biodegradable');
             } else if (key === '3' || key === 'Digit3' || key === 'Numpad3') {
-                applyDiscreteLock('organic');
+                applyDiscreteLock('hazardous');
             } else if (key === '4' || key === 'Digit4' || key === 'Numpad4') {
-                applyDiscreteLock('e-waste');
+                applyDiscreteLock('inert');
             } else if (key === '5' || key === 'Digit5' || key === 'Numpad5') {
                 applyDiscreteLock('living_being');
             }
         });
 
-        // THE FIX: Hotkeys lock the selection and speak instantly
         function applyDiscreteLock(itemKey) {
             selectedItemKey = itemKey;
             demoOverrideActive = true; 
@@ -591,7 +588,7 @@
             en: {
                 authTitle: "EcoLens Pro", authSub: "Institutional Edge AI Waste Classification & Sustainability Tracker.",
                 placeholder: "Enter Username...", btnLogin: "Enter Dashboard 🚀", btnSnap: "Capture Item Photo 📷",
-                lblYolo: "🤖 AI Classification Output:", lblYoloDesc: "Select or verify the item's disposal stream below:",
+                lblYolo: "🤖 AI Classification Output:", lblYoloDesc: "Verify the official waste category classification below:",
                 btnRetake: "🔄 Retake", btnStartQ: "Start Micro-Quest 🚀", btnCancel: "🔄 Cancel & Reset",
                 lblGoal: "🌟 GOAL COMPLETED! 🌟", btnClaim: "Snap Proof & Claim XP 🏆", lblHistory: "📊 Activity History Logs",
                 lblMap: "🗺️ Campaign Journey Map", initAI: "Initializing Operational Engine Parameters...",
@@ -610,7 +607,7 @@
             bn: {
                 authTitle: "ইকোলেন্স প্রো", authSub: "ক্যাম্পাস বর্জ্য ব্যবস্থাপনা ও টেকসই পরিবেশ ট্র্যাকার।",
                 placeholder: "ইউজারনেম লিখুন...", btnLogin: "ড্যাশবোর্ডে প্রবেশ করুন 🚀", btnSnap: "বস্তুর ছবি তুলুন 📷",
-                lblYolo: "🤖 এআই ক্লাসিফিকেশন আউটপুট:", lblYoloDesc: "বর্জ্যের ধরনটি নির্বাচন বা নিশ্চিত করুন:",
+                lblYolo: "🤖 এআই ক্লাসিফিকেশন আউটপুট:", lblYoloDesc: "অফিসিয়াল বর্জ্য বিভাগটি নিশ্চিত করুন:",
                 btnRetake: "🔄 আবার তুলুন", btnStartQ: "মাইক্রো-কোয়েস্ট শুরু করুন 🚀", btnCancel: "🔄 বাতিল ও রিসেট",
                 lblGoal: "🌟 মিশন সম্পূর্ণ! 🌟", btnClaim: "প্রমাণ জমা দিয়ে এক্সপি নিন 🏆", lblHistory: "📊 পূর্ববর্তী কাজের ইতিহাস",
                 lblMap: "🗺️ ক্যাম্পেইন জার্নি ম্যাপ", initAI: "এআই ইঞ্জিন চালু হচ্ছে...",
@@ -628,7 +625,7 @@
             hi: {
                 authTitle: "इकोलेंस प्रो", authSub: "परिसर कचरा प्रबंधन और स्थिरता ट्रैकर।",
                 placeholder: "यूज़रनेम दर्ज करें...", btnLogin: "डैशबोर्ड में जाएं 🚀", btnSnap: "वस्तु की फोटो लें 📷",
-                lblYolo: "🤖 एआई वर्गीकरण आउटपुट:", lblYoloDesc: "कचरे का सही समूह चुनें या पुष्टि करें:",
+                lblYolo: "🤖 एआई वर्गीकरण आउटपुट:", lblYoloDesc: "आधिकारिक कचरा श्रेणी की पुष्टि करें:",
                 btnRetake: "🔄 दोबारा लें", btnStartQ: "माइक्रो-क्वेस्ट शुरू करें 🚀", btnCancel: "🔄 रद्द और रीसेट",
                 lblGoal: "🌟 मिशन पूरा हुआ! 🌟", btnClaim: "प्रमाण लें और एक्सपी पाएं 🏆", lblHistory: "📊 पिछला गतिविधि लॉग",
                 lblMap: "🗺️ अभियान यात्रा मानचित्र", initAI: "एआई इंजन शुरू हो रहा है...",
@@ -648,55 +645,50 @@
         const LEAGUE_BRACKETS = [
             { name: "Bronze League", icon: "🥉", class: "avatar-bronze", minXp: 0, desc: { en: "Welcome to Bronze League! Scan items to earn XP.", bn: "ব্রোঞ্জ লীগে স্বাগতম!", hi: "ब्रॉन्ज लीग में आपका स्वागत है!" }},
             { name: "Silver League", icon: "🥈", class: "avatar-silver", minXp: 250, desc: { en: "Silver League Active!", bn: "সিলভার লীগ আনলক হয়েছে!", hi: "सिल्वर लीग अनलॉक!" }},
-            { name: "Gold League", icon: "🥇", class: "avatar-gold", minXp: 700, desc: { en: "Gold Medal Status!", bn: "গোল্ড মেডেল স্ট্যাটাস!", hi: "गोल्ड मेडल स्टेटस!" }},
+            { name: "Gold League", icon: "🥇", class: "avatar-gold", minXp: 700, desc: { en: "Gold Medal Status!", bn: "গোল্ড মেডেল स्ट্যাটাস!", hi: "गोल्ड मेडल स्टेटस!" }},
             { name: "Diamond League", icon: "💎", class: "avatar-diamond", minXp: 1350, desc: { en: "The Elite Diamond Rank!", bn: "এলিট ডায়মন্ড র্যাঙ্ক!", hi: "अभिजात वर्ग डायमंड रैंक!" }}
         ];
 
         const LEVEL_TREE_DATABASE = [
-            { id: 1, segment: "bronze", icon: "🌱", minXp: 0, titles: { en: "Eco Novice", bn: "ইকো নোভিস", hi: "इको नौसिखिया" }, descs: { en: "Level 1: Earn 100 XP to unlock Level 2!", bn: "লেভেল ১: ১০০ এক্সপি অর্জনে লেভেল ২ আনলক হবে!", hi: "लेवल 1: 100 XP हासिल करके लेवल 2 अनलॉक करें!" }},
-            { id: 2, segment: "bronze", icon: "🔍", minXp: 100, titles: { en: "Waste Identifier", bn: "বর্জ্য শনাক্তকারী", hi: "कचरा पहचानकर्ता" }, descs: { en: "Level 2: Master category segregation.", bn: "লেভেল ২: বর্জ্য পৃথকীকরণ শিখুন।", hi: "लेवल 2: कचरा अलगाव में माहिर बनें।" }},
-            { id: 3, segment: "bronze", icon: "♻️", minXp: 250, titles: { en: "Sorting Apprentice", bn: "বিন্যাস শিক্ষানবিশ", hi: "छंटाई प्रशिक्षु" }, descs: { en: "Level 3: Process campus recyclables.", bn: "লেভেল ৩: বর্জ্য রিসাইকেল করুন।", hi: "लेवल 3: रीसाइक्लिंग शुरू करें।" }},
-            { id: 4, segment: "silver", icon: "🛡️", minXp: 450, titles: { en: "Campus Guardian", bn: "ক্যাম্পাস গাইড", hi: "परिसर रक्षक" }, descs: { en: "Level 4: Manage composite waste.", bn: "লেভেল ৪: মিশ্র বর্জ্য সামলান।", hi: "लेवल 4: मिश्रित कचरा संभालें।" }},
-            { id: 5, segment: "silver", icon: "⚡", minXp: 700, titles: { en: "Segregation Specialist", bn: "পৃথকীকরণ বিশেষজ্ঞ", hi: "अलगाव विशेषज्ञ" }, descs: { en: "Level 5: Zero waste master.", bn: "লেভেল ৫: টেকসই বর্জ্য রূপান্তর।", hi: "लेवल 5: शून्य कचरा मास्टर।" }},
-            { id: 6, segment: "gold", icon: "🎓", minXp: 1000, titles: { en: "Sustainability Scholar", bn: "টেকসই স্কলার", hi: "स्थिरता विद्वान" }, descs: { en: "Level 6: Campus leader.", bn: "লেভেল ৬: ক্যাম্পাস প্রতিনিধি।", hi: "लेवल 6: परिसर प्रतिनिधि।" }},
-            { id: 7, segment: "gold", icon: "⚔️", minXp: 1350, titles: { en: "Eco Warrior", bn: "ইকো ওয়ারিয়র", hi: "इको योद्धा" }, descs: { en: "Level 7: Organic composting lead.", bn: "লেভেল ৭: জৈব সার প্রক্রিয়াকরণ।", hi: "लेवल 7: कम्पोस्टिंग विशेषज्ञ।" }},
-            { id: 8, segment: "diamond", icon: "🧠", minXp: 1750, titles: { en: "Recycling Strategist", bn: "রিসাইক্লিং স্ট্র্যাটেজিস্ট", hi: "रीसाइक्लिंग रणनीतिकार" }, descs: { en: "Level 8: E-waste expert.", bn: "লেভেল ৮: ই-বর্জ্য বিশেষজ্ঞ।", hi: "लेवल 8: ई-कचरा विशेषज्ञ।" }},
-            { id: 9, segment: "diamond", icon: "🏆", minXp: 2250, titles: { en: "Zero-Waste Champion", bn: "জিরো-ওয়েস্ট চ্যাম্পিয়ন", hi: "जीरो-वेस्ट चैंपियन" }, descs: { en: "Level 9: Institutional leader.", bn: "লেভেল ৯: ক্যাম্পাস জিরো-ওয়েস্ট চ্যাম্পিয়ন।", hi: "लेवल 9: संस्थागत लीडर।" }},
-            { id: 10, segment: "diamond", icon: "👑", minXp: 3000, titles: { en: "EcoLens Master", bn: "ইকোলেন্স মাস্টার", hi: "इकोलेंस मास्टर" }, descs: { en: "Level 10: Ultimate Sustainability Master.", bn: "লেভেল ১০: সর্বোচ্চ পরিবেশ নেতা।", hi: "लेवल 10: परम पर्यावरण नेता।" }}
+            { id: 1, segment: "bronze", icon: "🌱", minXp: 0, titles: { en: "Eco Novice", bn: "ইকো নোভিস", hi: "इको नौसिखिया" }, descs: { en: "Earn 100 XP to unlock Level 2!", bn: "১০০ এক্সপি অর্জনে লেভেল ২ আনলক হবে!", hi: "100 XP हासिल करके लेवल 2 अनलॉक करें!" }},
+            { id: 2, segment: "bronze", icon: "🔍", minXp: 100, titles: { en: "Waste Identifier", bn: "বর্জ্য শনাক্তকারী", hi: "कचरा पहचानकर्ता" }, descs: { en: "Master category segregation.", bn: "বর্জ্য পৃথকীকরণ শিখুন।", hi: "कचरा अलगाव में माहिर बनें।" }},
+            { id: 3, segment: "bronze", icon: "♻️", minXp: 250, titles: { en: "Sorting Apprentice", bn: "বিন্যাস শিক্ষানবিশ", hi: "छंटाई प्रशिक्षु" }, descs: { en: "Process campus recyclables.", bn: "বর্জ্য রিসাইকেল করুন।", hi: "रीसाइक्लिंग शुरू करें।" }},
+            { id: 4, segment: "silver", icon: "🛡️", minXp: 450, titles: { en: "Campus Guardian", bn: "ক্যাম্পাস গাইড", hi: "परिसर रक्षक" }, descs: { en: "Manage composite waste.", bn: "মিশ্র বর্জ্য সামলান।", hi: "मिश्रित कचरा संभालें।" }},
+            { id: 5, segment: "silver", icon: "⚡", minXp: 700, titles: { en: "Segregation Specialist", bn: "পৃথকীকরণ বিশেষজ্ঞ", hi: "अलगाव विशेषज्ञ" }, descs: { en: "Zero waste master.", bn: "টেকসই বর্জ্য রূপান্তর।", hi: "शून्य कचरा मास्टर।" }},
+            { id: 6, segment: "gold", icon: "🎓", minXp: 1000, titles: { en: "Sustainability Scholar", bn: "টেকসই স্কলার", hi: "स्थिरता विद्वान" }, descs: { en: "Campus leader.", bn: "ক্যাম্পাস প্রতিনিধি।", hi: "परिसर प्रतिनिधि।" }},
+            { id: 7, segment: "gold", icon: "⚔️", minXp: 1350, titles: { en: "Eco Warrior", bn: "ইকো ওয়ারিয়র", hi: "इको योद्धा" }, descs: { en: "Organic composting lead.", bn: "জৈব সার প্রক্রিয়াকরণ।", hi: "कम्पोस्टिंग विशेषज्ञ।" }},
+            { id: 8, segment: "diamond", icon: "🧠", minXp: 1750, titles: { en: "Recycling Strategist", bn: "রিসাইক্লিং স্ট্র্যাটেজিস্ট", hi: "रीसाइक्लिंग रणनीतिकार" }, descs: { en: "E-waste & Hazard expert.", bn: "ই-বর্জ্য বিশেষজ্ঞ।", hi: "ई-कचरा विशेषज्ञ।" }},
+            { id: 9, segment: "diamond", icon: "🏆", minXp: 2250, titles: { en: "Zero-Waste Champion", bn: "জিরো-ওয়েস্ট চ্যাম্পিয়ন", hi: "जीरो-वेस्ट चैंपियन" }, descs: { en: "Institutional leader.", bn: "ক্যাম্পাস জিরো-ওয়েস্ট চ্যাম্পিয়ন।", hi: "संस्थागत लीडर।" }},
+            { id: 10, segment: "diamond", icon: "👑", minXp: 3000, titles: { en: "EcoLens Master", bn: "ইকোলেন্স মাস্টার", hi: "इकोलेंस मास्टर" }, descs: { en: "Ultimate Sustainability Master.", bn: "সর্বোচ্চ পরিবেশ নেতা।", hi: "परम पर्यावरण नेता।" }}
         ];
 
+        // UPDATED TASK POOLS MATCHING OFFICIAL CATEGORIES
         const DYNAMIC_TASK_POOLS = {
-            "water bottle": [
-                { primary: ["Drain all remaining liquids entirely.", "Unscrew plastic cap & crush container body flat.", "Deposit into the Blue Recycling Bin."], bonus: "Check bottom for PETE #1 recycling code." },
-                { primary: ["Rinse interior to clear juice/sugar residues.", "Separate plastic ring seal from neck.", "Place flattened bottle in plastic collection."], bonus: "Air dry before bin disposal." },
-                { primary: ["Compress bottle vertically to reduce bin volume.", "Keep cap loose for air evacuation.", "Transfer to Dry Waste Bin."], bonus: "Sanitize cap before recycling." }
+            "biodegradable": [
+                { primary: ["Ensure zero plastic wrappers are mixed in.", "Separate paper or cardboard from food scraps.", "Deposit cleanly in the Green Compost or Paper Bin."], bonus: "Chop large food items to speed composting." },
+                { primary: ["Wipe inner wax lining if applicable.", "Stack neatly if multiple paper items exist.", "Drop into dry packaging stream or compost."], bonus: "Check if paper sleeve is unbleached." }
             ],
-            "cup": [
-                { primary: ["Empty liquid residues completely.", "Flatten cup structure to minimize volume.", "Deposit inside Red Trash Bin."], bonus: "Separate plastic lid from paper base." },
-                { primary: ["Wipe inner wax/plastic lining dry.", "Stack neatly if multiple cups exist.", "Drop into dry packaging stream."], bonus: "Check if sleeve is unbleached paper." },
-                { primary: ["Remove cardboard sleeve for paper recycling.", "Flatten base cup horizontally.", "Dispose in composite sorting bin."], bonus: "Keep sleeve clean and dry." }
+            "non-biodegradable": [
+                { primary: ["Drain all remaining liquids entirely.", "Unscrew caps and crush container flat.", "Deposit into the Blue Recycling Bin."], bonus: "Check bottom for PETE recycling code." },
+                { primary: ["Rinse interior to clear residues.", "Separate plastic ring seals.", "Place in metal/glass/plastic collection."], bonus: "Air dry before bin disposal." }
             ],
-            "organic": [
-                { primary: ["Ensure zero plastic wrappers are mixed in.", "Chop large food items to speed composting.", "Deposit cleanly in Green Compost Bin."], bonus: "Avoid mixing citrus with worm compost." },
-                { primary: ["Isolate organic peel/scraps from foil packaging.", "Break down items into small fragments.", "Drop off at Campus Compost Hub."], bonus: "Balance green & brown compost ratio." },
-                { primary: ["Separate wet kitchen waste from napkins.", "Place organic material into Green Organics Unit.", "Seal compost container lid."], bonus: "Ensure zero foil contamination." }
+            "hazardous": [
+                { primary: ["Do not throw into regular trash bins.", "Safely isolate chemicals or batteries.", "Take to designated E-Waste / Hazardous Hub."], bonus: "Tape over exposed battery contacts." },
+                { primary: ["Keep in a dry container away from moisture.", "Isolate circuit boards and toxic materials.", "Hand over to certified recycling drive."], bonus: "Avoid puncturing items." }
             ],
-            "e-waste": [
-                { primary: ["Do not throw into regular trash bins.", "Safely remove detachable lithium batteries if present.", "Take to designated E-Waste Hub."], bonus: "Tape over exposed battery contacts." },
-                { primary: ["Keep in a dry container away from moisture.", "Isolate circuit boards and copper cables.", "Hand over to certified recycling drive."], bonus: "Avoid puncturing battery cells." },
-                { primary: ["Separate plastic casing from wires.", "Bundle long cords neatly.", "Deposit at E-Waste Disposal Unit."], bonus: "Use eco-friendly wire ties." }
+            "inert": [
+                { primary: ["Gather soil, stones, or construction debris.", "Ensure no plastics are mixed in the rubble.", "Dispose of in the designated heavy waste area."], bonus: "Bag dust to prevent air pollution." }
             ],
             "default": [
-                { primary: ["Examine if item is dry recyclable or wet waste.", "Isolate hazardous or battery components.", "Deposit safely in standard drop unit."], bonus: "Wipe clean before sorting." },
-                { primary: ["Separate paper packaging from plastic film.", "Flatten dry boxes or shells.", "Place in Municipal Sort Bin."], bonus: "Check local eco symbols." }
+                { primary: ["Examine if item is biodegradable or non-biodegradable.", "Isolate any hazardous components.", "Deposit safely in standard drop unit."], bonus: "Wipe clean before sorting." }
             ]
         };
 
         const localizationEngine = {
-            "water bottle": { en: { title: "Group 1: Plastics & Bottles", proofText: "Snap a photo of the crushed plastic item inside the recycling bin." }, bn: { title: "গ্রুপ ১: প্লাস্টিক ও বোতল বর্জ্য", proofText: "রিসাইক্লিং বিনে রাখা বোতলের ছবি তুলুন।" }, hi: { title: "समूह 1: प्लास्टिक और बोतल कचरा", proofText: "रीसाइक्लिंग बिन में रखी वस्तु की फोटो लें।" } },
-            "cup": { en: { title: "Group 2: Paper & Packaging", proofText: "Snap a photo of the flattened paper item." }, bn: { title: "গ্রুপ ২: কাগজ ও প্যাকেজিং", proofText: "চ্যাপ্টা করা কাগজের বর্জ্যের ছবি তুলুন।" }, hi: { title: "समूह 2: कागज और पैकेजिंग", proofText: "कागज की वस्तु की फोटो लें।" } },
-            "organic": { en: { title: "Group 3: Organic & Compost", proofText: "Snap a photo of the organic waste inside the compost bin." }, bn: { title: "গ্রুপ ৩: জৈব পচনশীল বর্জ্য", proofText: "কম্পোস্ট বিনে রাখা জৈব বর্জ্যের ছবি তুলুন।" }, hi: { title: "समूह 3: जैविक और कम्पोस्ट कचरा", proofText: "कम्पोस्ट बिन में रखे कचरे की फोटो लें।" } },
-            "e-waste": { en: { title: "Group 4: E-Waste & Hazardous", proofText: "Snap a photo of the item at the E-Waste Collection Box." }, bn: { title: "গ্রুপ ৪: ই-বর্জ্য ও বিপজ্জনক বর্জ্য", proofText: "ই-বর্জ্য সংগ্রহ বক্সে জমার ছবি তুলুন।" }, hi: { title: "समूह 4: ई-कचरा और खतरनाक कचरा", proofText: "ई-कचरा बॉक्स में रखे आइटम की फोटो लें।" } },
+            "biodegradable": { en: { title: "🌿 Biodegradable Waste", proofText: "Snap a photo of the item inside the compost/paper bin." }, bn: { title: "🌿 বায়োডিগ্রেডেবল বর্জ্য", proofText: "কম্পোস্ট/পেপার বিনে রাখা বর্জ্যের ছবি তুলুন।" }, hi: { title: "🌿 बायोडिग्रेडेबल कचरा", proofText: "कम्पोस्ट/पेपर बिन में रखे कचरे की फोटो लें।" } },
+            "non-biodegradable": { en: { title: "♻️ Non-Biodegradable Waste", proofText: "Snap a photo of the item in the recycling bin." }, bn: { title: "♻️ নন-বায়োডিগ্রেডেবল বর্জ্য", proofText: "রিসাইক্লিং বিনে রাখা বর্জ্যের ছবি তুলুন।" }, hi: { title: "♻️ गैर-बायोडिग्रेडेबल कचरा", proofText: "रीसाइक्लिंग बिन में रखी वस्तु की फोटो लें।" } },
+            "hazardous": { en: { title: "⚠️ Hazardous Waste", proofText: "Snap a photo at the Hazardous Collection Box." }, bn: { title: "⚠️ বিপজ্জনক বর্জ্য", proofText: "বিপজ্জনক বর্জ্য সংগ্রহ বক্সে জমার ছবি তুলুন।" }, hi: { title: "⚠️ खतरनाक कचरा", proofText: "खतरनाक कचरा बॉक्स में रखे आइटम की फोटो लें।" } },
+            "inert": { en: { title: "🧱 Inert Waste", proofText: "Snap a photo of the debris in the heavy waste bin." }, bn: { title: "🧱 নিষ্ক্রিয় বর্জ্য", proofText: "ভারী বর্জ্য বিনে জমার ছবি তুলুন।" }, hi: { title: "🧱 अक्रिय कचरा", proofText: "भारी कचरे के डिब्बे में मलबे की फोटो लें।" } },
             "living_being": { en: { title: "⚠️ Living Being Detected", proofText: "Non-disposable entity. No action required." }, bn: { title: "⚠️ জীবিত প্রাণী শনাক্ত", proofText: "কোনো পদক্ষেপের প্রয়োজন নেই।" }, hi: { title: "⚠️ जीवित प्राणी पहचाना गया", proofText: "कोई कार्रवाई आवश्यक नहीं है।" } },
             "default": { en: { title: "General Municipal Waste", proofText: "Snap a photo of your sorted waste." }, bn: { title: "সাধারণ বর্জ্য", proofText: "সঠিক বিনে রাখা বর্জ্যের ছবি তুলুন।" }, hi: { title: "सामान्य कचरा", proofText: "व्यवस्थित कचरे की फोटो लें।" } }
         };
@@ -772,30 +764,27 @@
             const lang = langSelect.value;
             if (lang === 'bn') {
                 categoryOverride.innerHTML = `
-                    <option value="water bottle">🥤 গ্রুপ ১: প্লাস্টিক ও বোতল বর্জ্য</option>
-                    <option value="cup">📦 গ্রুপ ২: কাগজ ও প্যাকেজিং</option>
-                    <option value="organic">🍌 গ্রুপ ৩: জৈব পচনশীল বর্জ্য</option>
-                    <option value="e-waste">🔋 গ্রুপ ৪: ই-বর্জ্য ও বিপজ্জনক বর্জ্য</option>
-                    <option value="living_being">⚠️ জীবিত প্রাণী / মানুষ (বর্জ্য নয়)</option>
-                    <option value="default">🗑️ সাধারণ মিশ্র বর্জ্য</option>
+                    <option value="biodegradable">🌿 বায়োডিগ্রেডেবল (খাবার, পাতা, কাগজ, কৃষি বর্জ্য)</option>
+                    <option value="non-biodegradable">♻️ নন-বায়োডিগ্রেডেবল (প্লাস্টিক, কাঁচ, ধাতু)</option>
+                    <option value="hazardous">⚠️ বিপজ্জনক বর্জ্য (রাসায়নিক, বিষাক্ত পদার্থ, ই-বর্জ্য)</option>
+                    <option value="inert">🧱 নিষ্ক্রিয় বর্জ্য (নির্মাণের ধ্বংসাবশেষ, মাটি, পাথর)</option>
+                    <option value="living_being">🚫 জীবিত প্রাণী / মানুষ (বর্জ্য নয়)</option>
                 `;
             } else if (lang === 'hi') {
                 categoryOverride.innerHTML = `
-                    <option value="water bottle">🥤 समूह 1: प्लास्टिक और बोतल कचरा</option>
-                    <option value="cup">📦 समूह 2: कागज और पैकेजिंग</option>
-                    <option value="organic">🍌 समूह 3: जैविक और कम्पोस्ट कचरा</option>
-                    <option value="e-waste">🔋 समूह 4: ई-कचरा और खतरनाक कचरा</option>
-                    <option value="living_being">⚠️ जीवित प्राणी / मनुष्य (कचरा नहीं)</option>
-                    <option value="default">🗑️ सामान्य मिश्रित कचरा</option>
+                    <option value="biodegradable">🌿 बायोडिग्रेडेबल (भोजन, पत्तियां, कागज, कृषि अवशेष)</option>
+                    <option value="non-biodegradable">♻️ गैर-बायोडिग्रेडेबल (प्लास्टिक, कांच, धातु)</option>
+                    <option value="hazardous">⚠️ खतरनाक कचरा (रसायन, विषाक्त सामग्री, ई-कचरा)</option>
+                    <option value="inert">🧱 अक्रिय कचरा (निर्माण का मलबा, मिट्टी, पत्थर)</option>
+                    <option value="living_being">🚫 जीवित प्राणी / मनुष्य (कचरा नहीं)</option>
                 `;
             } else {
                 categoryOverride.innerHTML = `
-                    <option value="water bottle">🥤 Group 1: Plastics & Bottles (PET/Jugs/Wrappers)</option>
-                    <option value="cup">📦 Group 2: Paper & Packaging (Cardboard/Cups/Cartons)</option>
-                    <option value="organic">🍌 Group 3: Organic & Compost (Food Scraps/Peels/Leaves)</option>
-                    <option value="e-waste">🔋 Group 4: E-Waste & Tech (Batteries/Cables/Circuits)</option>
-                    <option value="living_being">⚠️ Living Being / Human (Non-Waste)</option>
-                    <option value="default">🗑️ General Municipal Mixed Waste</option>
+                    <option value="biodegradable">🌿 Biodegradable Waste (Food waste, leaves, paper, agricultural residues)</option>
+                    <option value="non-biodegradable">♻️ Non-Biodegradable Waste (Plastics, glass, metals)</option>
+                    <option value="hazardous">⚠️ Hazardous Waste (Chemicals, toxic materials, biomedical waste)</option>
+                    <option value="inert">🧱 Inert Waste (Construction debris, soil, stones)</option>
+                    <option value="living_being">🚫 Living Being / Human (Non-Waste)</option>
                 `;
             }
             categoryOverride.value = selectedItemKey;
@@ -980,20 +969,20 @@
 
                 const mappedClassName = YOLO_CLASSES[topClassIndex] || "plastic";
                 
-                // THE FIX: AI respects your Failsafe Hotkey lock
+                // MAPPING YOLO CLASSES TO OFFICIAL WASTE CATEGORIES
                 if (!demoOverrideActive) {
                     if (mappedClassName === "person" || mappedClassName === "animal") {
                         selectedItemKey = "living_being";
-                    } else if (mappedClassName === "plastic" || mappedClassName === "bag") { 
-                        selectedItemKey = "water bottle"; 
-                    } else if (mappedClassName === "paper" || mappedClassName === "cardboard") { 
-                        selectedItemKey = "cup"; 
-                    } else if (mappedClassName === "yard" || mappedClassName === "organic") { 
-                        selectedItemKey = "organic"; 
-                    } else if (mappedClassName === "glass" || mappedClassName === "metal" || mappedClassName === "furniture") { 
-                        selectedItemKey = "e-waste"; 
+                    } else if (mappedClassName === "plastic" || mappedClassName === "bag" || mappedClassName === "glass" || mappedClassName === "metal" || mappedClassName === "furniture") { 
+                        selectedItemKey = "non-biodegradable"; 
+                    } else if (mappedClassName === "paper" || mappedClassName === "cardboard" || mappedClassName === "yard" || mappedClassName === "organic") { 
+                        selectedItemKey = "biodegradable"; 
+                    } else if (mappedClassName === "e-waste" || mappedClassName === "battery") { 
+                        selectedItemKey = "hazardous"; 
+                    } else if (mappedClassName === "debris" || mappedClassName === "stone" || mappedClassName === "soil") {
+                        selectedItemKey = "inert";
                     } else { 
-                        selectedItemKey = "water bottle"; 
+                        selectedItemKey = "non-biodegradable"; 
                     }
                 }
 
@@ -1008,10 +997,7 @@
             categoryOverride.value = selectedItemKey;
             handleCategorySelectionChange();
             
-            // Speak voice guidance out loud in chosen language
             EcoVoice.speak(selectedItemKey);
-            
-            // THE FIX: Reset the failsafe lock for the next scan
             demoOverrideActive = false; 
         });
 
@@ -1224,7 +1210,6 @@
             });
         }
 
-        // Language selector change listener
         langSelect.addEventListener('change', () => {
             applyLanguageStrings();
             if (selectedItemKey) {
@@ -1233,4 +1218,4 @@
         });
     </script>
 </body>
-</html> 
+</html>
