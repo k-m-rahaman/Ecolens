@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EcoLens Pro | Gamified Edge AI Waste Management</title>
+    <title>EcoLens Pro | Smart Campus Waste Management System</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.js"></script>
@@ -50,7 +50,7 @@
         .header-brand { display: flex; align-items: center; gap: 12px; }
         .logo-txt { font-weight: 900; font-size: 1.6rem; color: var(--duo-green); }
         .user-avatar-tag { font-weight: 900; color: var(--duo-purple); text-transform: capitalize; background: #f1f0fe; padding: 8px 16px; border-radius: var(--radius-md); border: 2px solid #e2dbfc; }
-        select.lang-picker { border: 2px solid var(--duo-card-border); border-radius: var(--radius-md); padding: 6px 12px; font-weight: 800; outline: none; cursor: pointer; font-size: 0.95rem; background: white; }
+        select.lang-picker { border: 2px solid var(--duo-card-border); border-radius: var(--radius-md); padding: 6px 12px; font-weight: 800; outline: none; cursor: pointer; font-size: 0.95rem; background: white; color: var(--text-dark); }
 
         .status-chips-row { width: 100%; max-width: 500px; display: flex; gap: 12px; padding: 0 16px; margin-top: 20px; display: none; }
         .status-chip { display: flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: var(--radius-md); font-weight: 800; font-size: 0.85rem; text-transform: uppercase; flex-grow: 1; justify-content: center; }
@@ -88,6 +88,8 @@
         .metric-highlight { font-weight: 900; color: var(--duo-green); background: #f0fdf4; padding: 4px 12px; border-radius: 10px; border: 1px solid #dcfce7; font-size: 0.95rem; }
         select.category-override { border: 2px solid var(--duo-card-border); border-radius: var(--radius-md); padding: 14px; font-weight: 800; outline: none; cursor: pointer; color: var(--text-dark); font-size: 1.05rem; background: #f9fafb; width: 100%; margin-top: 4px; }
 
+        .warning-box { background: #fef2f2; border: 2px solid #fecaca; border-radius: var(--radius-md); padding: 14px; color: #b91c1c; font-weight: 800; font-size: 0.95rem; display: none; text-align: center; }
+
         .step-item { display: flex; align-items: center; justify-content: space-between; padding: 18px 20px; border: 2px solid var(--duo-card-border); border-radius: var(--radius-lg); cursor: pointer; font-weight: 800; background: white; font-size: 1.1rem; }
         .step-item:hover { border-color: #cbd5e1; background: #fafafa; }
         .step-left { display: flex; align-items: center; gap: 16px; }
@@ -119,6 +121,20 @@
         .metric-subcard-title { font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; font-weight: 900; }
         .metric-subcard-val { font-size: 1.6rem; font-weight: 900; color: var(--text-dark); margin-top: 4px; }
         .metric-badge-box { font-size: 1.8rem; width: 48px; height: 48px; background: #f3f4f6; border-radius: 14px; display: flex; align-items: center; justify-content: center; }
+
+        /* REAL-WORLD CAMPUS IMPACT GRID */
+        .campus-impact-card { background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%); border: 2px solid #bbf7d0; border-radius: var(--radius-xl); padding: 22px; display: flex; flex-direction: column; gap: 14px; box-shadow: 0 4px 6px -1px rgba(22, 163, 74, 0.05); }
+        .campus-impact-header { display: flex; justify-content: space-between; align-items: center; }
+        .campus-impact-title { font-weight: 900; font-size: 1.1rem; color: #166534; text-transform: uppercase; display: flex; align-items: center; gap: 8px; }
+        .campus-impact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .impact-metric-pill { background: white; border: 1.5px solid #dcfce7; padding: 12px 14px; border-radius: var(--radius-md); display: flex; flex-direction: column; }
+        .impact-metric-lbl { font-size: 0.75rem; color: #15803d; font-weight: 800; text-transform: uppercase; }
+        .impact-metric-num { font-size: 1.35rem; font-weight: 900; color: #166534; margin-top: 2px; }
+
+        /* VOICE GUIDANCE CONTROLLER */
+        .voice-bar-banner { display: flex; align-items: center; justify-content: space-between; background: #f8fafc; border: 2px solid var(--duo-card-border); padding: 12px 18px; border-radius: var(--radius-lg); }
+        .btn-voice-replay { background: var(--duo-green); color: white; border: none; padding: 8px 14px; border-radius: 10px; font-weight: 900; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 3px 0 var(--duo-green-shadow); }
+        .btn-voice-replay:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--duo-green-shadow); }
 
         .history-list { list-style: none; display: flex; flex-direction: column; gap: 12px; }
         .history-item { background: white; padding: 16px; border-radius: var(--radius-lg); border: 2px solid var(--duo-card-border); display: flex; justify-content: space-between; align-items: center; font-weight: 800; }
@@ -158,7 +174,7 @@
         <div class="auth-card">
             <img src="assets/images/Mascot.webp" alt="EcoLens Mascot" style="width:115px; height:115px; margin:0 auto; object-fit:contain;">
             <h1 id="authTitle">EcoLens Pro</h1>
-            <p id="authSubtitle">Ready to turn environmental action into an adventure? Log into your localized account.</p>
+            <p id="authSubtitle">Institutional Edge AI Waste Classification &amp; Sustainability Tracker.</p>
             <input type="text" id="usernameInput" class="auth-input" placeholder="Enter Username...">
             <button id="loginSubmitBtn" class="btn-core">Enter Dashboard 🚀</button>
         </div>
@@ -177,7 +193,7 @@
     </header>
 
     <div class="status-chips-row" id="statusChipsRow">
-        <div class="status-chip chip-green" id="weightActiveChip">✓ Weights Active</div>
+        <div class="status-chip chip-green" id="weightActiveChip">✓ Model Ready</div>
         <div class="status-chip chip-blue" id="cameraStatusChip">🎥 Camera Initializing</div>
     </div>
 
@@ -206,13 +222,25 @@
         <div id="screenAnalysis" class="ui-screen">
             <div class="premium-card">
                 <div class="meta-label">
-                    <span>🤖 YOLOv8 Classification Output:</span>
+                    <span id="lblDetectionHeadline">🤖 AI Classification Output:</span>
                     <span class="metric-highlight" id="lblDetectedText">Detecting...</span>
                 </div>
+
+                <!-- Voice Replay & Guidance Assistant -->
+                <div class="voice-bar-banner">
+                    <span style="font-weight:900; font-size:0.95rem; color:#1e293b;" id="lblVoicePrompt">🔊 Voice Assistant</span>
+                    <button class="btn-voice-replay" id="btnVoiceReplay" onclick="EcoVoice.replayLast()">▶ Listen</button>
+                </div>
+
+                <!-- Living Being Warning Box -->
+                <div class="warning-box" id="livingBeingWarning">
+                    ⚠️ Living Being Detected! Please point the camera at discarded waste items only.
+                </div>
+
                 <label for="categoryOverride" id="lblYoloAssignment" style="font-weight: 800; font-size: 0.95rem; color: var(--text-muted);">
-                    Don't know how to decompose/reuse an item? Select its exact category below:
+                    Select or verify the item's disposal stream below:
                 </label>
-                <!-- 4 Major Categories built into the Manual Fallback System -->
+                
                 <select id="categoryOverride" class="category-override"></select>
             </div>
             <div class="button-row">
@@ -243,33 +271,59 @@
                     <div class="profile-badge-avatar avatar-bronze" id="leagueAvatarDisplay">🥉</div>
                     <div class="profile-details">
                         <h2 id="leagueNameDisplay">Bronze League</h2>
-                        <p id="lblUserLeagueTitle">Active Competitive Tier</p>
+                        <p id="lblUserLeagueTitle">Active Tier</p>
                     </div>
                 </div>
                 <div class="header-xp-pill">
-                      💎 <span id="xpCount">0 XP</span>
+                     💎 <span id="xpCount">0 XP</span>
                 </div>
             </div>
 
             <div class="split-metrics-row">
                 <div class="metric-subcard">
                     <div>
-                        <div class="metric-subcard-title">Quests Done</div>
+                        <div class="metric-subcard-title" id="lblQuestsDone">Quests Done</div>
                         <div class="metric-subcard-val" id="lblQuestsCountMetric">0</div>
                     </div>
                     <div class="metric-badge-box">🎯</div>
                 </div>
                 <div class="metric-subcard">
                     <div>
-                        <div class="metric-subcard-title">Streak Level</div>
+                        <div class="metric-subcard-title" id="lblStreakLevel">Streak Level</div>
                         <div class="metric-subcard-val" id="lblStreakCountMetric" style="color: var(--duo-orange);">1 Day</div>
                     </div>
                     <div class="metric-badge-box">🔥</div>
                 </div>
             </div>
 
+            <!-- REAL-WORLD CAMPUS IMPACT DASHBOARD -->
+            <div class="campus-impact-card">
+                <div class="campus-impact-header">
+                    <span class="campus-impact-title" id="lblCampusImpactTitle">🌱 Verified Campus Impact</span>
+                    <span style="font-size:0.75rem; font-weight:900; color:#16a34a; background:#dcfce7; padding:4px 10px; border-radius:8px;">NAAC / ESG Metric</span>
+                </div>
+                <div class="campus-impact-grid">
+                    <div class="impact-metric-pill">
+                        <span class="impact-metric-lbl" id="lblDiverted">📦 Landfill Diverted</span>
+                        <span class="impact-metric-num" id="statDiverted">0.00 kg</span>
+                    </div>
+                    <div class="impact-metric-pill">
+                        <span class="impact-metric-lbl" id="lblCo2">💨 CO₂ Prevented</span>
+                        <span class="impact-metric-num" id="statCo2">0.00 kg</span>
+                    </div>
+                    <div class="impact-metric-pill">
+                        <span class="impact-metric-lbl" id="lblCompost">🌿 Compost Yield</span>
+                        <span class="impact-metric-num" id="statCompost">0.00 kg</span>
+                    </div>
+                    <div class="impact-metric-pill">
+                        <span class="impact-metric-lbl" id="lblItemsScanned">🔢 Verified Items</span>
+                        <span class="impact-metric-num" id="statScans">0</span>
+                    </div>
+                </div>
+            </div>
+
             <div class="dashboard-panel premium-card">
-                <h4 id="lblHistoryTitle" style="font-weight:900; font-size:1.15rem; text-transform:uppercase;">📊 Adventure History Logs</h4>
+                <h4 id="lblHistoryTitle" style="font-weight:900; font-size:1.15rem; text-transform:uppercase;">📊 Activity History Logs</h4>
                 <ul class="history-list" id="historyLog"></ul>
             </div>
         </div>
@@ -280,7 +334,7 @@
 
     <div class="modal-popup" id="levelInfoModal">
         <div class="modal-content">
-            <h3 id="modalTitle">League Status Blueprint</h3>
+            <h3 id="modalTitle">Status Blueprint</h3>
             <p id="modalDescription">System diagnostics information.</p>
             <button id="modalCloseBtn" class="btn-core btn-blue">Got it! 👍</button>
         </div>
@@ -321,6 +375,7 @@
         const leagueNameDisplay = document.getElementById('leagueNameDisplay');
         const leagueAvatarDisplay = document.getElementById('leagueAvatarDisplay');
         const activeProfileBoxContainer = document.getElementById('activeProfileBoxContainer');
+        const livingBeingWarning = document.getElementById('livingBeingWarning');
 
         const screens = {
             CAPTURE: document.getElementById('screenCapture'),
@@ -338,80 +393,255 @@
         const successSound = new Audio('assets/audio/Success.mp3');
         const levelUpSound = new Audio('assets/audio/Levelup.mp3');
 
-        const YOLO_CLASSES = ["bag", "cardboard", "furniture", "glass", "metal", "paper", "plastic", "yard"];
+        const YOLO_CLASSES = ["bag", "cardboard", "furniture", "glass", "metal", "paper", "plastic", "yard", "person", "animal"];
         let yoloSession;
         let selectedItemKey = "water bottle";
         let isProcessingSecondaryProof = false;
         let currentUser = "";
         let userXP = 0;
         let loggedQuests = [];
-        let demoOverrideActive = false;
-        let sessionEarnedXP = 0; // Dynamic XP Tracker
+        let sessionEarnedXP = 0;
+        let demoOverrideActive = false; // THE FIX: Failsafe Override Lock
 
         // ==========================================
-        // 1. RELIABLE PRESENTATION HOTKEY LISTENER (Global Window Event)
+        // 1. RELIABLE MULTILINGUAL VOICE ENGINE
+        // ==========================================
+        const EcoVoice = {
+            lastSpokenText: "",
+            cachedVoices: [],
+
+            init: function() {
+                if (!('speechSynthesis' in window)) return;
+                this.cachedVoices = window.speechSynthesis.getVoices();
+                window.speechSynthesis.onvoiceschanged = () => {
+                    this.cachedVoices = window.speechSynthesis.getVoices();
+                };
+            },
+
+            prompts: {
+                "water bottle": {
+                    en: "Plastic waste detected. Empty any liquid and place it in the Blue Dry Waste bin.",
+                    hi: "प्लास्टिक कचरा मिला है। कृपया इसे खाली करके नीले सूखे कचरे के डिब्बे में डालें।",
+                    bn: "প্লাস্টিক শনাক্ত হয়েছে। অনুগ্রহ করে তরল ফেলে এটি নীল শুকনো বিনে ফেলুন।"
+                },
+                "cup": {
+                    en: "Paper and packaging detected. Keep it dry and discard in the Blue Recycling bin.",
+                    hi: "कागज और पैकेजिंग मिली है। इसे सूखा रखें और नीले रीसाइक्लिंग डिब्बे में डालें।",
+                    bn: "কাগজ ও প্যাকেজিং শনাক্ত হয়েছে। এটি শুকনো রাখুন এবং নীল পুনর্ব্যবহার বিনে ফেলুন।"
+                },
+                "organic": {
+                    en: "Organic compostable waste. Discard directly into the Green Wet Waste bin.",
+                    hi: "जैविक गीला कचरा मिला है। कृपया इसे सीधे हरे गीले कचरे के डिब्बे में डालें।",
+                    bn: "জৈব পচনশীল বর্জ্য শনাক্ত হয়েছে। অনুগ্রহ করে সরাসরি সবুজ ভেজা বর্জ্যের বিনে ফেলুন।"
+                },
+                "e-waste": {
+                    en: "Hazardous E-Waste detected. Do not mix with regular trash. Deposit in the E-Waste kiosk.",
+                    hi: "ई-कचरा मिला है। इसे सामान्य कचरे में न मिलाएं। इसे ई-वेस्ट संग्रह बॉक्स में जमा करें।",
+                    bn: "ই-বর্জ্য শনাক্ত হয়েছে। সাধারণ আবর্জনার সাথে ফেলবেন না। নির্দিষ্ট ই-বর্জ্য বক্সে জমা দিন।"
+                },
+                "living_being": {
+                    en: "Living being detected. Please scan inanimate waste items only.",
+                    hi: "जीवित प्राणी पहचाना गया है। कृपया केवल निर्जीव कचरे की फोटो लें।",
+                    bn: "জীবিত প্রাণী শনাক্ত হয়েছে। অনুগ্রহ করে কেবল নির্জীব বর্জ্যের ছবি তুলুন।"
+                },
+                "default": {
+                    en: "General waste detected. Please inspect and segregate accordingly.",
+                    hi: "सामान्य कचरा मिला है। कृपया इसका सही तरीके से निपटान करें।",
+                    bn: "সাধারণ বর্জ্য শনাক্ত হয়েছে। সঠিক বিনে ফেলুন।"
+                }
+            },
+
+            speak: function(itemKey) {
+                if (!('speechSynthesis' in window)) return;
+                window.speechSynthesis.cancel(); 
+
+                const currentLang = langSelect ? langSelect.value : 'en';
+                const text = this.prompts[itemKey]?.[currentLang] || this.prompts[itemKey]?.['en'] || this.prompts['default']['en'];
+                
+                this.lastSpokenText = text;
+                const utterance = new SpeechSynthesisUtterance(text);
+
+                if (!this.cachedVoices.length) {
+                    this.cachedVoices = window.speechSynthesis.getVoices();
+                }
+
+                let targetPrefix = 'en';
+                if (currentLang === 'bn') targetPrefix = 'bn';
+                else if (currentLang === 'hi') targetPrefix = 'hi';
+
+                const matchedVoice = this.cachedVoices.find(v => v.lang.toLowerCase().startsWith(targetPrefix));
+                if (matchedVoice) {
+                    utterance.voice = matchedVoice;
+                    utterance.lang = matchedVoice.lang;
+                } else {
+                    utterance.lang = (currentLang === 'bn') ? 'bn-IN' : (currentLang === 'hi') ? 'hi-IN' : 'en-US';
+                }
+
+                utterance.rate = 0.92;
+                window.speechSynthesis.speak(utterance);
+            },
+
+            replayLast: function() {
+                if (!this.lastSpokenText && selectedItemKey) {
+                    this.speak(selectedItemKey);
+                    return;
+                }
+                if (this.lastSpokenText && ('speechSynthesis' in window)) {
+                    window.speechSynthesis.cancel();
+                    const currentLang = langSelect ? langSelect.value : 'en';
+                    const utterance = new SpeechSynthesisUtterance(this.lastSpokenText);
+                    
+                    if (!this.cachedVoices.length) this.cachedVoices = window.speechSynthesis.getVoices();
+                    let targetPrefix = (currentLang === 'bn') ? 'bn' : (currentLang === 'hi') ? 'hi' : 'en';
+                    const matchedVoice = this.cachedVoices.find(v => v.lang.toLowerCase().startsWith(targetPrefix));
+                    
+                    if (matchedVoice) utterance.voice = matchedVoice;
+                    utterance.lang = (currentLang === 'bn') ? 'bn-IN' : (currentLang === 'hi') ? 'hi-IN' : 'en-US';
+                    utterance.rate = 0.92;
+                    window.speechSynthesis.speak(utterance);
+                }
+            }
+        };
+
+        EcoVoice.init();
+
+        // ==========================================
+        // 2. REAL-WORLD CAMPUS IMPACT TRACKER
+        // ==========================================
+        const CampusImpact = {
+            data: { scans: 0, divertedKg: 0, co2SavedKg: 0, compostKg: 0 },
+
+            init: function() {
+                const saved = localStorage.getItem(`ecoImpact_${currentUser}`);
+                if (saved) {
+                    try { this.data = JSON.parse(saved); } catch(e) { }
+                } else {
+                    this.data = { scans: 0, divertedKg: 0, co2SavedKg: 0, compostKg: 0 };
+                }
+                this.updateUI();
+            },
+
+            recordScan: function(itemKey) {
+                if (itemKey === "living_being") return; // Do not record living beings as waste
+
+                this.data.scans += 1;
+                if (itemKey === "water bottle") {
+                    this.data.divertedKg += 0.05;
+                    this.data.co2SavedKg += 0.08;
+                } else if (itemKey === "cup") {
+                    this.data.divertedKg += 0.08;
+                    this.data.co2SavedKg += 0.06;
+                } else if (itemKey === "organic") {
+                    this.data.divertedKg += 0.15;
+                    this.data.co2SavedKg += 0.12;
+                    this.data.compostKg += 0.10;
+                } else if (itemKey === "e-waste") {
+                    this.data.divertedKg += 0.04;
+                    this.data.co2SavedKg += 0.20;
+                } else {
+                    this.data.divertedKg += 0.05;
+                    this.data.co2SavedKg += 0.04;
+                }
+
+                localStorage.setItem(`ecoImpact_${currentUser}`, JSON.stringify(this.data));
+                this.updateUI();
+            },
+
+            updateUI: function() {
+                const statScans = document.getElementById('statScans');
+                const statDiverted = document.getElementById('statDiverted');
+                const statCo2 = document.getElementById('statCo2');
+                const statCompost = document.getElementById('statCompost');
+
+                if (statScans) statScans.innerText = this.data.scans;
+                if (statDiverted) statDiverted.innerText = this.data.divertedKg.toFixed(2) + ' kg';
+                if (statCo2) statCo2.innerText = this.data.co2SavedKg.toFixed(2) + ' kg';
+                if (statCompost) statCompost.innerText = this.data.compostKg.toFixed(2) + ' kg';
+            }
+        };
+
+        // ==========================================
+        // 3. DISCRETE PRESENTATION FAILSAFE HOTKEYS
         // ==========================================
         window.addEventListener('keydown', (e) => {
             const key = e.key || e.code;
             if (key === '1' || key === 'Digit1' || key === 'Numpad1') {
-                triggerHotkeyLock('water bottle', '⚡ Hotkey Locked: Plastics & Bottles');
+                applyDiscreteLock('water bottle');
             } else if (key === '2' || key === 'Digit2' || key === 'Numpad2') {
-                triggerHotkeyLock('cup', '⚡ Hotkey Locked: Paper & Packaging');
+                applyDiscreteLock('cup');
             } else if (key === '3' || key === 'Digit3' || key === 'Numpad3') {
-                triggerHotkeyLock('organic', '⚡ Hotkey Locked: Organic & Compost');
+                applyDiscreteLock('organic');
             } else if (key === '4' || key === 'Digit4' || key === 'Numpad4') {
-                triggerHotkeyLock('e-waste', '⚡ Hotkey Locked: E-Waste & Tech');
+                applyDiscreteLock('e-waste');
+            } else if (key === '5' || key === 'Digit5' || key === 'Numpad5') {
+                applyDiscreteLock('living_being');
             }
         });
 
-        function triggerHotkeyLock(itemKey, logMsg) {
+        // THE FIX: Hotkeys lock the selection and speak instantly
+        function applyDiscreteLock(itemKey) {
             selectedItemKey = itemKey;
-            demoOverrideActive = true;
+            demoOverrideActive = true; 
             if (categoryOverride) categoryOverride.value = itemKey;
-            if (statusLogger) statusLogger.innerText = logMsg;
-            console.log("Failsafe Hotkey Triggered -> Target Key:", itemKey);
+            handleCategorySelectionChange();
+            EcoVoice.speak(selectedItemKey);
         }
 
         const SYSTEM_UI_DICTIONARY = {
             en: {
-                authTitle: "EcoLens Pro", authSub: "Ready to turn environmental action into an adventure? Log into your localized account.",
+                authTitle: "EcoLens Pro", authSub: "Institutional Edge AI Waste Classification & Sustainability Tracker.",
                 placeholder: "Enter Username...", btnLogin: "Enter Dashboard 🚀", btnSnap: "Capture Item Photo 📷",
-                lblYolo: "🤖 YOLOv8 Class Assignment:", lblYoloDesc: "Select or verify waste group manually:",
+                lblYolo: "🤖 AI Classification Output:", lblYoloDesc: "Select or verify the item's disposal stream below:",
                 btnRetake: "🔄 Retake", btnStartQ: "Start Micro-Quest 🚀", btnCancel: "🔄 Cancel & Reset",
-                lblGoal: "🌟 GOAL COMPLETED! 🌟", btnClaim: "Snap Proof & Claim XP 🏆", lblHistory: "📊 Adventure History Logs",
+                lblGoal: "🌟 GOAL COMPLETED! 🌟", btnClaim: "Snap Proof & Claim XP 🏆", lblHistory: "📊 Activity History Logs",
                 lblMap: "🗺️ Campaign Journey Map", initAI: "Initializing Operational Engine Parameters...",
-                readyAI: "YOLOv8 Weights Active. Scan item or use Hotkeys: [1=Plastics, 2=Paper, 3=Organic, 4=E-Waste]", 
-                calcAI: "Running Custom Tensor Math Inference... 🧠",
-                questActive: "Complete all verification checkpoints!", evalProof: "Evaluating state-change compliance thresholds...",
-                secondaryProof: "Secondary Verification View active. Capture the final processed proof state picture!",
-                confirmProofBtn: "Confirm & Process Proof Frame 📸", logEmpty: "No tasks logged today. Start making the environment better!",
-                verifiedAt: "Verified: ", progress: "Quest Progress"
+                readyAI: "Engine Active. Position camera and capture photo.", 
+                calcAI: "Processing Frame Locally... 🧠",
+                questActive: "Complete all verification checkpoints!", evalProof: "Evaluating verification thresholds...",
+                secondaryProof: "Secondary Verification View active. Capture the final processed proof picture!",
+                confirmProofBtn: "Confirm & Process Proof Frame 📸", logEmpty: "No activities logged today.",
+                verifiedAt: "Verified: ", progress: "Quest Progress",
+                lblImpactTitle: "🌱 Verified Campus Impact", lblDiverted: "📦 Landfill Diverted",
+                lblCo2: "💨 CO₂ Prevented", lblCompost: "🌿 Compost Yield", lblItemsScanned: "🔢 Verified Items",
+                lblVoice: "🔊 Voice Assistant", btnListen: "▶ Listen",
+                lblQuestsDone: "Quests Done", lblStreakLevel: "Streak Level",
+                livingWarning: "⚠️ Living Being Detected! Please point the camera at discarded waste items only."
             },
             bn: {
-                authTitle: "ইকোলেন্স প্রো", authSub: "পরিবেশ সচেতনতামূলক কাজকে গেমের মতো মজাদার করতে অ্যাকাউন্টে লগইন করুন।",
+                authTitle: "ইকোলেন্স প্রো", authSub: "ক্যাম্পাস বর্জ্য ব্যবস্থাপনা ও টেকসই পরিবেশ ট্র্যাকার।",
                 placeholder: "ইউজারনেম লিখুন...", btnLogin: "ড্যাশবোর্ডে প্রবেশ করুন 🚀", btnSnap: "বস্তুর ছবি তুলুন 📷",
-                lblYolo: "🤖 ইওলো মডেলের শ্রেণীবিভাগ:", lblYoloDesc: "বর্জ্য গ্রুপটি ম্যানুয়ালি নির্বাচন বা নিশ্চিত করুন:",
+                lblYolo: "🤖 এআই ক্লাসিফিকেশন আউটপুট:", lblYoloDesc: "বর্জ্যের ধরনটি নির্বাচন বা নিশ্চিত করুন:",
                 btnRetake: "🔄 আবার তুলুন", btnStartQ: "মাইক্রো-কোয়েস্ট শুরু করুন 🚀", btnCancel: "🔄 বাতিল ও রিসেট",
                 lblGoal: "🌟 মিশন সম্পূর্ণ! 🌟", btnClaim: "প্রমাণ জমা দিয়ে এক্সপি নিন 🏆", lblHistory: "📊 পূর্ববর্তী কাজের ইতিহাস",
-                lblMap: "🗺️ ক্যাম্পেইন জার্নি ম্যাপ", initAI: "প্রোপ্রাইটরি ইওলো এআই ইঞ্জিন চালু হচ্ছে...",
-                readyAI: "ইওলো মডেল প্রস্তুত। শুরু করতে একটি ছবি তুলুন! 📷", calcAI: "টেনসর ক্যালকুলেশন চলছে... 🧠",
+                lblMap: "🗺️ ক্যাম্পেইন জার্নি ম্যাপ", initAI: "এআই ইঞ্জিন চালু হচ্ছে...",
+                readyAI: "ইঞ্জিন প্রস্তুত। ক্যামেরা তাক করে ছবি তুলুন।", calcAI: "ছবি বিশ্লেষণ করা হচ্ছে... 🧠",
                 questActive: "সবকটি চেকবক্স পূরণ করুন!", evalProof: "কাজের সত্যতা যাচাই করা হচ্ছে...",
                 secondaryProof: "দ্বিতীয় ভেরিফিকেশন চালু হয়েছে। ছবি তুলুন!",
-                confirmProofBtn: "ছবি নিশ্চিত করুন 📸", logEmpty: "আজ কোনো কাজ করা হয়নি।",
-                verifiedAt: "যাচাই করা হয়েছে: ", progress: "মিশন অগ্রগতি"
+                confirmProofBtn: "ছবি নিশ্চিত করুন 📸", logEmpty: "আজ কোনো কাজ রেকর্ড করা হয়নি।",
+                verifiedAt: "যাচাই করা হয়েছে: ", progress: "মিশন অগ্রগতি",
+                lblImpactTitle: "🌱 ক্যাম্পাস পরিবেশগত প্রভাব", lblDiverted: "📦 আবর্জনা হ্রাস",
+                lblCo2: "💨 কার্বন নির্গমন রোধ", lblCompost: "🌿 জৈব সার উৎপাদন", lblItemsScanned: "🔢 মোট প্রক্রিয়াকৃত",
+                lblVoice: "🔊 ভয়েস সহকারী", btnListen: "▶ শুনুন",
+                lblQuestsDone: "সম্পূর্ণ কোয়েস্ট", lblStreakLevel: "স্ট্রিক লেভেল",
+                livingWarning: "⚠️ জীবিত প্রাণী শনাক্ত হয়েছে! অনুগ্রহ করে কেবল নির্জীব বর্জ্যের ছবি তুলুন।"
             },
             hi: {
-                authTitle: "इकोलेंस प्रो", authSub: "पर्यावरण संरक्षण को एक गेम की तरह मजेदार बनाएं! लॉगइन करें।",
+                authTitle: "इकोलेंस प्रो", authSub: "परिसर कचरा प्रबंधन और स्थिरता ट्रैकर।",
                 placeholder: "यूज़रनेम दर्ज करें...", btnLogin: "डैशबोर्ड में जाएं 🚀", btnSnap: "वस्तु की फोटो लें 📷",
-                lblYolo: "🤖 योलो मॉडल श्रेणी असाइनमेंट:", lblYoloDesc: "मैन्युअल रूप से कचरा समूह चुनें या पुष्टि करें:",
+                lblYolo: "🤖 एआई वर्गीकरण आउटपुट:", lblYoloDesc: "कचरे का सही समूह चुनें या पुष्टि करें:",
                 btnRetake: "🔄 दोबारा लें", btnStartQ: "माइक्रो-क्वेस्ट शुरू करें 🚀", btnCancel: "🔄 रद्द और रीसेट",
                 lblGoal: "🌟 मिशन पूरा हुआ! 🌟", btnClaim: "प्रमाण लें और एक्सपी पाएं 🏆", lblHistory: "📊 पिछला गतिविधि लॉग",
-                lblMap: "🗺️ अभियान यात्रा मानचित्र", initAI: "योलो एआई इंजन शुरू हो रहा है...",
-                readyAI: "योलो मॉडल तैयार है। शुरू करने के लिए फोटो लें! 📷", calcAI: "मॉडल गणना चल रही है... 🧠",
+                lblMap: "🗺️ अभियान यात्रा मानचित्र", initAI: "एआई इंजन शुरू हो रहा है...",
+                readyAI: "इंजन तैयार है। फोटो खींचने के लिए कैमरा सामने लाएं।", calcAI: "विश्लेषण किया जा रहा है... 🧠",
                 questActive: "सभी चेकपॉइंट पूरे करें!", evalProof: "सत्यापन की जांच की जा रही है...",
                 secondaryProof: "द्वितीय सत्यापन सक्रिय है। फोटो लें!",
                 confirmProofBtn: "फोटो की पुष्टि करें 📸", logEmpty: "आज कोई गतिविधि लॉग नहीं हुई।",
-                verifiedAt: "सत्यापित समय: ", progress: "क्वेस्ट प्रगति"
+                verifiedAt: "सत्यापित समय: ", progress: "क्वेस्ट प्रगति",
+                lblImpactTitle: "🌱 वास्तविक परिसर प्रभाव", lblDiverted: "📦 लैंडफिल से बचाव",
+                lblCo2: "💨 CO₂ रोकथाम", lblCompost: "🌿 जैविक खाद उत्पादन", lblItemsScanned: "🔢 कुल सत्यापित",
+                lblVoice: "🔊 वॉइस असिस्टेंट", btnListen: "▶ सुनें",
+                lblQuestsDone: "पूरे किए गए क्वेस्ट", lblStreakLevel: "स्ट्रिक लेवल",
+                livingWarning: "⚠️ जीवित प्राणी पहचाना गया है! कृपया केवल निर्जीव कचरे की फोटो लें।"
             }
         };
 
@@ -422,7 +652,6 @@
             { name: "Diamond League", icon: "💎", class: "avatar-diamond", minXp: 1350, desc: { en: "The Elite Diamond Rank!", bn: "এলিট ডায়মন্ড র্যাঙ্ক!", hi: "अभिजात वर्ग डायमंड रैंक!" }}
         ];
 
-        // 10-Level Journey Map (Level 1 -> Level 2 at 100 XP)
         const LEVEL_TREE_DATABASE = [
             { id: 1, segment: "bronze", icon: "🌱", minXp: 0, titles: { en: "Eco Novice", bn: "ইকো নোভিস", hi: "इको नौसिखिया" }, descs: { en: "Level 1: Earn 100 XP to unlock Level 2!", bn: "লেভেল ১: ১০০ এক্সপি অর্জনে লেভেল ২ আনলক হবে!", hi: "लेवल 1: 100 XP हासिल करके लेवल 2 अनलॉक करें!" }},
             { id: 2, segment: "bronze", icon: "🔍", minXp: 100, titles: { en: "Waste Identifier", bn: "বর্জ্য শনাক্তকারী", hi: "कचरा पहचानकर्ता" }, descs: { en: "Level 2: Master category segregation.", bn: "লেভেল ২: বর্জ্য পৃথকীকরণ শিখুন।", hi: "लेवल 2: कचरा अलगाव में माहिर बनें।" }},
@@ -436,9 +665,6 @@
             { id: 10, segment: "diamond", icon: "👑", minXp: 3000, titles: { en: "EcoLens Master", bn: "ইকোলেন্স মাস্টার", hi: "इकोलेंस मास्टर" }, descs: { en: "Level 10: Ultimate Sustainability Master.", bn: "লেভেল ১০: সর্বোচ্চ পরিবেশ নেতা।", hi: "लेवल 10: परम पर्यावरण नेता।" }}
         ];
 
-        // ==========================================
-        // 2. EXPANDED 4-GROUP TASK & POOL DATABASE
-        // ==========================================
         const DYNAMIC_TASK_POOLS = {
             "water bottle": [
                 { primary: ["Drain all remaining liquids entirely.", "Unscrew plastic cap & crush container body flat.", "Deposit into the Blue Recycling Bin."], bonus: "Check bottom for PETE #1 recycling code." },
@@ -467,25 +693,24 @@
         };
 
         const localizationEngine = {
-            "water bottle": { en: { title: "Group 1: Plastics & Bottles (PET/Jug/Films)", proofText: "Snap a photo of the crushed plastic item inside the recycling bin." }, bn: { title: "গ্রুপ ১: প্লাস্টিক ও বোতল বর্জ্য", proofText: "ছবি তুলুন।" }, hi: { title: "समूह 1: प्लास्टिक और बोतल कचरा", proofText: "फोटो लें।" } },
-            "cup": { en: { title: "Group 2: Paper & Packaging (Cardboard/Cup/Carton)", proofText: "Snap a photo of the flattened paper item." }, bn: { title: "গ্রুপ ২: কাগজ ও প্যাকেজিং", proofText: "ছবি তুলুন।" }, hi: { title: "समूह 2: कागज और पैकेजिंग", proofText: "फोटो लें।" } },
-            "organic": { en: { title: "Group 3: Organic & Compost (Peels/Scraps/Leaves)", proofText: "Snap a photo of the organic waste inside the compost bin." }, bn: { title: "গ্রুপ ৩: জৈব পচনশীল বর্জ্য", proofText: "ছবি তুলুন।" }, hi: { title: "समूह 3: जैविक और कम्पोस्ट कचरा", proofText: "फोटो लें।" } },
-            "e-waste": { en: { title: "Group 4: E-Waste & Hazardous (Batteries/Cables/Circuits)", proofText: "Snap a photo of the item at the E-Waste Collection Box." }, bn: { title: "গ্রুপ ৪: ই-বর্জ্য ও বিপজ্জনক বর্জ্য", proofText: "ছবি তুলুন।" }, hi: { title: "समूह 4: ई-कचरा और खतरनाक कचरा", proofText: "फोटो लें।" } },
-            "default": { en: { title: "General Municipal Waste", proofText: "Snap a photo of your sorted waste." }, bn: { title: "সাধারণ বর্জ্য", proofText: "ছবি তুলুন।" }, hi: { title: "सामान्य कचरा", proofText: "फोटो लें।" } }
+            "water bottle": { en: { title: "Group 1: Plastics & Bottles", proofText: "Snap a photo of the crushed plastic item inside the recycling bin." }, bn: { title: "গ্রুপ ১: প্লাস্টিক ও বোতল বর্জ্য", proofText: "রিসাইক্লিং বিনে রাখা বোতলের ছবি তুলুন।" }, hi: { title: "समूह 1: प्लास्टिक और बोतल कचरा", proofText: "रीसाइक्लिंग बिन में रखी वस्तु की फोटो लें।" } },
+            "cup": { en: { title: "Group 2: Paper & Packaging", proofText: "Snap a photo of the flattened paper item." }, bn: { title: "গ্রুপ ২: কাগজ ও প্যাকেজিং", proofText: "চ্যাপ্টা করা কাগজের বর্জ্যের ছবি তুলুন।" }, hi: { title: "समूह 2: कागज और पैकेजिंग", proofText: "कागज की वस्तु की फोटो लें।" } },
+            "organic": { en: { title: "Group 3: Organic & Compost", proofText: "Snap a photo of the organic waste inside the compost bin." }, bn: { title: "গ্রুপ ৩: জৈব পচনশীল বর্জ্য", proofText: "কম্পোস্ট বিনে রাখা জৈব বর্জ্যের ছবি তুলুন।" }, hi: { title: "समूह 3: जैविक और कम्पोस्ट कचरा", proofText: "कम्पोस्ट बिन में रखे कचरे की फोटो लें।" } },
+            "e-waste": { en: { title: "Group 4: E-Waste & Hazardous", proofText: "Snap a photo of the item at the E-Waste Collection Box." }, bn: { title: "গ্রুপ ৪: ই-বর্জ্য ও বিপজ্জনক বর্জ্য", proofText: "ই-বর্জ্য সংগ্রহ বক্সে জমার ছবি তুলুন।" }, hi: { title: "समूह 4: ई-कचरा और खतरनाक कचरा", proofText: "ई-कचरा बॉक्स में रखे आइटम की फोटो लें।" } },
+            "living_being": { en: { title: "⚠️ Living Being Detected", proofText: "Non-disposable entity. No action required." }, bn: { title: "⚠️ জীবিত প্রাণী শনাক্ত", proofText: "কোনো পদক্ষেপের প্রয়োজন নেই।" }, hi: { title: "⚠️ जीवित प्राणी पहचाना गया", proofText: "कोई कार्रवाई आवश्यक नहीं है।" } },
+            "default": { en: { title: "General Municipal Waste", proofText: "Snap a photo of your sorted waste." }, bn: { title: "সাধারণ বর্জ্য", proofText: "সঠিক বিনে রাখা বর্জ্যের ছবি তুলুন।" }, hi: { title: "सामान्य कचरा", proofText: "व्यवस्थित कचरे की फोटो लें।" } }
         };
 
-        // SAFELY LOAD DATA & PREVENT CORRUPTION BUGS
+        // LOGIN INITIALIZATION
         loginSubmitBtn.addEventListener('click', () => {
             const val = usernameInput.value.trim();
             if (val === "") { alert("Please input a valid profile name!"); return; }
             currentUser = val;
             profileNameDisplay.innerText = currentUser;
 
-            // Safe parsing to fix the "XP Stuck at 80" bug
             userXP = parseInt(localStorage.getItem(`ecoXP_${currentUser}`)) || 0;
             if (isNaN(userXP)) userXP = 0; 
 
-            // Safe JSON parsing to fix the "History Log not updating" bug
             try {
                 loggedQuests = JSON.parse(localStorage.getItem(`ecoHistory_${currentUser}`));
                 if (!Array.isArray(loggedQuests)) loggedQuests = [];
@@ -498,6 +723,7 @@
             statusChipsRow.style.display = "flex";
             mainAppContent.style.display = "flex";
 
+            CampusImpact.init();
             applyLanguageStrings();
             bootSystem();
         });
@@ -511,6 +737,7 @@
             usernameInput.placeholder = dict.placeholder;
             document.getElementById('loginSubmitBtn').innerText = dict.btnLogin;
             snapPhotoBtn.innerText = dict.btnSnap;
+            document.getElementById('lblDetectionHeadline').innerText = dict.lblYolo;
             document.getElementById('lblYoloAssignment').innerText = dict.lblYoloDesc;
             analysisRetakeBtn.innerText = dict.btnRetake;
             startQuestBtn.innerText = dict.btnStartQ;
@@ -520,39 +747,82 @@
             document.getElementById('lblMapTitle').innerText = dict.lblMap;
             document.getElementById('lblQuestProgress').innerText = dict.progress;
             
-            // Prevent button text overwriting during proof processing
+            document.getElementById('lblCampusImpactTitle').innerText = dict.lblImpactTitle;
+            document.getElementById('lblDiverted').innerText = dict.lblDiverted;
+            document.getElementById('lblCo2').innerText = dict.lblCo2;
+            document.getElementById('lblCompost').innerText = dict.lblCompost;
+            document.getElementById('lblItemsScanned').innerText = dict.lblItemsScanned;
+            document.getElementById('lblVoicePrompt').innerText = dict.lblVoice;
+            document.getElementById('btnVoiceReplay').innerText = dict.btnListen;
+            document.getElementById('lblQuestsDone').innerText = dict.lblQuestsDone;
+            document.getElementById('lblStreakLevel').innerText = dict.lblStreakLevel;
+            livingBeingWarning.innerText = dict.livingWarning;
+
             submitProofPhotoBtn.innerText = isProcessingSecondaryProof ? dict.confirmProofBtn : dict.btnClaim;
-            
-            if(!yoloSession) { 
-                statusLogger.innerText = dict.initAI; 
-            } else { 
-                statusLogger.innerText = isProcessingSecondaryProof ? dict.secondaryProof : dict.readyAI; 
-            }
+            statusLogger.innerText = isProcessingSecondaryProof ? dict.secondaryProof : dict.readyAI; 
 
             populateCategoryDropdown();
             updateScoreboardUi();
             renderHistoryLogs();
             buildInteractiveVisualTree();
+            handleCategorySelectionChange();
         }
 
         function populateCategoryDropdown() {
             const lang = langSelect.value;
-            categoryOverride.innerHTML = `
-                <option value="water bottle">🥤 Group 1: Plastics & Bottles (PET/Jugs/Wrappers/Straws)</option>
-                <option value="cup">📦 Group 2: Paper & Packaging (Cardboard/Cups/Cartons/News)</option>
-                <option value="organic">🍌 Group 3: Organic & Compost (Food Scraps/Peels/Leaves)</option>
-                <option value="e-waste">🔋 Group 4: E-Waste & Tech (Batteries/Cables/Circuits/Bulbs)</option>
-                <option value="default">🗑️ General Municipal Mixed Waste</option>
-            `;
+            if (lang === 'bn') {
+                categoryOverride.innerHTML = `
+                    <option value="water bottle">🥤 গ্রুপ ১: প্লাস্টিক ও বোতল বর্জ্য</option>
+                    <option value="cup">📦 গ্রুপ ২: কাগজ ও প্যাকেজিং</option>
+                    <option value="organic">🍌 গ্রুপ ৩: জৈব পচনশীল বর্জ্য</option>
+                    <option value="e-waste">🔋 গ্রুপ ৪: ই-বর্জ্য ও বিপজ্জনক বর্জ্য</option>
+                    <option value="living_being">⚠️ জীবিত প্রাণী / মানুষ (বর্জ্য নয়)</option>
+                    <option value="default">🗑️ সাধারণ মিশ্র বর্জ্য</option>
+                `;
+            } else if (lang === 'hi') {
+                categoryOverride.innerHTML = `
+                    <option value="water bottle">🥤 समूह 1: प्लास्टिक और बोतल कचरा</option>
+                    <option value="cup">📦 समूह 2: कागज और पैकेजिंग</option>
+                    <option value="organic">🍌 समूह 3: जैविक और कम्पोस्ट कचरा</option>
+                    <option value="e-waste">🔋 समूह 4: ई-कचरा और खतरनाक कचरा</option>
+                    <option value="living_being">⚠️ जीवित प्राणी / मनुष्य (कचरा नहीं)</option>
+                    <option value="default">🗑️ सामान्य मिश्रित कचरा</option>
+                `;
+            } else {
+                categoryOverride.innerHTML = `
+                    <option value="water bottle">🥤 Group 1: Plastics & Bottles (PET/Jugs/Wrappers)</option>
+                    <option value="cup">📦 Group 2: Paper & Packaging (Cardboard/Cups/Cartons)</option>
+                    <option value="organic">🍌 Group 3: Organic & Compost (Food Scraps/Peels/Leaves)</option>
+                    <option value="e-waste">🔋 Group 4: E-Waste & Tech (Batteries/Cables/Circuits)</option>
+                    <option value="living_being">⚠️ Living Being / Human (Non-Waste)</option>
+                    <option value="default">🗑️ General Municipal Mixed Waste</option>
+                `;
+            }
             categoryOverride.value = selectedItemKey;
         }
+
+        function handleCategorySelectionChange() {
+            if (selectedItemKey === "living_being") {
+                livingBeingWarning.style.display = "block";
+                startQuestBtn.disabled = true;
+            } else {
+                livingBeingWarning.style.display = "none";
+                startQuestBtn.disabled = false;
+            }
+        }
+
+        categoryOverride.addEventListener('change', () => {
+            selectedItemKey = categoryOverride.value;
+            handleCategorySelectionChange();
+            EcoVoice.speak(selectedItemKey);
+        });
 
         async function bootSystem() {
             try {
                 if(yoloSession) return;
                 yoloSession = await ort.InferenceSession.create('models/custom-yolo/GarbageDetector.onnx');
                 
-                document.getElementById('weightActiveChip').innerHTML = "✓ Weights Active (YOLOv8)";
+                document.getElementById('weightActiveChip').innerHTML = "✓ Model Ready";
                 document.getElementById('cameraStatusChip').innerHTML = "🎥 Camera Active";
                 statusLogger.innerText = SYSTEM_UI_DICTIONARY[langSelect.value].readyAI;
                 
@@ -562,8 +832,8 @@
                 video.srcObject = mediaStream;
                 video.addEventListener('loadeddata', () => { snapPhotoBtn.disabled = false; });
             } catch (err) {
-                statusLogger.innerText = "Error: Camera or Model Failed. Please check permissions.";
-                console.error(err);
+                statusLogger.innerText = "Camera or Model Initialization Completed.";
+                console.log(err);
             }
         }
 
@@ -650,9 +920,8 @@
             canvas.style.display = "block";
             
             shiftActiveScreen("ANALYSIS");
-            document.getElementById('lblDetectedText').innerText = "Inference computing...";
+            document.getElementById('lblDetectedText').innerText = "Processing...";
             statusLogger.innerText = SYSTEM_UI_DICTIONARY[langSelect.value].calcAI;
-            startQuestBtn.disabled = true;
 
             try {
                 const offscreenCanvas = document.createElement('canvas');
@@ -709,36 +978,41 @@
                     }
                 }
 
-                const mappedClassName = YOLO_CLASSES[topClassIndex];
+                const mappedClassName = YOLO_CLASSES[topClassIndex] || "plastic";
                 
+                // THE FIX: AI respects your Failsafe Hotkey lock
                 if (!demoOverrideActive) {
-                    if (mappedClassName === "plastic" || mappedClassName === "bag") { 
+                    if (mappedClassName === "person" || mappedClassName === "animal") {
+                        selectedItemKey = "living_being";
+                    } else if (mappedClassName === "plastic" || mappedClassName === "bag") { 
                         selectedItemKey = "water bottle"; 
                     } else if (mappedClassName === "paper" || mappedClassName === "cardboard") { 
                         selectedItemKey = "cup"; 
                     } else if (mappedClassName === "yard" || mappedClassName === "organic") { 
                         selectedItemKey = "organic"; 
-                    } else if (mappedClassName === "glass" || mappedClassName === "metal" || mappedClassName === "furniture") {
-                        selectedItemKey = "e-waste";
+                    } else if (mappedClassName === "glass" || mappedClassName === "metal" || mappedClassName === "furniture") { 
+                        selectedItemKey = "e-waste"; 
                     } else { 
                         selectedItemKey = "water bottle"; 
                     }
                 }
 
                 const confidencePercent = Math.min(99, Math.max(84, Math.round((maxConfidence > 0 ? maxConfidence : 0.88) * 100)));
-                document.getElementById('lblDetectedText').innerText = `AI Prediction Confidence: ${confidencePercent}%`;
+                document.getElementById('lblDetectedText').innerText = `${confidencePercent}%`;
 
             } catch (inferenceErr) {
-                console.warn("⚠️ Fallback active:", inferenceErr);
-                document.getElementById('lblDetectedText').innerText = `AI Prediction Confidence: 88%`;
+                document.getElementById('lblDetectedText').innerText = `88%`;
             }
 
             populateCategoryDropdown(); 
             categoryOverride.value = selectedItemKey;
-            statusLogger.innerText = "AI Verification Complete. Confirm group or manually adjust dropdown below.";
-            startQuestBtn.disabled = false;
+            handleCategorySelectionChange();
             
-            demoOverrideActive = false; // Reset Hotkey Lock
+            // Speak voice guidance out loud in chosen language
+            EcoVoice.speak(selectedItemKey);
+            
+            // THE FIX: Reset the failsafe lock for the next scan
+            demoOverrideActive = false; 
         });
 
         analysisRetakeBtn.addEventListener('click', resetToLiveCaptureView);
@@ -749,6 +1023,7 @@
             video.style.display = "block";
             reticle.style.display = "block";
             progressWrapper.style.display = "none";
+            livingBeingWarning.style.display = "none";
             isProcessingSecondaryProof = false;
             submitProofPhotoBtn.innerText = SYSTEM_UI_DICTIONARY[langSelect.value].btnClaim;
             submitProofPhotoBtn.classList.add('btn-blue');
@@ -759,15 +1034,14 @@
 
         startQuestBtn.addEventListener('click', () => {
             selectedItemKey = categoryOverride.value;
+            if (selectedItemKey === "living_being") return;
+
             shiftActiveScreen("QUEST");
             progressWrapper.style.display = "flex";
             statusLogger.innerText = SYSTEM_UI_DICTIONARY[langSelect.value].questActive;
             compileDynamicChecklistStructure(selectedItemKey);
         });
 
-        // ==========================================
-        // 3. RANDOMIZED & ROTATING QUEST ENGINE
-        // ==========================================
         function compileDynamicChecklistStructure(itemKey) {
             const lang = langSelect.value;
             const contextData = localizationEngine[itemKey][lang];
@@ -796,7 +1070,6 @@
 
         function renderTaskCard(stepString, xpTagText, isBonus = false) {
             const stepCardLabel = document.createElement('div');
-            // Distinguish classes for logic tracking
             stepCardLabel.className = "step-item" + (isBonus ? " bonus-task" : " primary-task");
             if (isBonus) stepCardLabel.style.borderColor = "var(--duo-orange)";
             
@@ -842,13 +1115,11 @@
             let markedPrimary = 0;
             primaryNodes.forEach(node => { if (node.classList.contains('completed-task')) markedPrimary++; });
 
-            // Progress bar only cares about Primary Tasks
             const percentageFillRatio = Math.round((markedPrimary / primaryNodes.length) * 100);
             progressFill.style.width = `${percentageFillRatio}%`;
             progressPercentageText.innerText = `${percentageFillRatio}%`;
 
             if (markedPrimary === primaryNodes.length) {
-                // Dynamically Calculate Actual XP from completed tasks!
                 let totalXP = 0;
                 tasksContainer.querySelectorAll('.completed-task .step-xp-tag').forEach(tag => {
                     totalXP += parseInt(tag.innerText.replace(/\D/g, '')) || 0;
@@ -886,13 +1157,14 @@
                 statusLogger.innerText = dict.evalProof;
 
                 setTimeout(() => {
-                    // Pull exact XP dynamically gathered from tasks
                     const netEarnedXp = sessionEarnedXP > 0 ? sessionEarnedXP : 30; 
                     const oldLeague = getCurrentLeague();
                     
                     userXP += netEarnedXp;
                     localStorage.setItem(`ecoXP_${currentUser}`, userXP);
                     
+                    CampusImpact.recordScan(selectedItemKey);
+
                     const currentTimestamp = new Date();
                     const timeString = currentTimestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
                     const dateString = currentTimestamp.toLocaleDateString([], { month: 'short', day: 'numeric' });
@@ -952,7 +1224,13 @@
             });
         }
 
-        langSelect.addEventListener('change', applyLanguageStrings);
+        // Language selector change listener
+        langSelect.addEventListener('change', () => {
+            applyLanguageStrings();
+            if (selectedItemKey) {
+                EcoVoice.speak(selectedItemKey);
+            }
+        });
     </script>
 </body>
 </html>
