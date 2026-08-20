@@ -99,6 +99,7 @@
         .bin-green-target { background: #dcfce7; color: #15803d; border: 1.5px solid #bbf7d0; }
         .bin-red-target { background: #fee2e2; color: #b91c1c; border: 1.5px solid #fecaca; }
         .bin-grey-target { background: #f1f5f9; color: #475569; border: 1.5px solid #cbd5e1; }
+        .bin-purple-target { background: #f3e8ff; color: #7e22ce; border: 1.5px solid #d8b4fe; }
         .recycle-guide-box { font-size: 0.92rem; color: #334155; font-weight: 700; line-height: 1.5; background: white; padding: 12px; border-radius: var(--radius-md); border: 1.5px dashed #cbd5e1; }
 
         .step-item { display: flex; align-items: center; justify-content: space-between; padding: 18px 20px; border: 2px solid var(--duo-card-border); border-radius: var(--radius-lg); cursor: pointer; font-weight: 800; background: white; font-size: 1.1rem; }
@@ -268,7 +269,6 @@
             
             <div class="button-col">
                 <button id="startQuestBtn" class="btn-core">Start Micro-Quest 🚀</button>
-                <!-- NEW DIY UPCYCLE BUTTON (Appears only for recyclables) -->
                 <button id="upcycleBtn" class="btn-core btn-purple" style="display:none;">🎨 Creative Upcycle (DIY)</button>
                 <button id="analysisRetakeBtn" class="btn-core btn-red">🔄 Retake</button>
             </div>
@@ -421,7 +421,8 @@
         const successSound = new Audio('assets/audio/Success.mp3');
         const levelUpSound = new Audio('assets/audio/Levelup.mp3');
 
-        const YOLO_CLASSES = ["bag", "cardboard", "furniture", "glass", "metal", "paper", "plastic", "yard", "person", "animal", "battery", "e-waste", "debris", "stone", "soil"];
+        // Added "mixed" to YOLO fallback classes
+        const YOLO_CLASSES = ["bag", "cardboard", "furniture", "glass", "metal", "paper", "plastic", "yard", "person", "animal", "battery", "e-waste", "debris", "stone", "soil", "mixed"];
         let yoloSession;
         let selectedItemKey = "non-biodegradable"; 
         let isProcessingSecondaryProof = false;
@@ -471,6 +472,15 @@
                     hi: "<b>🧱 प्रबंधन गाइड:</b> सामान्य कचरे से अलग रखें। मलबा, मिट्टी या पत्थर सीधे परिसर के निर्माण भराव क्षेत्र में जमा करें।"
                 }
             },
+            "mixed": {
+                badgeClass: "bin-purple-target",
+                badgeText: { en: "🔀 Mixed Waste (Requires Separation)", bn: "🔀 মিশ্র বর্জ্য (পৃথকীকরণ প্রয়োজন)", hi: "🔀 मिश्रित कचरा (अलग करने की आवश्यकता)" },
+                guideText: {
+                    en: "<b>🔀 Separation Guide:</b> Detach components before binning! Remove organic food scraps into Green Bin, and place dry plastic/paper packaging into Blue Bin.",
+                    bn: "<b>🔀 পৃথকীকরণ নির্দেশিকা:</b> ফেলার আগে অংশগুলো আলাদা করুন! খাবার সবুজ বিনে এবং প্লাস্টিক/কাগজ নীল বিনে ফেলুন।",
+                    hi: "<b>🔀 अलगाव गाइड:</b> कचरे के हिस्सों को अलग करें! गीला खाना हरे डिब्बे में और प्लास्टिक/कागज नीले डिब्बे में डालें।"
+                }
+            },
             "living_being": {
                 badgeClass: "bin-red-target",
                 badgeText: { en: "🚫 Non-Waste Entity", bn: "🚫 বর্জ্য নয়", hi: "🚫 कचरा नहीं है" },
@@ -511,12 +521,17 @@
                 "hazardous": {
                     en: "Hazardous waste detected. Do not mix with normal bins. Deposit in the Red E-Waste Kiosk.",
                     hi: "खतरनाक कचरा मिला है। इसे सामान्य कचरे में न मिलाएं। लाल ई-वेस्ट कियोस्क में जमा करें।",
-                    bn: "বিপজ্জনক বর্জ্য শনাক্ত হয়েছে। সাধারণ বিনে ফেলবেন না। লাল ই-বর্জ্য কিওস্কে জমা দিন।"
+                    bn: "বিপজ্জনক বর্জ্য শনাক্ত হয়েছে। সাধারণ বিনে ফেলবেনলগ্ন না। লাল ই-বর্জ্য কিওস্কে জমা দিন।"
                 },
                 "inert": {
                     en: "Inert debris detected. Deposit in the Grey heavy waste area.",
                     hi: "अक्रिय मलबा मिला है। इसे भारी कचरे के क्षेत्र में डालें।",
                     bn: "নিষ্ক্রিয় বর্জ্য শনাক্ত হয়েছে। ভারী বর্জ্যের জন্য নির্ধারিত স্থানে ফেলুন।"
+                },
+                "mixed": {
+                    en: "Mixed waste detected. Please separate the organic food from the dry packaging before disposal.",
+                    hi: "मिश्रित कचरा मिला है। कृपया कचरा फेंकने से पहले खाने को पैकेजिंग से अलग करें।",
+                    bn: "মিশ্র বর্জ্য শনাক্ত হয়েছে। ফেলার আগে খাবারের অংশ শুকনো প্যাকেট থেকে আলাদা করুন।"
                 },
                 "living_being": {
                     en: "Living being detected. Please scan inanimate waste items only.",
@@ -605,7 +620,7 @@
                     this.data.co2SavedKg += 0.12;
                 } else if (itemKey === "upcycle") {
                     this.data.divertedKg += 0.15;
-                    this.data.co2SavedKg += 0.20; // Higher ESG reward for upcycling
+                    this.data.co2SavedKg += 0.20; 
                 } else if (itemKey === "biodegradable") {
                     this.data.divertedKg += 0.15;
                     this.data.co2SavedKg += 0.10;
@@ -616,6 +631,9 @@
                 } else if (itemKey === "inert") {
                     this.data.divertedKg += 0.50;
                     this.data.co2SavedKg += 0.05;
+                } else if (itemKey === "mixed") {
+                    this.data.divertedKg += 0.10;
+                    this.data.co2SavedKg += 0.10;
                 }
 
                 localStorage.setItem(`ecoImpact_${currentUser}`, JSON.stringify(this.data));
@@ -650,6 +668,8 @@
                 applyDiscreteLock('inert');
             } else if (key === '5' || key === 'Digit5' || key === 'Numpad5') {
                 applyDiscreteLock('living_being');
+            } else if (key === '6' || key === 'Digit6' || key === 'Numpad6') {
+                applyDiscreteLock('mixed'); // New Trigger for Composite Waste!
             }
         });
 
@@ -709,7 +729,7 @@
                 lblYolo: "🤖 एआई वर्गीकरण आउटपुट:", lblYoloDesc: "आधिकारिक कचरा श्रेणी की पुष्टि करें:",
                 btnRetake: "🔄 दोबारा लें", btnStartQ: "माइक्रो-क्वेस्ट शुरू करें 🚀", btnCancel: "🔄 रद्द और रीसेट",
                 lblGoal: "🌟 मिशन पूरा हुआ! 🌟", btnClaim: "प्रमाण लें और एक्सपी पाएं 🏆", lblHistory: "📊 पिछला गतिविधि लॉग",
-                lblMap: "🗺️ अभियान यात्रा मानचित्र", initAI: "एआई इंजन शुरू हो रहा है...",
+                lblMap: "🗺️ अभियान यात्रा मानचित्र", initAI: "एआई ইঞ্জিন शुरू हो रहा है...",
                 readyAI: "इंजन तैयार है। फोटो खींचने के लिए कैमरा सामने लाएं।", calcAI: "विश्लेषण किया जा रहा है... 🧠",
                 questActive: "सभी चेकपॉइंट पूरे करें!", evalProof: "सत्यापन की जांच की जा रही है...",
                 secondaryProof: "द्वितीय सत्यापन सक्रिय है। फोटो लें!",
@@ -761,6 +781,9 @@
             "inert": [
                 { primary: ["Gather soil, stones, or construction debris.", "Ensure zero plastics are mixed in the rubble.", "Dispose of in the Grey heavy waste bin."], bonus: "Bag dust to prevent air pollution." }
             ],
+            "mixed": [
+                { primary: ["Separate wet organic residue from dry outer packaging.", "Dispose food leftovers into the Green Organic Bin.", "Rinse/flatten dry container and place into Blue Recycling Bin."], bonus: "Never throw composite waste together into general trash." }
+            ],
             "upcycle": [
                 { primary: ["Clean the item thoroughly.", "Safely cut or modify the material.", "Repurpose it into a planter, pen stand, or decor."], bonus: "Share your creation to inspire others!" },
                 { primary: ["Wash and air dry the container.", "Apply eco-friendly paint or decorations.", "Use it as a storage organizer."], bonus: "Take a picture and post it online!" }
@@ -775,6 +798,7 @@
             "non-biodegradable": { en: { title: "♻️ Non-Biodegradable (Recyclable)", proofText: "Snap a photo of the crushed item in the Blue Bin." }, bn: { title: "♻️ নন-বায়োডিগ্রেডেবল (পুনর্ব্যবহারযোগ্য)", proofText: "নীল রিসাইক্লিং বিনে রাখা বর্জ্যের ছবি তুলুন।" }, hi: { title: "♻️ गैर-बायोडिग्रेडेबल (रीसाइक्लिंग योग्य)", proofText: "नीले रीसाइक्लिंग बिन में रखी वस्तु की फोटो लें।" } },
             "hazardous": { en: { title: "⚠️ Hazardous / E-Waste", proofText: "Snap a photo at the Red Hazardous Kiosk." }, bn: { title: "⚠️ বিপজ্জনক / ই-বর্জ্য", proofText: "লাল ই-বর্জ্য সংগ্রহ কিওস্কে জমার ছবি তুলুন।" }, hi: { title: "⚠️ खतरनाक / ई-कचरा", proofText: "लाल ई-कचरा बॉक्स में रखे आइटम की फोटो लें।" } },
             "inert": { en: { title: "🧱 Inert Heavy Waste", proofText: "Snap a photo of the debris in the Grey Bin." }, bn: { title: "🧱 নিষ্ক্রিয় ভারী বর্জ্য", proofText: "ধূসর ভারী বর্জ্য বিনে জমার ছবি তুলুন।" }, hi: { title: "🧱 अक्रिय भारी मलबा", proofText: "ग्रे भारी कचरे के डिब्बे में मलबे की फोटो लें।" } },
+            "mixed": { en: { title: "🔀 Mixed / Composite Waste", proofText: "Snap a photo showing the separated items in their correct bins." }, bn: { title: "🔀 মিশ্র বর্জ্য", proofText: "সঠিক বিনে আলাদা করা জিনিসগুলোর ছবি তুলুন।" }, hi: { title: "🔀 मिश्रित कचरा", proofText: "अलग किए गए कचरे को सही डिब्बे में डालते हुए फोटो लें।" } },
             "upcycle": { en: { title: "🎨 DIY Upcycle Project", proofText: "Snap a photo of your new upcycled creation!" }, bn: { title: "🎨 DIY আপসাইকেল প্রজেক্ট", proofText: "আপনার নতুন তৈরি জিনিসটির ছবি তুলুন!" }, hi: { title: "🎨 DIY अपसाइकिल प्रोजेक्ट", proofText: "अपने नए बनाए गए आइटम की फोटो लें!" } },
             "living_being": { en: { title: "⚠️ Living Being Detected", proofText: "Non-disposable entity. No action required." }, bn: { title: "⚠️ জীবিত প্রাণী শনাক্ত", proofText: "কোনো পদক্ষেপের প্রয়োজন নেই।" }, hi: { title: "⚠️ जीवित प्राणी पहचाना गया", proofText: "कोई कार्रवाई आवश्यक नहीं है।" } },
             "default": { en: { title: "General Municipal Waste", proofText: "Snap a photo of your sorted waste." }, bn: { title: "সাধারণ বর্জ্য", proofText: "সঠিক বিনে রাখা বর্জ্যের ছবি তুলুন।" }, hi: { title: "सामान्य कचरा", proofText: "व्यवस्थित कचरे की फोटो लें।" } }
@@ -855,6 +879,7 @@
                 categoryOverride.innerHTML = `
                     <option value="biodegradable">🌿 বায়োডিগ্রেডেবল (খাবার, পাতা, কাগজ, কৃষি বর্জ্য)</option>
                     <option value="non-biodegradable">♻️ নন-বায়োডিগ্রেডেবল (প্লাস্টিক, কাঁচ, ধাতু - পুনর্ব্যবহারযোগ্য)</option>
+                    <option value="mixed">🔀 মিশ্র বর্জ্য (পৃথকীকরণ প্রয়োজন)</option>
                     <option value="hazardous">⚠️ বিপজ্জনক বর্জ্য (রাসায়নিক, বিষাক্ত পদার্থ, ই-বর্জ্য)</option>
                     <option value="inert">🧱 নিষ্ক্রিয় বর্জ্য (নির্মাণের ধ্বংসাবশেষ, মাটি, পাথর)</option>
                     <option value="living_being">🚫 জীবিত প্রাণী / মানুষ (বর্জ্য নয়)</option>
@@ -863,6 +888,7 @@
                 categoryOverride.innerHTML = `
                     <option value="biodegradable">🌿 बायोडिग्रेडेबल (भोजन, पत्तियां, कागज, कृषि अवशेष)</option>
                     <option value="non-biodegradable">♻️ गैर-बायोडिग्रेडेबल (प्लास्टिक, कांच, धातु - रीसाइक्लिंग)</option>
+                    <option value="mixed">🔀 मिश्रित कचरा (अलग करने की आवश्यकता)</option>
                     <option value="hazardous">⚠️ खतरनाक कचरा (रसायन, विषाक्त सामग्री, ई-कचरा)</option>
                     <option value="inert">🧱 अक्रिय कचरा (निर्माण का मलबा, मिट्टी, पत्थर)</option>
                     <option value="living_being">🚫 जीवित प्राणी / मनुष्य (कचरा नहीं)</option>
@@ -871,6 +897,7 @@
                 categoryOverride.innerHTML = `
                     <option value="biodegradable">🌿 Biodegradable (Food scraps, leaves, paper, agricultural residues)</option>
                     <option value="non-biodegradable">♻️ Non-Biodegradable (Plastics, glass, metals - Recyclable)</option>
+                    <option value="mixed">🔀 Mixed Waste (Requires Separation)</option>
                     <option value="hazardous">⚠️ Hazardous Waste (Chemicals, toxic materials, biomedical, e-waste)</option>
                     <option value="inert">🧱 Inert Waste (Construction debris, soil, stones)</option>
                     <option value="living_being">🚫 Living Being / Human (Non-Waste)</option>
@@ -898,7 +925,7 @@
                 binTargetBadge.innerText = config.badgeText[lang] || config.badgeText['en'];
                 binRecycleGuide.innerHTML = config.guideText[lang] || config.guideText['en'];
 
-                // DYNAMIC OPTION: If it is recyclable, show Upcycle / DIY option!
+                // Upcycle / DIY option only for recyclables, hide for mixed or bio
                 if (selectedItemKey === "non-biodegradable") {
                     upcycleBtn.style.display = "flex";
                     startQuestBtn.innerText = dict.btnDisposeBin;
@@ -1089,6 +1116,8 @@
                         selectedItemKey = "hazardous"; 
                     } else if (mappedClassName === "debris" || mappedClassName === "stone" || mappedClassName === "soil") {
                         selectedItemKey = "inert";
+                    } else if (mappedClassName === "mixed") {
+                        selectedItemKey = "mixed";
                     } else { 
                         selectedItemKey = "non-biodegradable"; 
                     }
