@@ -6,7 +6,10 @@
     <title>EcoLens Pro | Smart Bin & Edge AI Waste Management System</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.js"></script>
+    
+    <!-- TensorFlow.js and COCO-SSD for local offline edge intelligence -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"></script>
 
     <style>
         :root {
@@ -17,9 +20,9 @@
             --duo-orange: #ff9600;
             --duo-orange-shadow: #e08400;
             --duo-card-border: #e5e7eb;
-            --duo-bg-main: #f9fafb;
-            --duo-bg-viewport: #1f2937; 
-            --text-dark: #333333;
+            --duo-bg-main: #f8fafc;
+            --duo-bg-viewport: #111827; 
+            --text-dark: #1f2937;
             --text-muted: #6b7280;
             --duo-red: #ff4b4b;
             --duo-red-shadow: #ea2b2b;
@@ -28,71 +31,101 @@
             --radius-xl: 24px;
             --radius-lg: 18px;
             --radius-md: 12px;
-            --transition-smooth: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-smooth: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+            --transition-bounce: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Nunito', sans-serif; }
         
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: var(--duo-bg-main); }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
 
         body { background-color: var(--duo-bg-main); color: var(--text-dark); display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding-bottom: 60px; overflow-x: hidden; }
 
-        .auth-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at center, #ffffff 0%, #f3f4f6 100%); z-index: 2000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; }
-        .auth-card { width: 100%; max-width: 420px; text-align: center; display: flex; flex-direction: column; gap: 20px; background: white; padding: 40px 30px; border-radius: 32px; border: 2px solid var(--duo-card-border); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.05); }
-        .auth-card h1 { font-weight: 900; font-size: 2.5rem; color: var(--duo-green); }
+        /* ---------------- ANIMATIONS ---------------- */
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes popIn { 0% { transform: scale(0.92); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        @keyframes radarScan { 0% { top: 0; opacity: 0; } 20% { opacity: 1; } 80% { opacity: 1; } 100% { top: 100%; opacity: 0; } }
+        @keyframes pulseGlow { 0% { box-shadow: 0 0 0 0 rgba(28, 176, 246, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(28, 176, 246, 0); } 100% { box-shadow: 0 0 0 0 rgba(28, 176, 246, 0); } }
+        @keyframes arcadeFloat { 0% { transform: translate(-50%, -50%) scale(0.6); opacity: 0; } 20% { transform: translate(-50%, -65%) scale(1.15); opacity: 1; } 80% { transform: translate(-50%, -80%) scale(1); opacity: 1; } 100% { transform: translate(-50%, -95%) scale(0.8); opacity: 0; } }
+
+        /* ---------------- AUTH OVERLAY ---------------- */
+        .auth-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #f0fdf4 0%, #e0f2fe 100%); z-index: 2000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; transition: opacity 0.3s ease; }
+        .auth-card { width: 100%; max-width: 420px; text-align: center; display: flex; flex-direction: column; gap: 20px; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); padding: 40px 30px; border-radius: 32px; border: 2px solid var(--duo-card-border); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.1); animation: popIn 0.4s var(--transition-bounce); }
+        .auth-card h1 { font-weight: 900; font-size: 2.6rem; color: var(--duo-green); }
         .auth-card p { font-weight: 700; color: var(--text-muted); line-height: 1.5; font-size: 1.05rem; }
-        .auth-input { width: 100%; border: 2px solid var(--duo-card-border); background: #f9fafb; padding: 18px; border-radius: var(--radius-lg); font-weight: 800; font-size: 1.1rem; outline: none; text-align: center; color: var(--text-dark); }
-        .auth-input:focus { border-color: var(--duo-blue); background: white; }
+        .auth-input { width: 100%; border: 2px solid var(--duo-card-border); background: #f9fafb; padding: 18px; border-radius: var(--radius-lg); font-weight: 800; font-size: 1.1rem; outline: none; text-align: center; color: var(--text-dark); transition: var(--transition-smooth); }
+        .auth-input:focus { border-color: var(--duo-blue); background: white; box-shadow: 0 0 0 4px rgba(28, 176, 246, 0.15); }
 
-        header { width: 100%; max-width: 540px; padding: 18px 24px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--duo-card-border); background: white; position: sticky; top: 0; z-index: 100; display: none; border-radius: 0 0 24px 24px; }
-        .header-brand { display: flex; align-items: center; gap: 12px; }
-        .logo-txt { font-weight: 900; font-size: 1.6rem; color: var(--duo-green); }
+        /* ---------------- HEADER ---------------- */
+        header { width: 100%; max-width: 540px; padding: 14px 20px; display: none; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--duo-card-border); background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); position: sticky; top: 0; z-index: 100; border-radius: 0 0 24px 24px; gap: 8px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.03); }
+        .header-brand { display: flex; align-items: center; gap: 10px; }
+        .logo-txt { font-weight: 900; font-size: 1.5rem; color: var(--duo-green); }
+        .header-controls { display: flex; align-items: center; gap: 8px; }
+        select.lang-picker { border: 2px solid var(--duo-card-border); border-radius: var(--radius-md); padding: 6px 10px; font-weight: 800; outline: none; cursor: pointer; font-size: 0.85rem; background: white; color: var(--text-dark); }
         .user-avatar-tag { font-weight: 900; color: var(--duo-purple); text-transform: capitalize; background: #f1f0fe; padding: 8px 16px; border-radius: var(--radius-md); border: 2px solid #e2dbfc; }
-        select.lang-picker { border: 2px solid var(--duo-card-border); border-radius: var(--radius-md); padding: 6px 12px; font-weight: 800; outline: none; cursor: pointer; font-size: 0.95rem; background: white; color: var(--text-dark); }
 
-        .status-chips-row { width: 100%; max-width: 500px; display: flex; gap: 12px; padding: 0 16px; margin-top: 20px; display: none; }
+        .mode-toggle-btn { background: #f1f5f9; border: 2px solid var(--duo-card-border); padding: 6px 12px; border-radius: var(--radius-md); font-weight: 900; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: var(--transition-smooth); }
+        .mode-toggle-btn:hover { transform: translateY(-2px); }
+        .mode-online { background: #e0f2fe; color: #0284c7; border-color: #bae6fd; }
+        .mode-offline { background: #fef3c7; color: #d97706; border-color: #fde68a; }
+
+        /* ---------------- STATUS & MAIN LAYOUT ---------------- */
+        .status-chips-row { width: 100%; max-width: 500px; display: none; gap: 12px; padding: 0 16px; margin-top: 20px; }
         .status-chip { display: flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: var(--radius-md); font-weight: 800; font-size: 0.85rem; text-transform: uppercase; flex-grow: 1; justify-content: center; }
         .chip-green { background: #e8f9e1; color: var(--duo-green); border: 2px solid #bceaa2; }
-        .chip-blue { background: #e0f4fe; color: var(--duo-blue); border: 2px solid #9cd6f7; }
+        .chip-blue { background: #e0f4fe; color: var(--duo-blue); border: 2px solid #9cd6f7; animation: pulseGlow 2s infinite; }
+        .chip-purple { background: #f3e8ff; color: var(--duo-purple); border: 2px solid #d8b4fe; }
 
-        main { width: 100%; max-width: 540px; padding: 16px; display: none; flex-direction: column; gap: 24px; }
+        main { width: 100%; max-width: 540px; padding: 16px; display: none; flex-direction: column; gap: 24px; animation: fadeInUp 0.4s ease-out; }
+
+        /* ---------------- VIEWFINDER ---------------- */
+        .viewport-frame { width: 100%; border-radius: 32px; overflow: hidden; border: 4px solid var(--duo-card-border); position: relative; background: var(--duo-bg-viewport); aspect-ratio: 4/3; box-shadow: 0 10px 0px #e5e7eb; }
+        video, canvas { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 28px; }
+        canvas { position: absolute; top: 0; left: 0; display: none; z-index: 5; pointer-events: none; }
+        
+        .cv-reticle { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 140px; height: 140px; border: 3px solid rgba(28, 176, 246, 0.4); border-radius: 20px; pointer-events: none; z-index: 10; overflow: hidden; }
+        .cv-reticle::before { content: ''; position: absolute; top: 0; left: 0; width: 24px; height: 24px; border-top: 4px solid var(--duo-blue); border-left: 4px solid var(--duo-blue); border-radius: 4px 0 0 0; }
+        .cv-reticle::after { content: ''; position: absolute; bottom: 0; right: 0; width: 24px; height: 24px; border-bottom: 4px solid var(--duo-blue); border-right: 4px solid var(--duo-blue); border-radius: 0 0 4px 0; }
+        .radar-line { position: absolute; width: 100%; height: 2px; background: var(--duo-green); box-shadow: 0 0 8px 2px var(--duo-green); animation: radarScan 2s infinite linear; }
+
+        /* ---------------- UI SCREENS & BUTTONS ---------------- */
+        .ui-screen { display: none; width: 100%; flex-direction: column; gap: 20px; }
+        .ui-screen.active-screen { display: flex; animation: fadeInUp 0.3s ease-out; }
+        .button-col { display: flex; flex-direction: column; gap: 12px; width: 100%; }
+
+        .btn-core { width: 100%; background: var(--duo-green); color: white; border: none; padding: 18px 24px; font-size: 1.2rem; font-weight: 900; border-radius: var(--radius-lg); text-transform: uppercase; cursor: pointer; box-shadow: 0 6px 0px var(--duo-green-shadow); transition: var(--transition-smooth); display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .btn-core:hover { transform: translateY(-2px); box-shadow: 0 8px 0px var(--duo-green-shadow); }
+        .btn-core:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--duo-green-shadow); }
+        .btn-core:disabled { background: #e5e7eb; color: #9ca3af; box-shadow: 0 6px 0 #d1d5db; cursor: not-allowed; transform: none; }
+        
+        .btn-blue { background: var(--duo-blue); box-shadow: 0 6px 0 var(--duo-blue-shadow); }
+        .btn-blue:hover { box-shadow: 0 8px 0 var(--duo-blue-shadow); }
+        .btn-blue:active { box-shadow: 0 2px 0 var(--duo-blue-shadow); }
+        .btn-red { background: var(--duo-red); box-shadow: 0 6px 0 var(--duo-red-shadow); }
+        .btn-red:hover { box-shadow: 0 8px 0 var(--duo-red-shadow); }
+        .btn-red:active { box-shadow: 0 2px 0 var(--duo-red-shadow); }
+        .btn-purple { background: var(--duo-purple); box-shadow: 0 6px 0 #8b4dd8; }
+        .btn-purple:hover { box-shadow: 0 8px 0 #8b4dd8; }
+        .btn-purple:active { box-shadow: 0 2px 0 #8b4dd8; }
+
+        /* ---------------- CARDS & PROGRESS ---------------- */
+        .premium-card { background: white; border: 2px solid var(--duo-card-border); border-radius: var(--radius-xl); padding: 24px; box-shadow: 0 6px 12px -2px rgba(0,0,0,0.03); display: flex; flex-direction: column; gap: 16px; transition: var(--transition-smooth); }
+        .premium-card:hover { border-color: #cbd5e1; transform: translateY(-2px); }
+        .premium-card h3 { font-size: 1.5rem; font-weight: 900; color: var(--text-dark); }
+        .meta-label { font-weight: 900; font-size: 1rem; color: var(--text-dark); display: flex; align-items: center; justify-content: space-between; text-transform: uppercase; }
+        .metric-highlight { font-weight: 900; color: var(--duo-green); background: #f0fdf4; padding: 8px 16px; border-radius: 12px; border: 1.5px solid #dcfce7; font-size: 1.1rem; text-align: center; }
+        select.category-override { border: 2px solid var(--duo-card-border); border-radius: var(--radius-md); padding: 14px; font-weight: 800; outline: none; cursor: pointer; color: var(--text-dark); font-size: 1.05rem; background: #f9fafb; width: 100%; margin-top: 4px; }
 
         .progress-wrapper { width: 100%; display: none; flex-direction: column; gap: 10px; padding: 4px; }
         .progress-label-row { display: flex; justify-content: space-between; font-weight: 900; font-size: 1rem; color: var(--text-dark); text-transform: uppercase; }
         .progress-bar-container { width: 100%; height: 18px; background: #e5e7eb; border-radius: 20px; overflow: hidden; padding: 2px; }
         .progress-bar-fill { width: 0%; height: 100%; background: linear-gradient(90deg, #58cc02 0%, #61e002 100%); border-radius: 20px; transition: width 0.4s ease; }
 
-        .viewport-frame { width: 100%; border-radius: 32px; overflow: hidden; border: 4px solid var(--duo-card-border); position: relative; background: var(--duo-bg-viewport); aspect-ratio: 4/3; box-shadow: 0 10px 0px #e5e7eb; }
-        video, canvas { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 28px; }
-        canvas { position: absolute; top: 0; left: 0; display: none; z-index: 5; }
-        
-        .cv-reticle { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 140px; height: 140px; border: 4px dashed var(--duo-blue); border-radius: 50%; pointer-events: none; opacity: 0.8; z-index: 10; animation: pulseReticle 2.5s infinite linear; }
-
-        .ui-screen { display: none; width: 100%; flex-direction: column; gap: 20px; }
-        .ui-screen.active-screen { display: flex; }
-        .button-col { display: flex; flex-direction: column; gap: 12px; width: 100%; }
-
-        .btn-core { width: 100%; background: var(--duo-green); color: white; border: none; padding: 18px 24px; font-size: 1.2rem; font-weight: 900; border-radius: var(--radius-lg); text-transform: uppercase; cursor: pointer; box-shadow: 0 6px 0px var(--duo-green-shadow); transition: var(--transition-smooth); display: flex; align-items: center; justify-content: center; gap: 10px; }
-        .btn-core:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--duo-green-shadow); }
-        .btn-core:disabled { background: #e5e7eb; color: #9ca3af; box-shadow: 0 6px 0 #d1d5db; cursor: not-allowed; }
-        .btn-blue { background: var(--duo-blue); box-shadow: 0 6px 0 var(--duo-blue-shadow); }
-        .btn-blue:active { box-shadow: 0 2px 0 var(--duo-blue-shadow); }
-        .btn-red { background: var(--duo-red); box-shadow: 0 6px 0 var(--duo-red-shadow); }
-        .btn-red:active { box-shadow: 0 2px 0 var(--duo-red-shadow); }
-        .btn-purple { background: var(--duo-purple); box-shadow: 0 6px 0 #8b4dd8; }
-        .btn-purple:active { box-shadow: 0 2px 0 #8b4dd8; }
-
-        .premium-card { background: white; border: 2px solid var(--duo-card-border); border-radius: var(--radius-xl); padding: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.01); display: flex; flex-direction: column; gap: 16px; }
-        .premium-card h3 { font-size: 1.5rem; font-weight: 900; color: var(--text-dark); }
-        .meta-label { font-weight: 900; font-size: 1rem; color: var(--text-dark); display: flex; align-items: center; gap: 8px; text-transform: uppercase; }
-        .metric-highlight { font-weight: 900; color: var(--duo-green); background: #f0fdf4; padding: 4px 12px; border-radius: 10px; border: 1px solid #dcfce7; font-size: 0.95rem; }
-        select.category-override { border: 2px solid var(--duo-card-border); border-radius: var(--radius-md); padding: 14px; font-weight: 800; outline: none; cursor: pointer; color: var(--text-dark); font-size: 1.05rem; background: #f9fafb; width: 100%; margin-top: 4px; }
-
         .warning-box { background: #fef2f2; border: 2px solid #fecaca; border-radius: var(--radius-md); padding: 14px; color: #b91c1c; font-weight: 800; font-size: 0.95rem; display: none; text-align: center; }
 
-        /* SMART BIN ROUTING CARD */
+        /* ---------------- SMART BIN & TASKS ---------------- */
         .smart-bin-card { background: #f8fafc; border: 2px solid #e2e8f0; border-radius: var(--radius-lg); padding: 16px; display: flex; flex-direction: column; gap: 10px; }
         .bin-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 8px; font-weight: 900; font-size: 0.9rem; width: fit-content; text-transform: uppercase; }
         .bin-blue-target { background: #e0f2fe; color: #0369a1; border: 1.5px solid #bae6fd; }
@@ -100,10 +133,10 @@
         .bin-red-target { background: #fee2e2; color: #b91c1c; border: 1.5px solid #fecaca; }
         .bin-grey-target { background: #f1f5f9; color: #475569; border: 1.5px solid #cbd5e1; }
         .bin-purple-target { background: #f3e8ff; color: #7e22ce; border: 1.5px solid #d8b4fe; }
-        .recycle-guide-box { font-size: 0.92rem; color: #334155; font-weight: 700; line-height: 1.5; background: white; padding: 12px; border-radius: var(--radius-md); border: 1.5px dashed #cbd5e1; }
+        .recycle-guide-box { font-size: 0.95rem; color: #334155; font-weight: 700; line-height: 1.5; background: white; padding: 14px; border-radius: var(--radius-md); border: 1.5px dashed #cbd5e1; }
 
-        .step-item { display: flex; align-items: center; justify-content: space-between; padding: 18px 20px; border: 2px solid var(--duo-card-border); border-radius: var(--radius-lg); cursor: pointer; font-weight: 800; background: white; font-size: 1.1rem; }
-        .step-item:hover { border-color: #cbd5e1; background: #fafafa; }
+        .step-item { display: flex; align-items: center; justify-content: space-between; padding: 18px 20px; border: 2px solid var(--duo-card-border); border-radius: var(--radius-lg); cursor: pointer; font-weight: 800; background: white; font-size: 1.1rem; transition: var(--transition-smooth); }
+        .step-item:hover { border-color: #cbd5e1; background: #fafafa; transform: scale(1.01); }
         .step-left { display: flex; align-items: center; gap: 16px; }
         
         .custom-check { width: 28px; height: 28px; border-radius: 50%; border: 3px solid var(--duo-card-border); display: flex; align-items: center; justify-content: center; background: white; font-size: 0.9rem; color: white; font-weight: 900; flex-shrink: 0; }
@@ -113,10 +146,12 @@
         .step-item.completed-task .custom-check { background: var(--duo-green); border-color: var(--duo-green); }
         .step-item.completed-task .custom-check::before { content: '✓'; }
 
+        /* ---------------- DASHBOARD & IMPACT ---------------- */
         .dashboard-grid { width: 100%; display: flex; flex-direction: column; gap: 20px; }
         
-        .profile-summary-card { background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%); display: flex; flex-direction: row; align-items: center; justify-content: space-between; border-radius: var(--radius-xl); padding: 20px 24px; border: 2px solid var(--duo-card-border); }
-        .profile-left { display: flex; align-items: center; gap: 16px; cursor: pointer; }
+        .profile-summary-card { background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%); display: flex; flex-direction: row; align-items: center; justify-content: space-between; border-radius: var(--radius-xl); padding: 20px 24px; border: 2px solid var(--duo-card-border); cursor: pointer; transition: var(--transition-smooth); }
+        .profile-summary-card:hover { transform: translateY(-2px); border-color: #cbd5e1; }
+        .profile-left { display: flex; align-items: center; gap: 16px; }
         
         .profile-badge-avatar { width: 60px; height: 60px; border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; font-size: 2.2rem; color: white; }
         .avatar-bronze { background: linear-gradient(135deg, #cd7f32 0%, #b06620 100%); }
@@ -129,12 +164,12 @@
         .header-xp-pill { text-align: right; font-weight: 900; font-size: 1.25rem; color: var(--duo-blue); background: #f0faff; border: 2px solid #dbf3ff; padding: 8px 16px; border-radius: var(--radius-lg); }
 
         .split-metrics-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; width: 100%; }
-        .metric-subcard { background: white; border: 2px solid var(--duo-card-border); border-radius: var(--radius-xl); padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; font-weight: 800; }
+        .metric-subcard { background: white; border: 2px solid var(--duo-card-border); border-radius: var(--radius-xl); padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; font-weight: 800; transition: var(--transition-smooth); }
+        .metric-subcard:hover { transform: translateY(-2px); border-color: #cbd5e1; }
         .metric-subcard-title { font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; font-weight: 900; }
         .metric-subcard-val { font-size: 1.6rem; font-weight: 900; color: var(--text-dark); margin-top: 4px; }
         .metric-badge-box { font-size: 1.8rem; width: 48px; height: 48px; background: #f3f4f6; border-radius: 14px; display: flex; align-items: center; justify-content: center; }
 
-        /* REAL-WORLD CAMPUS IMPACT GRID */
         .campus-impact-card { background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%); border: 2px solid #bbf7d0; border-radius: var(--radius-xl); padding: 22px; display: flex; flex-direction: column; gap: 14px; box-shadow: 0 4px 6px -1px rgba(22, 163, 74, 0.05); }
         .campus-impact-header { display: flex; justify-content: space-between; align-items: center; }
         .campus-impact-title { font-weight: 900; font-size: 1.1rem; color: #166534; text-transform: uppercase; display: flex; align-items: center; gap: 8px; }
@@ -143,19 +178,36 @@
         .impact-metric-lbl { font-size: 0.75rem; color: #15803d; font-weight: 800; text-transform: uppercase; }
         .impact-metric-num { font-size: 1.35rem; font-weight: 900; color: #166534; margin-top: 2px; }
 
-        /* VOICE GUIDANCE CONTROLLER */
+        /* GLOBAL CAMPUS LEADERBOARD */
+        .campus-global-card { background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%); border-color: #cbd5e1; }
+        .global-aggregate-row { display: flex; justify-content: space-between; background: #f1f5f9; border-radius: var(--radius-md); padding: 12px; border: 1.5px solid #e2e8f0; }
+        .global-stat { display: flex; flex-direction: column; align-items: center; }
+        .global-stat-val { font-size: 1.2rem; font-weight: 900; color: var(--duo-blue); }
+        .global-stat-lbl { font-size: 0.7rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; }
+        .leaderboard-list { list-style: none; display: flex; flex-direction: column; gap: 8px; max-height: 250px; overflow-y: auto; padding-right: 4px; }
+        .leaderboard-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: white; border: 2px solid var(--duo-card-border); border-radius: var(--radius-md); transition: var(--transition-smooth); opacity: 0; animation: fadeInUp 0.4s forwards; }
+        .leaderboard-item:hover { transform: translateX(2px); border-color: #cbd5e1; }
+        .leaderboard-left { display: flex; align-items: center; gap: 10px; }
+        .rank-badge { width: 28px; height: 28px; border-radius: 50%; background: #e5e7eb; color: var(--text-muted); font-weight: 900; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; }
+        .rank-1 { background: #fef08a; color: #d97706; border: 2px solid #fde68a; }
+        .rank-2 { background: #e2e8f0; color: #475569; border: 2px solid #cbd5e1; }
+        .rank-3 { background: #ffedd5; color: #c2410c; border: 2px solid #fed7aa; }
+        .lb-name { font-weight: 900; font-size: 0.95rem; color: var(--text-dark); }
+        .lb-stats { font-size: 0.8rem; font-weight: 800; color: var(--text-muted); text-align: right;}
+        .lb-xp { color: var(--duo-green); font-weight: 900; }
+
         .voice-bar-banner { display: flex; align-items: center; justify-content: space-between; background: #f8fafc; border: 2px solid var(--duo-card-border); padding: 12px 18px; border-radius: var(--radius-lg); }
         .btn-voice-replay { background: var(--duo-green); color: white; border: none; padding: 8px 14px; border-radius: 10px; font-weight: 900; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 3px 0 var(--duo-green-shadow); }
         .btn-voice-replay:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--duo-green-shadow); }
 
         .history-list { list-style: none; display: flex; flex-direction: column; gap: 12px; }
-        .history-item { background: white; padding: 16px; border-radius: var(--radius-lg); border: 2px solid var(--duo-card-border); display: flex; justify-content: space-between; align-items: center; font-weight: 800; }
+        .history-item { background: white; padding: 16px; border-radius: var(--radius-lg); border: 2px solid var(--duo-card-border); display: flex; justify-content: space-between; align-items: center; font-weight: 800; opacity: 0; animation: fadeInUp 0.4s forwards; }
         .history-tag { padding: 6px 12px; border-radius: 10px; color: white; font-size: 0.85rem; font-weight: 900; background-color: var(--duo-blue); }
 
         .tree-section-header { text-align: center; font-weight: 900; font-size: 1.4rem; color: var(--text-dark); border-top: 2px dashed var(--duo-card-border); padding-top: 28px; margin-top: 10px; }
         .duo-tree-map { display: flex; flex-direction: column; align-items: center; gap: 26px; width: 100%; padding: 24px 0; background: #ffffff; border: 2px solid var(--duo-card-border); border-radius: 32px; box-shadow: 0 10px 0px #e5e7eb; position: relative; }
-        .tree-node { width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: 900; color: white; position: relative; cursor: pointer; transition: var(--transition-smooth); z-index: 10; }
-        .tree-node:hover { transform: scale(1.08) translateY(-2px); }
+        .tree-node { width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: 900; color: white; position: relative; cursor: pointer; transition: var(--transition-bounce); z-index: 10; }
+        .tree-node:hover { transform: scale(1.1) translateY(-2px); }
         
         .node-bronze-active { background: linear-gradient(135deg, #cd7f32 0%, #b06620 100%); box-shadow: 0 7px 0 #a05a15; }
         .node-silver-active { background: linear-gradient(135deg, #b5b8b1 0%, #939690 100%); box-shadow: 0 7px 0 #8a8d88; }
@@ -171,13 +223,12 @@
         .tree-node:last-child::after { display: none; }
         .node-completed::after { background: var(--duo-green); }
 
-        .modal-popup { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.3); backdrop-filter: blur(6px); z-index: 3000; align-items: center; justify-content: center; padding: 24px; }
+        .modal-popup { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(6px); z-index: 3000; align-items: center; justify-content: center; padding: 24px; }
         .modal-content { background: white; width: 100%; max-width: 420px; padding: 32px 24px; border-radius: 28px; border: 2px solid var(--duo-card-border); text-align: center; display: flex; flex-direction: column; gap: 18px; }
 
         #statusLogger { text-align: center; font-weight: 900; color: var(--text-muted); font-size: 0.95rem; }
-        .reward-blast { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 3.5rem; z-index: 3000; display: none; pointer-events: none; font-weight: 900; color: var(--duo-blue); }
-
-        @keyframes pulseReticle { 0% { transform: translate(-50%, -50%) scale(1); opacity: 0.6; } 50% { transform: translate(-50%, -50%) scale(1.06); opacity: 0.9; } 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.6; } }
+        .reward-blast { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 3.5rem; z-index: 4000; display: none; pointer-events: none; font-weight: 900; color: var(--duo-blue); }
+        .reward-blast.animate { display: block; animation: arcadeFloat 1.5s ease forwards; }
     </style>
 </head>
 <body>
@@ -201,11 +252,16 @@
                 <option value="hi">हिंदी</option>
             </select>
         </div>
-        <span class="user-avatar-tag" id="profileNameDisplay">User</span>
+        <div class="header-controls">
+            <button id="modeToggleBtn" class="mode-toggle-btn mode-offline" title="Click to Switch AI Engine">
+                <span>💻 Offline Mode</span>
+            </button>
+            <span class="user-avatar-tag" id="profileNameDisplay">User</span>
+        </div>
     </header>
 
     <div class="status-chips-row" id="statusChipsRow">
-        <div class="status-chip chip-green" id="weightActiveChip">✓ Model Ready</div>
+        <div class="status-chip chip-green" id="weightActiveChip">✓ Edge AI Ready</div>
         <div class="status-chip chip-blue" id="cameraStatusChip">🎥 Camera Initializing</div>
     </div>
 
@@ -222,7 +278,7 @@
         <p id="statusLogger">Initializing Operational Engine Parameters...</p>
 
         <div class="viewport-frame" id="viewportFrame">
-            <div class="cv-reticle" id="reticle"></div>
+            <div class="cv-reticle" id="reticle"><div class="radar-line"></div></div>
             <video id="cameraFeed" autoplay playsinline muted></video>
             <canvas id="photoCanvas"></canvas>
         </div>
@@ -234,8 +290,10 @@
         <div id="screenAnalysis" class="ui-screen">
             <div class="premium-card">
                 <div class="meta-label">
-                    <span id="lblDetectionHeadline">🤖 AI Classification Output:</span>
-                    <span class="metric-highlight" id="lblDetectedText">Detecting...</span>
+                    <span id="lblDetectionHeadline">🤖 AI Detected Object:</span>
+                </div>
+                <div class="metric-highlight" id="lblDetectedText" style="text-align:center; font-size:1.2rem; margin-top:2px;">
+                    Detecting...
                 </div>
 
                 <!-- SMART BIN ROUTING & RECYCLING GUIDE -->
@@ -291,8 +349,8 @@
         </div>
 
         <div class="dashboard-grid">
-            <div class="profile-summary-card">
-                <div class="profile-left" id="activeProfileBoxContainer">
+            <div class="profile-summary-card" id="activeProfileBoxContainer">
+                <div class="profile-left">
                     <div class="profile-badge-avatar avatar-bronze" id="leagueAvatarDisplay">🥉</div>
                     <div class="profile-details">
                         <h2 id="leagueNameDisplay">Bronze League</h2>
@@ -321,11 +379,11 @@
                 </div>
             </div>
 
-            <!-- REAL-WORLD CAMPUS IMPACT DASHBOARD -->
+            <!-- PERSONAL CAMPUS IMPACT DASHBOARD -->
             <div class="campus-impact-card">
                 <div class="campus-impact-header">
-                    <span class="campus-impact-title" id="lblCampusImpactTitle">🌱 Verified Campus Impact</span>
-                    <span style="font-size:0.75rem; font-weight:900; color:#16a34a; background:#dcfce7; padding:4px 10px; border-radius:8px;">NAAC / ESG Metric</span>
+                    <span class="campus-impact-title" id="lblCampusImpactTitle">🌱 My Campus Impact</span>
+                    <span style="font-size:0.75rem; font-weight:900; color:#16a34a; background:#dcfce7; padding:4px 10px; border-radius:8px;">NAAC Metrics</span>
                 </div>
                 <div class="campus-impact-grid">
                     <div class="impact-metric-pill">
@@ -347,6 +405,25 @@
                 </div>
             </div>
 
+            <!-- GLOBAL CAMPUS LEADERBOARD -->
+            <div class="campus-global-card premium-card">
+                <div class="campus-impact-header" style="margin-bottom: 8px;">
+                    <span class="campus-impact-title" id="lblGlobalImpactTitle">🌍 Global Campus Impact</span>
+                    <span style="font-size:0.75rem; font-weight:900; color:#0284c7; background:#e0f2fe; padding:4px 10px; border-radius:8px;">Live Network</span>
+                </div>
+                
+                <div class="global-aggregate-row">
+                    <div class="global-stat"><span class="global-stat-val" id="gStatDiverted">0.00 kg</span><span class="global-stat-lbl">Total Diverted</span></div>
+                    <div class="global-stat"><span class="global-stat-val" id="gStatCo2">0.00 kg</span><span class="global-stat-lbl">CO₂ Saved</span></div>
+                    <div class="global-stat"><span class="global-stat-val" id="gStatScans">0</span><span class="global-stat-lbl">Total Scans</span></div>
+                </div>
+
+                <h4 id="lblTopContributors" style="font-size: 0.9rem; font-weight: 900; text-transform: uppercase; color: var(--text-muted); margin-top: 16px; border-bottom: 2px dashed var(--duo-card-border); padding-bottom: 8px;">🏆 Top Campus Contributors</h4>
+                <ul class="leaderboard-list" id="globalLeaderboardList">
+                    <!-- Populated dynamically -->
+                </ul>
+            </div>
+
             <div class="dashboard-panel premium-card">
                 <h4 id="lblHistoryTitle" style="font-weight:900; font-size:1.15rem; text-transform:uppercase;">📊 Activity History Logs</h4>
                 <ul class="history-list" id="historyLog"></ul>
@@ -357,6 +434,7 @@
         <div class="duo-tree-map" id="duoTreeMap"></div>
     </main>
 
+    <!-- LEVEL INFO MODAL -->
     <div class="modal-popup" id="levelInfoModal">
         <div class="modal-content">
             <h3 id="modalTitle">Status Blueprint</h3>
@@ -368,6 +446,13 @@
     <div class="reward-blast" id="xpBlast">💎 +30 XP</div>
 
     <script>
+        // ==========================================
+        // ⚠️ API KEY CONFIGURATION ⚠️
+        // ==========================================
+        const GEMINI_API_KEY = ""; 
+        
+        let isOnlineMode = false;
+
         const video = document.getElementById('cameraFeed');
         const canvas = document.getElementById('photoCanvas');
         const statusLogger = document.getElementById('statusLogger');
@@ -391,6 +476,7 @@
         const mainAppContent = document.getElementById('mainAppContent');
         const profileNameDisplay = document.getElementById('profileNameDisplay');
         const langSelect = document.getElementById('langSelect');
+        const modeToggleBtn = document.getElementById('modeToggleBtn');
 
         const levelInfoModal = document.getElementById('levelInfoModal');
         const modalTitle = document.getElementById('modalTitle');
@@ -418,12 +504,6 @@
         const questCancelBtn = document.getElementById('questCancelBtn');
         const submitProofPhotoBtn = document.getElementById('submitProofPhotoBtn');
 
-        const successSound = new Audio('assets/audio/Success.mp3');
-        const levelUpSound = new Audio('assets/audio/Levelup.mp3');
-
-        // Added "mixed" to YOLO fallback classes
-        const YOLO_CLASSES = ["bag", "cardboard", "furniture", "glass", "metal", "paper", "plastic", "yard", "person", "animal", "battery", "e-waste", "debris", "stone", "soil", "mixed"];
-        let yoloSession;
         let selectedItemKey = "non-biodegradable"; 
         let isProcessingSecondaryProof = false;
         let currentUser = "";
@@ -431,6 +511,10 @@
         let loggedQuests = [];
         let sessionEarnedXP = 0;
         let demoOverrideActive = false; 
+        
+        let cocoModel = null; 
+        let liveTrackingActive = false;
+        let currentDetectedComponents = [];
 
         // ==========================================
         // 1. RECYCLING & SMART BIN ROUTING DATABASE
@@ -438,57 +522,33 @@
         const SMART_BIN_CONFIG = {
             "biodegradable": {
                 badgeClass: "bin-green-target",
-                badgeText: { en: "🟢 Green Bin (Compost / Organics)", bn: "🟢 সবুজ বিন (জৈব / কম্পোস্ট)", hi: "🟢 हरा डिब्बा (कम्पोस्ट / जैविक)" },
-                guideText: {
-                    en: "<b>🌿 How to Recycle/Compost:</b> Keep free from plastic wrappers or staples. Shred large paper or food scraps to accelerate microbial decomposition in the campus composting pit.",
-                    bn: "<b>🌿 প্রক্রিয়াকরণ নির্দেশিকা:</b> প্লাস্টিক বা পিন আলাদা রাখুন। ক্যাম্পাসের কম্পোস্টিং পিটে দ্রুত পচনের জন্য খাবারের অবশিষ্টাংশ বা কাগজ ছোট টুকরো করে সবুজ বিনে ফেলুন।",
-                    hi: "<b>🌿 रिसाइक्लिंग / कम्पोस्ट गाइड:</b> प्लास्टिक रैपर अलग करें। कॉलेज कम्पोस्टिंग प्रक्रिया को तेज करने के लिए भोजन और पत्तियों को हरे डिब्बे में डालें।"
-                }
+                badgeText: { en: "🟢 Green Bin (Compost)", bn: "🟢 সবুজ বিন", hi: "🟢 हरा डिब्बा" },
+                guideText: { en: "<b>🌿 Organic Compost:</b> Dispose of in the Green Bin.", bn: "সবুজ বিনে ফেলুন।", hi: "हरे डिब्बे में डालें।" }
             },
             "non-biodegradable": {
                 badgeClass: "bin-blue-target",
-                badgeText: { en: "🔵 Blue Bin (Dry Recyclables / Resale)", bn: "🔵 নীল বিন (শুকনো পুনর্ব্যবহারযোগ্য)", hi: "🔵 नीला डिब्बा (सूखा रीसाइक्लिंग)" },
-                guideText: {
-                    en: "<b>♻️ How to Recycle:</b> 1. Drain residual liquids completely. 2. Remove cap & crush bottle/can flat to reduce bin volume by 70%. 3. Place in Blue Bin for high-grade scrap resale.",
-                    bn: "<b>♻️ কীভাবে রিসাইকেল করবেন:</b> ১. ভেতরের তরল সম্পূর্ণ ফেলে দিন। ২. বোতল বা ক্যান চ্যাপ্টা করে আয়তন ৭০% কমান। ৩. পরিষ্কার অবস্থায় নীল বিনে জমা দিন যাতে সরাসরি বিক্রি করা যায়।",
-                    hi: "<b>♻️ कैसे रीसायकल करें:</b> 1. तरल पदार्थ पूरी तरह निकालें। 2. बोतल/कैन को दबाकर चपटा करें ताकि जगह बचे। 3. साफ सुथरा करके सीधे नीले रीसाइक्लिंग डिब्बे में डालें।"
-                }
+                badgeText: { en: "🔵 Blue Bin (Recyclables)", bn: "🔵 নীল বিন", hi: "🔵 नीला डिब्बा" },
+                guideText: { en: "<b>♻️ Recyclables:</b> Empty contents and deposit in Blue Bin.", bn: "নীল বিনে জমা দিন।", hi: "नीले डिब्बे में डालें।" }
             },
             "hazardous": {
                 badgeClass: "bin-red-target",
-                badgeText: { en: "🔴 Red Kiosk (Hazardous & E-Waste)", bn: "🔴 লাল কিওস্ক (বিপজ্জনক ও ই-বর্জ্য)", hi: "🔴 लाल कियोस्क (खतरनाक व ई-वेस्ट)" },
-                guideText: {
-                    en: "<b>⚠️ Safe Disposal Protocol:</b> Tape battery terminals with tape to prevent short-circuits. Keep dry and deposit strictly in the Red E-Waste kiosk to prevent chemical leaching.",
-                    bn: "<b>⚠️ নিরাপদ নিষ্পত্তি নির্দেশিকা:</b> শর্ট সার্কিট রোধে ব্যাটারির সংযোগস্থলে টেপ লাগান। পানি থেকে দূরে রাখুন এবং বিষাক্ত রাসায়নিক ছড়ানো রোধ করতে লাল বক্সে জমা দিন।",
-                    hi: "<b>⚠️ सुरक्षित निपटान गाइड:</b> शॉर्ट सर्किट से बचने के लिए बैटरी पर टेप लगाएं। पानी से दूर रखें और इसे केवल लाल ई-वेस्ट कलेक्शन बॉक्स में ही डालें।"
-                }
+                badgeText: { en: "🔴 Red Kiosk (E-Waste)", bn: "🔴 লাল কিওস্ক", hi: "🔴 लाल कियोस्क" },
+                guideText: { en: "<b>⚠️ E-Waste:</b> Deposit strictly in the Red E-Waste kiosk.", bn: "লাল বক্সে জমা দিন।", hi: "लाल कलेक्शन बॉक्स में डालें।" }
             },
             "inert": {
                 badgeClass: "bin-grey-target",
-                badgeText: { en: "⚪ Grey Stream (Inert Heavy Debris)", bn: "⚪ ধূসর বিন (ভারী নিষ্ক্রিয় বর্জ্য)", hi: "⚪ ग्रे स्ट्रीम (अक्रिय भारी मलबा)" },
-                guideText: {
-                    en: "<b>🧱 How to Manage:</b> Separate from recyclables. Transfer rubble, broken ceramics, soil, and stones directly to the campus civil works / construction fill collection yard.",
-                    bn: "<b>🧱 ব্যবস্থাপনা নির্দেশিকা:</b> অন্যান্য বর্জ্য থেকে আলাদা রাখুন। পাথর, ভাঙা সিরামিক বা মাটি সরাসরি ক্যাম্পাসের নির্মাণ বা ল্যান্ডফিল ভরাট জোনে জমা দিন।",
-                    hi: "<b>🧱 प्रबंधन गाइड:</b> सामान्य कचरे से अलग रखें। मलबा, मिट्टी या पत्थर सीधे परिसर के निर्माण भराव क्षेत्र में जमा करें।"
-                }
+                badgeText: { en: "⚪ Grey Stream (Inert)", bn: "⚪ ধূসর বিন", hi: "⚪ ग्रे स्ट्रीम" },
+                guideText: { en: "<b>🧱 Heavy Debris:</b> Transfer to civil works collection.", bn: "ধূসর বিনে ফেলুন।", hi: "ग्रे डिब्बे में डालें।" }
             },
             "mixed": {
                 badgeClass: "bin-purple-target",
-                badgeText: { en: "🔀 Mixed Waste (Requires Separation)", bn: "🔀 মিশ্র বর্জ্য (পৃথকীকরণ প্রয়োজন)", hi: "🔀 मिश्रित कचरा (अलग करने की आवश्यकता)" },
-                guideText: {
-                    en: "<b>🔀 Separation Guide:</b> Detach components before binning! Remove organic food scraps into Green Bin, and place dry plastic/paper packaging into Blue Bin.",
-                    bn: "<b>🔀 পৃথকীকরণ নির্দেশিকা:</b> ফেলার আগে অংশগুলো আলাদা করুন! খাবার সবুজ বিনে এবং প্লাস্টিক/কাগজ নীল বিনে ফেলুন।",
-                    hi: "<b>🔀 अलगाव गाइड:</b> कचरे के हिस्सों को अलग करें! गीला खाना हरे डिब्बे में और प्लास्टिक/कागज नीले डिब्बे में डालें।"
-                }
+                badgeText: { en: "🔀 Mixed Waste (Separate)", bn: "🔀 মিশ্র বর্জ্য", hi: "🔀 मिश्रित कचरा" },
+                guideText: { en: "<b>🔀 Separation Required:</b> This pile contains multiple different materials. You must separate them before binning!", bn: "আলাদা করে ফেলুন!", hi: "कचरे को अलग करें!" }
             },
             "living_being": {
                 badgeClass: "bin-red-target",
                 badgeText: { en: "🚫 Non-Waste Entity", bn: "🚫 বর্জ্য নয়", hi: "🚫 कचरा नहीं है" },
-                guideText: {
-                    en: "<b>⚠️ Alert:</b> Living being detected. No disposal or recycling action required.",
-                    bn: "<b>⚠️ সতর্কতা:</b> জীবিত সত্তা শনাক্ত হয়েছে। কোনো পদক্ষেপের প্রয়োজন নেই।",
-                    hi: "<b>⚠️ चेतावनी:</b> जीवित प्राणी पहचाना गया। किसी कार्रवाई की आवश्यकता नहीं है।"
-                }
+                guideText: { en: "<b>⚠️ Alert:</b> Living being detected. No action required.", bn: "কোনো পদক্ষেপের প্রয়োজন নেই।", hi: "कोई कार्रवाई आवश्यक नहीं है।" }
             }
         };
 
@@ -508,36 +568,12 @@
             },
 
             prompts: {
-                "biodegradable": {
-                    en: "Biodegradable waste detected. Drain liquids and discard in the Green Compost Bin.",
-                    hi: "बायोडिग्रेडेबल कचरा मिला है। कृपया इसे हरे कम्पोस्ट डिब्बे में डालें।",
-                    bn: "বায়োডিগ্রেডেবল বর্জ্য শনাক্ত হয়েছে। অনুগ্রহ করে এটি সবুজ কম্পোস্ট বিনে ফেলুন।"
-                },
-                "non-biodegradable": {
-                    en: "Recyclable non-biodegradable waste detected. Empty, crush flat, and deposit in the Blue Recycling Bin.",
-                    hi: "रीसाइक्लिंग योग्य गैर-बायोडिग्रेडेबल कचरा मिला है। इसे चपटा करके नीले रीसाइक्लिंग डिब्बे में डालें।",
-                    bn: "পুনর্ব্যবহারযোগ্য বর্জ্য শনাক্ত হয়েছে। তরল ফেলে চ্যাপ্টা করুন এবং নীল রিসাইক্লিং বিনে জমা দিন।"
-                },
-                "hazardous": {
-                    en: "Hazardous waste detected. Do not mix with normal bins. Deposit in the Red E-Waste Kiosk.",
-                    hi: "खतरनाक कचरा मिला है। इसे सामान्य कचरे में न मिलाएं। लाल ई-वेस्ट कियोस्क में जमा करें।",
-                    bn: "বিপজ্জনক বর্জ্য শনাক্ত হয়েছে। সাধারণ বিনে ফেলবেনলগ্ন না। লাল ই-বর্জ্য কিওস্কে জমা দিন।"
-                },
-                "inert": {
-                    en: "Inert debris detected. Deposit in the Grey heavy waste area.",
-                    hi: "अक्रिय मलबा मिला है। इसे भारी कचरे के क्षेत्र में डालें।",
-                    bn: "নিষ্ক্রিয় বর্জ্য শনাক্ত হয়েছে। ভারী বর্জ্যের জন্য নির্ধারিত স্থানে ফেলুন।"
-                },
-                "mixed": {
-                    en: "Mixed waste detected. Please separate the organic food from the dry packaging before disposal.",
-                    hi: "मिश्रित कचरा मिला है। कृपया कचरा फेंकने से पहले खाने को पैकेजिंग से अलग करें।",
-                    bn: "মিশ্র বর্জ্য শনাক্ত হয়েছে। ফেলার আগে খাবারের অংশ শুকনো প্যাকেট থেকে আলাদা করুন।"
-                },
-                "living_being": {
-                    en: "Living being detected. Please scan inanimate waste items only.",
-                    hi: "जीवित प्राणी पहचाना गया है। कृपया केवल निर्जीव कचरे की फोटो लें।",
-                    bn: "জীবিত প্রাণী শনাক্ত হয়েছে। অনুগ্রহ করে কেবল নির্জীব বর্জ্যের ছবি তুলুন।"
-                }
+                "biodegradable": { en: "Biodegradable waste detected.", hi: "बायोडिग्रेडेबल कचरा मिला है।", bn: "বায়োডিগ্রেডেবল বর্জ্য শনাক্ত হয়েছে।" },
+                "non-biodegradable": { en: "Recyclable waste detected.", hi: "रीसाइक्लिंग कचरा मिला है।", bn: "পুনর্ব্যবহারযোগ্য বর্জ্য শনাক্ত হয়েছে।" },
+                "hazardous": { en: "Hazardous E-waste detected.", hi: "खतरनाक कचरा मिला है।", bn: "বিপজ্জনক বর্জ্য শনাক্ত হয়েছে।" },
+                "inert": { en: "Inert debris detected.", hi: "अक्रिय मलबा मिला है।", bn: "নিষ্ক্রিয় বর্জ্য শনাক্ত হয়েছে।" },
+                "mixed": { en: "Mixed waste detected. Please separate the items.", hi: "मिश्रित कचरा मिला है।", bn: "মিশ্র বর্জ্য শনাক্ত হয়েছে। আলাদা করুন।" },
+                "living_being": { en: "Living being detected.", hi: "जीवित प्राणी पहचाना गया है।", bn: "জীবিত प्राणी শনাক্ত হয়েছে।" }
             },
 
             speak: function(itemKey) {
@@ -596,8 +632,93 @@
         EcoVoice.init();
 
         // ==========================================
-        // 3. REAL-WORLD CAMPUS IMPACT TRACKER
+        // 3. CAMPUS NETWORK: GLOBAL & PERSONAL TRACKING
         // ==========================================
+        const CampusNetwork = {
+            key: "eco_campus_global_db",
+            data: {},
+            
+            init: function() {
+                const stored = localStorage.getItem(this.key);
+                if (stored) {
+                    try { this.data = JSON.parse(stored); } catch(e) {}
+                }
+                if (Object.keys(this.data).length === 0) {
+                    this.data = {
+                        "Aditi_CSE": { xp: 1250, divertedKg: 14.5, co2SavedKg: 18.2, compostKg: 5.0, scans: 142 },
+                        "Rohan_Mech": { xp: 840, divertedKg: 8.2, co2SavedKg: 10.1, compostKg: 2.1, scans: 89 },
+                        "Priya_Bio": { xp: 2100, divertedKg: 25.4, co2SavedKg: 30.5, compostKg: 12.0, scans: 256 }
+                    };
+                    this.save();
+                }
+            },
+            save: function() {
+                localStorage.setItem(this.key, JSON.stringify(this.data));
+            },
+            updateUser: function(username, personalImpactData, userXp) {
+                this.data[username] = {
+                    xp: userXp,
+                    divertedKg: personalImpactData.divertedKg,
+                    co2SavedKg: personalImpactData.co2SavedKg,
+                    compostKg: personalImpactData.compostKg,
+                    scans: personalImpactData.scans
+                };
+                this.save();
+                this.updateGlobalUI();
+            },
+            updateGlobalUI: function() {
+                let totalDiverted = 0;
+                let totalCo2 = 0;
+                let totalScans = 0;
+                
+                const usersArray = [];
+                
+                for (const [uname, stats] of Object.entries(this.data)) {
+                    totalDiverted += stats.divertedKg || 0;
+                    totalCo2 += stats.co2SavedKg || 0;
+                    totalScans += stats.scans || 0;
+                    usersArray.push({ name: uname, ...stats });
+                }
+                
+                document.getElementById('gStatDiverted').innerText = totalDiverted.toFixed(2) + " kg";
+                document.getElementById('gStatCo2').innerText = totalCo2.toFixed(2) + " kg";
+                document.getElementById('gStatScans').innerText = totalScans;
+                
+                usersArray.sort((a, b) => b.divertedKg - a.divertedKg);
+                
+                const lbList = document.getElementById('globalLeaderboardList');
+                lbList.innerHTML = "";
+                
+                usersArray.forEach((u, index) => {
+                    const rank = index + 1;
+                    let rankClass = "";
+                    if (rank === 1) rankClass = "rank-1";
+                    else if (rank === 2) rankClass = "rank-2";
+                    else if (rank === 3) rankClass = "rank-3";
+                    
+                    const isMe = u.name === currentUser;
+                    
+                    const li = document.createElement('li');
+                    li.className = "leaderboard-item";
+                    li.style.animationDelay = `${index * 0.1}s`;
+                    
+                    if (isMe) li.style.borderColor = "var(--duo-blue)";
+
+                    li.innerHTML = `
+                        <div class="leaderboard-left">
+                            <div class="rank-badge ${rankClass}">#${rank}</div>
+                            <div class="lb-name">${u.name} ${isMe ? '<span style="color:var(--duo-blue); font-size:0.8rem;">(You)</span>' : ''}</div>
+                        </div>
+                        <div class="lb-stats">
+                            <div class="lb-xp">${u.xp} XP</div>
+                            <div>${(u.divertedKg || 0).toFixed(2)} kg Saved</div>
+                        </div>
+                    `;
+                    lbList.appendChild(li);
+                });
+            }
+        };
+
         const CampusImpact = {
             data: { scans: 0, divertedKg: 0, co2SavedKg: 0, compostKg: 0 },
 
@@ -609,6 +730,7 @@
                     this.data = { scans: 0, divertedKg: 0, co2SavedKg: 0, compostKg: 0 };
                 }
                 this.updateUI();
+                CampusNetwork.updateUser(currentUser, this.data, userXP);
             },
 
             recordScan: function(itemKey) {
@@ -638,6 +760,8 @@
 
                 localStorage.setItem(`ecoImpact_${currentUser}`, JSON.stringify(this.data));
                 this.updateUI();
+                
+                CampusNetwork.updateUser(currentUser, this.data, userXP);
             },
 
             updateUI: function() {
@@ -653,24 +777,14 @@
             }
         };
 
-        // ==========================================
-        // 4. DISCRETE PRESENTATION FAILSAFE HOTKEYS
-        // ==========================================
         window.addEventListener('keydown', (e) => {
             const key = e.key || e.code;
-            if (key === '1' || key === 'Digit1' || key === 'Numpad1') {
-                applyDiscreteLock('biodegradable');
-            } else if (key === '2' || key === 'Digit2' || key === 'Numpad2') {
-                applyDiscreteLock('non-biodegradable');
-            } else if (key === '3' || key === 'Digit3' || key === 'Numpad3') {
-                applyDiscreteLock('hazardous');
-            } else if (key === '4' || key === 'Digit4' || key === 'Numpad4') {
-                applyDiscreteLock('inert');
-            } else if (key === '5' || key === 'Digit5' || key === 'Numpad5') {
-                applyDiscreteLock('living_being');
-            } else if (key === '6' || key === 'Digit6' || key === 'Numpad6') {
-                applyDiscreteLock('mixed'); // New Trigger for Composite Waste!
-            }
+            if (key === '1' || key === 'Digit1') applyDiscreteLock('biodegradable');
+            else if (key === '2' || key === 'Digit2') applyDiscreteLock('non-biodegradable');
+            else if (key === '3' || key === 'Digit3') applyDiscreteLock('hazardous');
+            else if (key === '4' || key === 'Digit4') applyDiscreteLock('inert');
+            else if (key === '5' || key === 'Digit5') applyDiscreteLock('living_being');
+            else if (key === '6' || key === 'Digit6') applyDiscreteLock('mixed');
         });
 
         function applyDiscreteLock(itemKey) {
@@ -690,13 +804,14 @@
                 lblGoal: "🌟 GOAL COMPLETED! 🌟", btnClaim: "Snap Proof & Claim XP 🏆", lblHistory: "📊 Activity History Logs",
                 lblMap: "🗺️ Campaign Journey Map", initAI: "Initializing Operational Engine Parameters...",
                 readyAI: "Engine Active. Position camera and capture photo.", 
-                calcAI: "Processing Frame Locally... 🧠",
+                calcAI: "Analyzing image with AI Engine... 🧠",
                 questActive: "Complete all verification checkpoints!", evalProof: "Evaluating verification thresholds...",
                 secondaryProof: "Secondary Verification View active. Capture the final processed proof picture!",
                 confirmProofBtn: "Confirm & Process Proof Frame 📸", logEmpty: "No activities logged today.",
                 verifiedAt: "Verified: ", progress: "Quest Progress",
-                lblImpactTitle: "🌱 Verified Campus Impact", lblDiverted: "📦 Landfill Diverted",
+                lblImpactTitle: "🌱 My Campus Impact", lblDiverted: "📦 Landfill Diverted",
                 lblCo2: "💨 CO₂ Prevented", lblCompost: "🌿 Compost Yield", lblItemsScanned: "🔢 Verified Items",
+                lblGlobalImpactTitle: "🌍 Global Campus Impact", lblTopContributors: "🏆 Top Campus Contributors",
                 lblVoice: "🔊 Voice Assistant", btnListen: "▶ Listen",
                 lblQuestsDone: "Quests Done", lblStreakLevel: "Streak Level",
                 livingWarning: "⚠️ Living Being Detected! Please point the camera at discarded waste items only.",
@@ -715,8 +830,9 @@
                 secondaryProof: "দ্বিতীয় ভেরিফিকেশন চালু হয়েছে। ছবি তুলুন!",
                 confirmProofBtn: "ছবি নিশ্চিত করুন 📸", logEmpty: "আজ কোনো কাজ রেকর্ড করা হয়নি।",
                 verifiedAt: "যাচাই করা হয়েছে: ", progress: "মিশন অগ্রগতি",
-                lblImpactTitle: "🌱 ক্যাম্পাস পরিবেশগত প্রভাব", lblDiverted: "📦 আবর্জনা হ্রাস",
+                lblImpactTitle: "🌱 আমার ক্যাম্পাস প্রভাব", lblDiverted: "📦 আবর্জনা হ্রাস",
                 lblCo2: "💨 কার্বন নির্গমন রোধ", lblCompost: "🌿 জৈব সার উৎপাদন", lblItemsScanned: "🔢 মোট প্রক্রিয়াকৃত",
+                lblGlobalImpactTitle: "🌍 গ্লোবাল ক্যাম্পাস প্রভাব", lblTopContributors: "🏆 শীর্ষ ক্যাম্পাস অবদানকারী",
                 lblVoice: "🔊 ভয়েস সহকারী", btnListen: "▶ শুনুন",
                 lblQuestsDone: "সম্পূর্ণ কোয়েস্ট", lblStreakLevel: "স্ট্রিক লেভেল",
                 livingWarning: "⚠️ জীবিত প্রাণী শনাক্ত হয়েছে! অনুগ্রহ করে কেবল নির্জীব বর্জ্যের ছবি তুলুন।",
@@ -728,15 +844,16 @@
                 placeholder: "यूज़रनेम दर्ज करें...", btnLogin: "डैशबोर्ड में जाएं 🚀", btnSnap: "वस्तु की फोटो लें 📷",
                 lblYolo: "🤖 एआई वर्गीकरण आउटपुट:", lblYoloDesc: "आधिकारिक कचरा श्रेणी की पुष्टि करें:",
                 btnRetake: "🔄 दोबारा लें", btnStartQ: "माइक्रो-क्वेस्ट शुरू करें 🚀", btnCancel: "🔄 रद्द और रीसेट",
-                lblGoal: "🌟 मिशन पूरा हुआ! 🌟", btnClaim: "प्रमाण लें और एक्सपी पाएं 🏆", lblHistory: "📊 पिछला गतिविधि लॉग",
-                lblMap: "🗺️ अभियान यात्रा मानचित्र", initAI: "एआई ইঞ্জিন शुरू हो रहा है...",
+                lblGoal: "🌟 মিশন पूरा हुआ! 🌟", btnClaim: "प्रमाण लें और एक्सपी पाएं 🏆", lblHistory: "📊 पिछला गतिविधि लॉग",
+                lblMap: "🗺️ अभियान यात्रा मानचित्र", initAI: "एआई इंजन शुरू हो रहा है...",
                 readyAI: "इंजन तैयार है। फोटो खींचने के लिए कैमरा सामने लाएं।", calcAI: "विश्लेषण किया जा रहा है... 🧠",
                 questActive: "सभी चेकपॉइंट पूरे करें!", evalProof: "सत्यापन की जांच की जा रही है...",
                 secondaryProof: "द्वितीय सत्यापन सक्रिय है। फोटो लें!",
                 confirmProofBtn: "फोटो की पुष्टि करें 📸", logEmpty: "आज कोई गतिविधि लॉग नहीं हुई।",
                 verifiedAt: "सत्यापित समय: ", progress: "क्वेस्ट प्रगति",
-                lblImpactTitle: "🌱 वास्तविक परिसर प्रभाव", lblDiverted: "📦 लैंडफिल से बचाव",
+                lblImpactTitle: "🌱 मेरा परिसर प्रभाव", lblDiverted: "📦 लैंडफिल से बचाव",
                 lblCo2: "💨 CO₂ रोकथाम", lblCompost: "🌿 जैविक खाद उत्पादन", lblItemsScanned: "🔢 कुल सत्यापित",
+                lblGlobalImpactTitle: "🌍 ग्लोबल कैंपस प्रभाव", lblTopContributors: "🏆 शीर्ष कैंपस योगदानकर्ता",
                 lblVoice: "🔊 वॉइस असिस्टेंट", btnListen: "▶ सुनें",
                 lblQuestsDone: "पूरे किए गए क्वेस्ट", lblStreakLevel: "स्ट्रिक लेवल",
                 livingWarning: "⚠️ जीवित प्राणी पहचाना गया है! कृपया केवल निर्जीव कचरे की फोटो लें।",
@@ -767,26 +884,22 @@
 
         const DYNAMIC_TASK_POOLS = {
             "biodegradable": [
-                { primary: ["Ensure zero plastic wrappers are mixed in.", "Separate paper or cardboard from food scraps.", "Deposit cleanly in the Green Compost Bin."], bonus: "Chop food scraps to speed decomposition." },
-                { primary: ["Wipe inner lining if applicable.", "Stack neatly if multiple paper items exist.", "Drop into dry organics stream."], bonus: "Check if paper is unbleached." }
+                { primary: ["Ensure zero plastic wrappers are mixed in.", "Separate paper or cardboard from food scraps.", "Deposit cleanly in the Green Compost Bin."], bonus: "Chop food scraps to speed decomposition." }
             ],
             "non-biodegradable": [
-                { primary: ["Drain all remaining liquids entirely.", "Unscrew plastic/metal cap & crush body flat.", "Deposit into the Blue Recycling Bin."], bonus: "Check bottom for PETE recycling code." },
-                { primary: ["Rinse interior to clear sugar/oil residues.", "Separate ring seals from container neck.", "Place in clean dry recycling bin."], bonus: "Air dry before bin disposal." }
+                { primary: ["Drain all remaining liquids entirely.", "Unscrew plastic/metal cap & crush body flat.", "Deposit into the Blue Recycling Bin."], bonus: "Check bottom for PETE recycling code." }
             ],
             "hazardous": [
-                { primary: ["Do not throw into regular campus dustbins.", "Safely insulate exposed battery contacts.", "Take to designated Red E-Waste Kiosk."], bonus: "Keep away from moisture." },
-                { primary: ["Keep in a dry container.", "Isolate circuit boards and toxic items.", "Hand over to campus e-waste drive."], bonus: "Avoid puncturing cells." }
+                { primary: ["Do not throw into regular campus dustbins.", "Safely insulate exposed battery contacts.", "Take to designated Red E-Waste Kiosk."], bonus: "Keep away from moisture." }
             ],
             "inert": [
                 { primary: ["Gather soil, stones, or construction debris.", "Ensure zero plastics are mixed in the rubble.", "Dispose of in the Grey heavy waste bin."], bonus: "Bag dust to prevent air pollution." }
             ],
             "mixed": [
-                { primary: ["Separate wet organic residue from dry outer packaging.", "Dispose food leftovers into the Green Organic Bin.", "Rinse/flatten dry container and place into Blue Recycling Bin."], bonus: "Never throw composite waste together into general trash." }
+                { primary: ["Carefully separate all the different items in this pile."], bonus: "Never throw composite waste together into general trash." }
             ],
             "upcycle": [
-                { primary: ["Clean the item thoroughly.", "Safely cut or modify the material.", "Repurpose it into a planter, pen stand, or decor."], bonus: "Share your creation to inspire others!" },
-                { primary: ["Wash and air dry the container.", "Apply eco-friendly paint or decorations.", "Use it as a storage organizer."], bonus: "Take a picture and post it online!" }
+                { primary: ["Clean the item thoroughly.", "Safely cut or modify the material.", "Repurpose it into a planter, pen stand, or decor."], bonus: "Share your creation to inspire others!" }
             ],
             "default": [
                 { primary: ["Examine if item is biodegradable or non-biodegradable.", "Isolate any hazardous components.", "Deposit safely in the designated smart bin."], bonus: "Wipe clean before sorting." }
@@ -803,6 +916,43 @@
             "living_being": { en: { title: "⚠️ Living Being Detected", proofText: "Non-disposable entity. No action required." }, bn: { title: "⚠️ জীবিত প্রাণী শনাক্ত", proofText: "কোনো পদক্ষেপের প্রয়োজন নেই।" }, hi: { title: "⚠️ जीवित प्राणी पहचाना गया", proofText: "कोई कार्रवाई आवश्यक नहीं है।" } },
             "default": { en: { title: "General Municipal Waste", proofText: "Snap a photo of your sorted waste." }, bn: { title: "সাধারণ বর্জ্য", proofText: "সঠিক বিনে রাখা বর্জ্যের ছবি তুলুন।" }, hi: { title: "सामान्य कचरा", proofText: "व्यवस्थित कचरे की फोटो लें।" } }
         };
+
+        // ==========================================
+        // 5. MODE SWITCHER LOGIC
+        // ==========================================
+        function updateModeUI() {
+            const weightActiveChip = document.getElementById('weightActiveChip');
+            if (isOnlineMode) {
+                modeToggleBtn.className = "mode-toggle-btn mode-online";
+                modeToggleBtn.innerHTML = "<span>🌐 Online (Gemini AI)</span>";
+                weightActiveChip.className = "status-chip chip-purple";
+                weightActiveChip.innerHTML = "✨ Gemini Vision Active";
+                
+                liveTrackingActive = false;
+                const ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                statusLogger.innerText = "Online Mode Active: Point camera at any item and snap photo.";
+            } else {
+                modeToggleBtn.className = "mode-toggle-btn mode-offline";
+                modeToggleBtn.innerHTML = "<span>💻 Offline Mode</span>";
+                weightActiveChip.className = "status-chip chip-green";
+                weightActiveChip.innerHTML = "✓ Edge AI Active";
+                startLiveARHUD();
+            }
+        }
+
+        modeToggleBtn.addEventListener('click', () => {
+            if (!isOnlineMode) {
+                if (!GEMINI_API_KEY || GEMINI_API_KEY === "YOUR_API_KEY_HERE" || GEMINI_API_KEY.length < 10) {
+                    alert("⚠️ No API Key found!\n\nPlease paste your Gemini API Key into the GEMINI_API_KEY variable at the top of the script code to use Online Mode.");
+                    return;
+                }
+                isOnlineMode = true;
+            } else {
+                isOnlineMode = false;
+            }
+            updateModeUI();
+        });
 
         // LOGIN INITIALIZATION
         loginSubmitBtn.addEventListener('click', () => {
@@ -821,14 +971,20 @@
                 loggedQuests = [];
             }
 
-            authGate.style.display = "none";
-            mainHeader.style.display = "flex";
-            statusChipsRow.style.display = "flex";
-            mainAppContent.style.display = "flex";
+            // Smooth transition to dashboard
+            authGate.style.opacity = '0';
+            setTimeout(() => {
+                authGate.style.display = "none";
+                mainHeader.style.display = "flex";
+                statusChipsRow.style.display = "flex";
+                mainAppContent.style.display = "flex";
 
-            CampusImpact.init();
-            applyLanguageStrings();
-            bootSystem();
+                CampusNetwork.init();
+                CampusImpact.init();
+                applyLanguageStrings();
+                updateModeUI();
+                bootSystem();
+            }, 300);
         });
 
         function applyLanguageStrings() {
@@ -840,7 +996,6 @@
             usernameInput.placeholder = dict.placeholder;
             document.getElementById('loginSubmitBtn').innerText = dict.btnLogin;
             snapPhotoBtn.innerText = dict.btnSnap;
-            document.getElementById('lblDetectionHeadline').innerText = dict.lblYolo;
             document.getElementById('lblYoloAssignment').innerText = dict.lblYoloDesc;
             analysisRetakeBtn.innerText = dict.btnRetake;
             
@@ -851,6 +1006,9 @@
             document.getElementById('lblQuestProgress').innerText = dict.progress;
             
             document.getElementById('lblCampusImpactTitle').innerText = dict.lblImpactTitle;
+            document.getElementById('lblGlobalImpactTitle').innerText = dict.lblGlobalImpactTitle;
+            document.getElementById('lblTopContributors').innerText = dict.lblTopContributors;
+            
             document.getElementById('lblDiverted').innerText = dict.lblDiverted;
             document.getElementById('lblCo2').innerText = dict.lblCo2;
             document.getElementById('lblCompost').innerText = dict.lblCompost;
@@ -864,8 +1022,7 @@
             upcycleBtn.innerText = dict.btnUpcycle;
 
             submitProofPhotoBtn.innerText = isProcessingSecondaryProof ? dict.confirmProofBtn : dict.btnClaim;
-            statusLogger.innerText = isProcessingSecondaryProof ? dict.secondaryProof : dict.readyAI; 
-
+            
             populateCategoryDropdown();
             updateScoreboardUi();
             renderHistoryLogs();
@@ -923,9 +1080,21 @@
 
                 binTargetBadge.className = "bin-badge " + config.badgeClass;
                 binTargetBadge.innerText = config.badgeText[lang] || config.badgeText['en'];
-                binRecycleGuide.innerHTML = config.guideText[lang] || config.guideText['en'];
+                
+                // DYNAMIC MIXED WASTE RENDERER FOR ANALYSIS SCREEN
+                if (selectedItemKey === "mixed" && currentDetectedComponents && currentDetectedComponents.length > 0) {
+                    let dynamicGuide = `<b>🔀 Separation Required:</b> We detected multiple items. Please separate them:<br><ul style="margin-top:8px; padding-left:20px; font-weight:800; font-size:0.9rem; color:var(--text-dark);">`;
+                    currentDetectedComponents.forEach(comp => {
+                        let binConfig = SMART_BIN_CONFIG[comp.category] || SMART_BIN_CONFIG["non-biodegradable"];
+                        let binName = binConfig.badgeText[lang] || binConfig.badgeText['en'];
+                        dynamicGuide += `<li style="margin-bottom:4px;"><b>${comp.name}</b> ➔ ${binName}</li>`;
+                    });
+                    dynamicGuide += `</ul>`;
+                    binRecycleGuide.innerHTML = dynamicGuide;
+                } else {
+                    binRecycleGuide.innerHTML = config.guideText[lang] || config.guideText['en'];
+                }
 
-                // Upcycle / DIY option only for recyclables, hide for mixed or bio
                 if (selectedItemKey === "non-biodegradable") {
                     upcycleBtn.style.display = "flex";
                     startQuestBtn.innerText = dict.btnDisposeBin;
@@ -942,24 +1111,78 @@
             EcoVoice.speak(selectedItemKey);
         });
 
-        async function bootSystem() {
-            try {
-                if(yoloSession) return;
-                yoloSession = await ort.InferenceSession.create('models/custom-yolo/GarbageDetector.onnx');
-                
-                document.getElementById('weightActiveChip').innerHTML = "✓ Model Ready";
-                document.getElementById('cameraStatusChip').innerHTML = "🎥 Camera Active";
-                statusLogger.innerText = SYSTEM_UI_DICTIONARY[langSelect.value].readyAI;
-                
-                const mediaStream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { facingMode: 'environment', width: 640, height: 480 } 
-                });
-                video.srcObject = mediaStream;
-                video.addEventListener('loadeddata', () => { snapPhotoBtn.disabled = false; });
-            } catch (err) {
-                statusLogger.innerText = "Camera or Model Initialization Completed.";
-                console.log(err);
+        // ----------------------------------------------------
+        // LIVE AR HUD TRACKING ENGINE (OFFLINE MODE)
+        // ----------------------------------------------------
+        async function startLiveARHUD() {
+            if (isOnlineMode) return; 
+            
+            if (!cocoModel) {
+                cocoModel = await cocoSsd.load();
             }
+            
+            liveTrackingActive = true;
+            canvas.style.display = "block";
+            statusLogger.innerText = "Offline AR Mode Active: Tracking objects live...";
+
+            async function trackFrame() {
+                if (!liveTrackingActive || isOnlineMode) return;
+
+                if (video.readyState === 4) {
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    const ctx = canvas.getContext('2d');
+                    ctx.clearRect(0, 0, canvas.width, canvas.height); 
+
+                    const predictions = await cocoModel.detect(video);
+
+                    predictions.forEach(pred => {
+                        ctx.beginPath();
+                        ctx.rect(pred.bbox[0], pred.bbox[1], pred.bbox[2], pred.bbox[3]);
+                        ctx.lineWidth = 4;
+                        ctx.strokeStyle = '#1cb0f6';
+                        ctx.fillStyle = 'rgba(28, 176, 246, 0.15)';
+                        ctx.fill();
+                        ctx.stroke();
+
+                        ctx.fillStyle = '#1cb0f6';
+                        ctx.fillRect(pred.bbox[0], pred.bbox[1] - 30, pred.bbox[2], 30);
+
+                        ctx.fillStyle = 'white';
+                        ctx.font = 'bold 16px Nunito';
+                        ctx.fillText(`${pred.class.toUpperCase()} [${Math.round(pred.score * 100)}%]`, pred.bbox[0] + 8, pred.bbox[1] - 8);
+                    });
+                }
+                requestAnimationFrame(trackFrame);
+            }
+            trackFrame();
+        }
+
+        // Initialize Camera
+        async function initCamera() {
+            try {
+                const constraints = { video: { facingMode: 'environment', width: { ideal: 640 }, height: { ideal: 480 } } };
+                const stream = await navigator.mediaDevices.getUserMedia(constraints)
+                    .catch(() => navigator.mediaDevices.getUserMedia({ video: true })); 
+                
+                video.srcObject = stream;
+                video.addEventListener('loadeddata', () => { 
+                    snapPhotoBtn.disabled = false; 
+                    document.getElementById('cameraStatusChip').innerHTML = "🎥 Camera Active";
+                    
+                    if (!isOnlineMode) {
+                        startLiveARHUD();
+                    }
+                });
+            } catch (err) {
+                console.error("Camera access denied or unavailable", err);
+                statusLogger.innerText = "Camera initialization failed. Please allow permissions.";
+                document.getElementById('cameraStatusChip').innerHTML = "🎥 Camera Offline";
+            }
+        }
+
+        async function bootSystem() {
+            initCamera();
         }
 
         function getCurrentLeague() {
@@ -984,7 +1207,7 @@
             const curLg = getCurrentLeague();
             modalTitle.innerText = `${curLg.icon} ${curLg.name}`;
             modalDescription.innerText = curLg.desc[langSelect.value];
-            levelInfoModal.style.display = "flex";
+            levelInfoModal.classList.add('show');
         });
 
         function buildInteractiveVisualTree() {
@@ -1020,21 +1243,111 @@
                         modalTitle.innerText = `Level ${node.id}: ${node.titles[langSelect.value]}`;
                         modalDescription.innerText = node.descs[langSelect.value];
                     }
-                    levelInfoModal.style.display = "flex";
+                    levelInfoModal.classList.add('show');
                 });
 
                 duoTreeMap.appendChild(nodeButton);
             });
         }
 
-        modalCloseBtn.addEventListener('click', () => { levelInfoModal.style.display = "none"; });
+        modalCloseBtn.addEventListener('click', () => { levelInfoModal.classList.remove('show'); });
 
         function shiftActiveScreen(targetScreenKey) {
             Object.keys(screens).forEach(key => { screens[key].classList.remove('active-screen'); });
+            
+            // Force reflow to trigger CSS animation restart
+            void screens[targetScreenKey].offsetWidth; 
             screens[targetScreenKey].classList.add('active-screen');
         }
 
+        // ====================================================
+        // GEMINI 1.5 FLASH MULTIMODAL API VISION HANDLER
+        // ====================================================
+        async function processWithGeminiAPI(base64Image) {
+            const promptText = `Examine this discarded object or waste items in the image with high precision.
+            1. If there are multiple different types of items in the same image (e.g. an e-waste circuit AND a plastic bottle AND a chips packet), you MUST categorize the overall waste as 'mixed'.
+            2. Identify each distinct item.
+            Return ONLY a raw JSON object with this exact structure:
+            {
+              "itemName": "A descriptive title (e.g. 'Mixed Waste Pile' or 'Crushed Plastic Bottle')",
+              "category": "biodegradable" | "non-biodegradable" | "hazardous" | "inert" | "mixed" | "living_being",
+              "components": [
+                 { "name": "Plastic Water Bottle", "category": "non-biodegradable" },
+                 { "name": "Circuit Board", "category": "hazardous" },
+                 { "name": "Chips Packet", "category": "non-biodegradable" }
+              ]
+            }
+            Do NOT include markdown formatting or backticks.`;
+            
+            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{
+                        parts: [
+                            { text: promptText },
+                            { inlineData: { mimeType: "image/jpeg", data: base64Image } }
+                        ]
+                    }]
+                })
+            });
+
+            if (!response.ok) throw new Error(`HTTP Error ${response.status}`);
+            
+            const data = await response.json();
+            const textResponse = data.candidates[0].content.parts[0].text.replace(/```json/gi, '').replace(/```/g, '').trim();
+            return JSON.parse(textResponse);
+        }
+
+        // ====================================================
+        // LOCAL EDGE AI FALLBACK HANDLER
+        // ====================================================
+        async function processWithLocalFallback(videoElement) {
+            if (!cocoModel) {
+                cocoModel = await cocoSsd.load();
+            }
+            const predictions = await cocoModel.detect(videoElement);
+            
+            if (predictions && predictions.length > 0) {
+                let uniqueClasses = [...new Set(predictions.map(p => p.class.toLowerCase()))];
+                
+                let detectedComponents = uniqueClasses.map(cls => {
+                    let cat = "non-biodegradable";
+                    if (['person', 'cat', 'dog', 'bird', 'horse', 'sheep', 'cow'].includes(cls)) cat = "living_being";
+                    else if (['apple', 'banana', 'orange', 'broccoli', 'carrot', 'pizza', 'hot dog', 'sandwich'].includes(cls)) cat = "biodegradable";
+                    else if (['bottle', 'cup', 'fork', 'knife', 'spoon', 'bowl'].includes(cls)) cat = "non-biodegradable";
+                    else if (['cell phone', 'laptop', 'mouse', 'remote', 'keyboard', 'tv'].includes(cls)) cat = "hazardous";
+                    
+                    return { name: cls.charAt(0).toUpperCase() + cls.slice(1), category: cat };
+                });
+
+                let hasBio = detectedComponents.some(c => c.category === 'biodegradable');
+                let hasNonBio = detectedComponents.some(c => c.category === 'non-biodegradable');
+                let hasHaz = detectedComponents.some(c => c.category === 'hazardous');
+                let hasLiving = detectedComponents.some(c => c.category === 'living_being');
+
+                let overallCategory = "non-biodegradable";
+                let overallName = detectedComponents[0].name + " (Edge AI)";
+
+                if (hasLiving) {
+                    overallCategory = "living_being";
+                } else if (detectedComponents.length > 1 && (hasBio + hasNonBio + hasHaz > 1)) {
+                    overallCategory = "mixed";
+                    overallName = "Mixed Waste Pile";
+                } else if (hasHaz) {
+                    overallCategory = "hazardous";
+                } else if (hasBio) {
+                    overallCategory = "biodegradable";
+                }
+
+                return { itemName: overallName, category: overallCategory, components: detectedComponents };
+            }
+            return { itemName: "Unidentified Object (Edge AI)", category: "non-biodegradable", components: [] };
+        }
+
         snapPhotoBtn.addEventListener('click', async () => {
+            liveTrackingActive = false; 
+            
             const context = canvas.getContext('2d');
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
@@ -1045,94 +1358,37 @@
             canvas.style.display = "block";
             
             shiftActiveScreen("ANALYSIS");
-            document.getElementById('lblDetectedText').innerText = "Processing...";
+            document.getElementById('lblDetectedText').innerText = isOnlineMode ? "Consulting Gemini Vision..." : "Processing Edge AI...";
             statusLogger.innerText = SYSTEM_UI_DICTIONARY[langSelect.value].calcAI;
 
             try {
-                const offscreenCanvas = document.createElement('canvas');
-                offscreenCanvas.width = 640;
-                offscreenCanvas.height = 640;
-                const oCtx = offscreenCanvas.getContext('2d');
-                oCtx.drawImage(canvas, 0, 0, 640, 640);
-                
-                const imgData = oCtx.getImageData(0, 0, 640, 640);
-                const { data } = imgData;
-
-                const float32Buffer = new Float32Array(1 * 3 * 640 * 640);
-                let rIndex = 0;
-                let gIndex = 640 * 640;
-                let bIndex = 2 * 640 * 640;
-
-                for (let i = 0; i < data.length; i += 4) {
-                    float32Buffer[rIndex++] = data[i] / 255.0;     
-                    float32Buffer[gIndex++] = data[i + 1] / 255.0; 
-                    float32Buffer[bIndex++] = data[i + 2] / 255.0; 
-                }
-
-                const inputTensor = new ort.Tensor('float32', float32Buffer, [1, 3, 640, 640]);
-                const outputMap = await yoloSession.run({ images: inputTensor });
-                const outputTensor = outputMap[Object.keys(outputMap)[0]];
-                
-                let topClassIndex = 0;
-                let maxConfidence = -1;
-                
-                if (outputTensor && outputTensor.data) {
-                    const dataArray = outputTensor.data;
-                    const isDetection = outputTensor.dims && outputTensor.dims.length === 3;
-                    
-                    if (isDetection) {
-                        const numClasses = YOLO_CLASSES.length;
-                        const numAnchors = outputTensor.dims[2];
-                        for (let a = 0; a < numAnchors; a++) {
-                            for (let c = 0; c < numClasses; c++) {
-                                let conf = dataArray[(4 + c) * numAnchors + a];
-                                if (conf > maxConfidence) {
-                                    maxConfidence = conf;
-                                    topClassIndex = c;
-                                }
-                            }
-                        }
+                if (demoOverrideActive) {
+                    document.getElementById('lblDetectedText').innerText = "Manual Override";
+                    currentDetectedComponents = [];
+                } else {
+                    let aiResult;
+                    if (isOnlineMode && GEMINI_API_KEY && GEMINI_API_KEY.length > 10 && GEMINI_API_KEY !== "YOUR_API_KEY_HERE") {
+                        const base64Image = canvas.toDataURL('image/jpeg', 0.85).split(',')[1];
+                        aiResult = await processWithGeminiAPI(base64Image);
                     } else {
-                        for (let c = 0; c < YOLO_CLASSES.length; c++) {
-                            let confidenceScore = dataArray[c] || 0;
-                            if (confidenceScore > maxConfidence) {
-                                maxConfidence = confidenceScore;
-                                topClassIndex = c;
-                            }
-                        }
+                        aiResult = await processWithLocalFallback(canvas);
                     }
+
+                    document.getElementById('lblDetectedText').innerText = aiResult.itemName;
+                    selectedItemKey = aiResult.category;
+                    currentDetectedComponents = aiResult.components || [];
                 }
-
-                const mappedClassName = YOLO_CLASSES[topClassIndex] || "plastic";
-                
-                if (!demoOverrideActive) {
-                    if (mappedClassName === "person" || mappedClassName === "animal") {
-                        selectedItemKey = "living_being";
-                    } else if (mappedClassName === "plastic" || mappedClassName === "bag" || mappedClassName === "glass" || mappedClassName === "metal" || mappedClassName === "furniture") { 
-                        selectedItemKey = "non-biodegradable"; 
-                    } else if (mappedClassName === "paper" || mappedClassName === "cardboard" || mappedClassName === "yard" || mappedClassName === "organic") { 
-                        selectedItemKey = "biodegradable"; 
-                    } else if (mappedClassName === "e-waste" || mappedClassName === "battery") { 
-                        selectedItemKey = "hazardous"; 
-                    } else if (mappedClassName === "debris" || mappedClassName === "stone" || mappedClassName === "soil") {
-                        selectedItemKey = "inert";
-                    } else if (mappedClassName === "mixed") {
-                        selectedItemKey = "mixed";
-                    } else { 
-                        selectedItemKey = "non-biodegradable"; 
-                    }
-                }
-
-                const confidencePercent = Math.min(99, Math.max(84, Math.round((maxConfidence > 0 ? maxConfidence : 0.88) * 100)));
-                document.getElementById('lblDetectedText').innerText = `${confidencePercent}%`;
-
             } catch (inferenceErr) {
-                document.getElementById('lblDetectedText').innerText = `88%`;
+                console.error("AI Analysis Error:", inferenceErr);
+                const fallbackResult = await processWithLocalFallback(canvas);
+                document.getElementById('lblDetectedText').innerText = fallbackResult.itemName;
+                selectedItemKey = fallbackResult.category;
+                currentDetectedComponents = fallbackResult.components || [];
             }
 
             populateCategoryDropdown(); 
             categoryOverride.value = selectedItemKey;
-            handleCategorySelectionChange();
+            handleCategorySelectionChange(); // This dynamically renders the mixed waste list
             
             EcoVoice.speak(selectedItemKey);
             demoOverrideActive = false; 
@@ -1150,9 +1406,15 @@
             isProcessingSecondaryProof = false;
             submitProofPhotoBtn.innerText = SYSTEM_UI_DICTIONARY[langSelect.value].btnClaim;
             submitProofPhotoBtn.classList.add('btn-blue');
+            currentDetectedComponents = []; 
             
             shiftActiveScreen("CAPTURE");
-            statusLogger.innerText = SYSTEM_UI_DICTIONARY[langSelect.value].readyAI;
+            
+            if (!isOnlineMode) {
+                startLiveARHUD(); 
+            } else {
+                statusLogger.innerText = "Online Mode Active: Position camera and capture photo.";
+            }
         }
 
         // TRIGGER NORMAL BIN DISPOSAL
@@ -1177,26 +1439,36 @@
 
         function compileDynamicChecklistStructure(itemKey) {
             const lang = langSelect.value;
-            const contextData = localizationEngine[itemKey][lang];
+            const contextData = localizationEngine[itemKey] ? localizationEngine[itemKey][lang] : localizationEngine["default"][lang];
             
             targetItemName.innerText = contextData.title;
             tasksContainer.innerHTML = "";
             sessionEarnedXP = 0;
 
-            const poolSet = DYNAMIC_TASK_POOLS[itemKey] || DYNAMIC_TASK_POOLS["default"];
-            const randomIndex = Math.floor(Math.random() * poolSet.length);
-            const activePool = poolSet[randomIndex];
+            let stepsToRender = [];
 
-            let stepsToRender = [...activePool.primary];
-            stepsToRender.sort(() => Math.random() - 0.5);
+            if (itemKey === "mixed" && currentDetectedComponents && currentDetectedComponents.length > 0) {
+                // Generate quest steps based on detected components
+                currentDetectedComponents.forEach(comp => {
+                    let binConfig = SMART_BIN_CONFIG[comp.category] || SMART_BIN_CONFIG["non-biodegradable"];
+                    let binName = binConfig.badgeText[lang] || binConfig.badgeText['en'];
+                    stepsToRender.push(`Dispose of the ${comp.name} into the ${binName}.`);
+                });
+            } else {
+                const poolSet = DYNAMIC_TASK_POOLS[itemKey] || DYNAMIC_TASK_POOLS["default"];
+                const randomIndex = Math.floor(Math.random() * poolSet.length);
+                const activePool = poolSet[randomIndex];
+                stepsToRender = [...activePool.primary];
+                stepsToRender.sort(() => Math.random() - 0.5);
+                
+                if (activePool.bonus) {
+                    setTimeout(() => { renderTaskCard(`🌟 Bonus Quest: ${activePool.bonus}`, "+15 XP", true); }, 100);
+                }
+            }
 
             stepsToRender.forEach(stepString => {
                 renderTaskCard(stepString, "+10 XP", false);
             });
-
-            if (activePool.bonus) {
-                renderTaskCard(`🌟 Bonus Quest: ${activePool.bonus}`, "+15 XP", true);
-            }
 
             evaluateChecklistProgress();
         }
@@ -1231,10 +1503,6 @@
             
             stepCardLabel.addEventListener('click', () => {
                 stepCardLabel.classList.toggle('completed-task');
-                if (stepCardLabel.classList.contains('completed-task')) {
-                    successSound.currentTime = 0;
-                    successSound.play();
-                }
                 evaluateChecklistProgress();
             });
 
@@ -1261,7 +1529,7 @@
 
                 setTimeout(() => {
                     shiftActiveScreen("PROOF");
-                    document.getElementById('proofInstruction').innerText = localizationEngine[selectedItemKey][langSelect.value].proofText;
+                    document.getElementById('proofInstruction').innerText = localizationEngine[selectedItemKey] ? localizationEngine[selectedItemKey][langSelect.value].proofText : localizationEngine["default"][langSelect.value].proofText;
                 }, 400);
             }
         }
@@ -1303,7 +1571,7 @@
                     const dateString = currentTimestamp.toLocaleDateString([], { month: 'short', day: 'numeric' });
                     
                     const activityRowItem = {
-                        title: localizationEngine[selectedItemKey][langSelect.value].title,
+                        title: localizationEngine[selectedItemKey] ? localizationEngine[selectedItemKey][langSelect.value].title : localizationEngine["default"][langSelect.value].title,
                         reward: netEarnedXp,
                         timestamp: `${dateString}, ${timeString}`
                     };
@@ -1312,20 +1580,14 @@
                     if (loggedQuests.length > 5) loggedQuests.pop();
                     localStorage.setItem(`ecoHistory_${currentUser}`, JSON.stringify(loggedQuests));
 
+                    // Trigger improved XP blast animation
                     xpBlast.innerText = `💎 +${netEarnedXp} XP!`;
-                    xpBlast.style.display = "block";
+                    xpBlast.classList.remove('animate');
+                    void xpBlast.offsetWidth;
+                    xpBlast.classList.add('animate');
                     
-                    const newLeague = getCurrentLeague();
-                    if (newLeague.minXp > oldLeague.minXp) {
-                        levelUpSound.currentTime = 0;
-                        levelUpSound.play();
-                    } else {
-                        successSound.currentTime = 0;
-                        successSound.play();
-                    }
-
                     setTimeout(() => {
-                        xpBlast.style.display = "none";
+                        xpBlast.classList.remove('animate');
                         submitProofPhotoBtn.disabled = false;
                         
                         applyLanguageStrings();
@@ -1343,9 +1605,10 @@
                 historyLog.innerHTML = `<li class="history-item" style="color: var(--text-muted); font-size:0.95rem; justify-content:center;">${dict.logEmpty}</li>`;
                 return;
             }
-            loggedQuests.forEach(record => {
+            loggedQuests.forEach((record, index) => {
                 const entryNode = document.createElement('li');
                 entryNode.className = "history-item";
+                entryNode.style.animationDelay = `${index * 0.1}s`;
                 entryNode.innerHTML = `
                     <div>
                         <span style="font-weight:900; color:var(--text-dark);">${record.title}</span>
@@ -1365,4 +1628,4 @@
         });
     </script>
 </body>
-</html>
+</html> .
