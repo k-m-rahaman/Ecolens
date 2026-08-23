@@ -1270,31 +1270,17 @@ const CampusNetwork = {
         }
 
 // ====================================================
-// GEMINI MULTIMODAL API VISION HANDLER
+// GEMINI 2.5 FLASH VISION HANDLER (HIGH POWER MODE)
 // ====================================================
 async function processWithGeminiAPI(base64Image) {
-    // 1. Strip base64 metadata header so Gemini receives clean raw image data
+    // Strip base64 metadata header to prevent 400 Bad Request errors
     const cleanBase64 = base64Image.replace(/^data:image\/(png|jpeg|jpg|webp);base64,/, "");
 
-    const promptText = `You are an expert waste classification auditor.
-Analyze ALL items visible in this image:
-1. If there are 2 or more distinct items or materials (e.g. plastic bottle + cardboard packaging, metal can + wrapper), "category" MUST be "mixed".
-2. Break down every visible object into the "components" array with its individual classification:
-   - "biodegradable": food waste, paper, cardboard, organics.
-   - "non-biodegradable": plastics, metal cans, glass, dry packaging.
-   - "hazardous": batteries, e-waste, aerosols, chemical containers.
-   - "inert": stone, construction debris, concrete.
-3. Return pure JSON matching the schema below without markdown formatting.
-
-Schema:
-{
-  "itemName": "Mixed Waste (Bottle & Packaging Box)",
-  "category": "mixed",
-  "components": [
-    { "name": "Plastic Bottle", "category": "non-biodegradable" },
-    { "name": "Paper/Cardboard Box", "category": "biodegradable" }
-  ]
-}`;
+    const promptText = `You are an elite civic waste auditor. Analyze the image with extreme precision.
+    CRITICAL RULES:
+    1. Scan the image for MULTIPLE objects. If you see more than one distinct item (e.g., a plastic bottle AND a cardboard box, or a can AND a wrapper), you MUST classify the overall category as "mixed".
+    2. You must list EVERY individual item you see in the "components" array, no matter how small.
+    3. If there is only ONE item in the entire image, set the overall category to its specific type ("biodegradable", "non-biodegradable", etc.).`;
 
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
     
@@ -1309,8 +1295,38 @@ Schema:
                 ]
             }],
             generationConfig: {
+                // Force strict JSON adherence at the API level
                 responseMimeType: "application/json",
-                temperature: 0.1
+                temperature: 0.0, // Absolute zero creativity, 100% analytical precision
+                responseSchema: {
+                    type: "OBJECT",
+                    properties: {
+                        itemName: {
+                            type: "STRING",
+                            description: "Title of the waste. Use 'Mixed Waste' if there are multiple items."
+                        },
+                        category: {
+                            type: "STRING",
+                            description: "Must be 'mixed' if 2 or more distinct items are detected.",
+                            enum: ["biodegradable", "non-biodegradable", "hazardous", "inert", "mixed", "living_being"]
+                        },
+                        components: {
+                            type: "ARRAY",
+                            description: "List every individual item found in the image. Break them down meticulously.",
+                            items: {
+                                type: "OBJECT",
+                                properties: {
+                                    name: { type: "STRING" },
+                                    category: {
+                                        type: "STRING",
+                                        enum: ["biodegradable", "non-biodegradable", "hazardous", "inert", "living_being"]
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    required: ["itemName", "category", "components"]
+                }
             }
         })
     });
@@ -1323,9 +1339,8 @@ Schema:
     const data = await response.json();
     let rawText = data.candidates[0].content.parts[0].text;
     
-    // Clean potential markdown wrapping
+    // Fallback cleanup just in case
     rawText = rawText.replace(/```json/gi, "").replace(/```/g, "").trim();
-    
     return JSON.parse(rawText);
 }
 
