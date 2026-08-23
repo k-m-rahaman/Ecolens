@@ -1261,30 +1261,29 @@
         }
 
 // ====================================================
-// GEMINI MULTIMODAL API VISION HANDLER (HIGH ACCURACY)
+// GEMINI MULTIMODAL API VISION HANDLER
 // ====================================================
 async function processWithGeminiAPI(base64Image) {
-    const promptText = `Analyze this image as an expert civic waste auditor.
-Examine ALL objects visible in the frame carefully:
+    // 1. Strip base64 metadata header so Gemini receives clean raw image data
+    const cleanBase64 = base64Image.replace(/^data:image\/(png|jpeg|jpg|webp);base64,/, "");
 
-CRITICAL RULES:
-1. Identify all distinct items in the image (e.g. plastic bottle, cardboard box, spray can, battery, wrapper, etc.).
-2. If there are 2 or more items of DIFFERENT materials/types, set "category" to "mixed" and list each item in "components".
-3. If there is only one type of item, set "category" to its specific classification: "biodegradable", "non-biodegradable", "hazardous", or "inert".
-4. Assign each component to:
-   - "biodegradable": food scraps, paper, cardboard.
-   - "non-biodegradable": plastics, glass, metals, packaging.
-   - "hazardous": batteries, perfumes/aerosols, electronics, chemicals.
-   - "inert": stone, debris, bricks.
-   - "living_being": humans, pets.
+    const promptText = `You are an expert waste classification auditor.
+Analyze ALL items visible in this image:
+1. If there are 2 or more distinct items or materials (e.g. plastic bottle + cardboard packaging, metal can + wrapper), "category" MUST be "mixed".
+2. Break down every visible object into the "components" array with its individual classification:
+   - "biodegradable": food waste, paper, cardboard, organics.
+   - "non-biodegradable": plastics, metal cans, glass, dry packaging.
+   - "hazardous": batteries, e-waste, aerosols, chemical containers.
+   - "inert": stone, construction debris, concrete.
+3. Return pure JSON matching the schema below without markdown formatting.
 
-Output pure JSON matching this exact structure:
+Schema:
 {
-  "itemName": "Mixed Waste (Bottle & Deodorant Box)",
+  "itemName": "Mixed Waste (Bottle & Packaging Box)",
   "category": "mixed",
   "components": [
     { "name": "Plastic Bottle", "category": "non-biodegradable" },
-    { "name": "Paper/Cardboard Packaging", "category": "biodegradable" }
+    { "name": "Paper/Cardboard Box", "category": "biodegradable" }
   ]
 }`;
 
@@ -1292,14 +1291,12 @@ Output pure JSON matching this exact structure:
     
     const response = await fetch(url, {
         method: 'POST',
-        headers: { 
-            'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
             contents: [{
                 parts: [
                     { text: promptText },
-                    { inlineData: { mimeType: "image/jpeg", data: base64Image } }
+                    { inlineData: { mimeType: "image/jpeg", data: cleanBase64 } }
                 ]
             }],
             generationConfig: {
@@ -1310,13 +1307,16 @@ Output pure JSON matching this exact structure:
     });
 
     if (!response.ok) {
-        const errText = await response.text();
-        console.error("Gemini API Error Detail:", errText);
-        throw new Error(`HTTP ${response.status}: ${errText}`);
+        const errorText = await response.text();
+        throw new Error(`Gemini API Error (${response.status}): ${errorText}`);
     }
-    
+
     const data = await response.json();
-    const rawText = data.candidates[0].content.parts[0].text;
+    let rawText = data.candidates[0].content.parts[0].text;
+    
+    // Clean potential markdown wrapping
+    rawText = rawText.replace(/```json/gi, "").replace(/```/g, "").trim();
+    
     return JSON.parse(rawText);
 }
 
@@ -1649,4 +1649,4 @@ Output pure JSON matching this exact structure:
         });
     </script>
 </body>
-</html> .
+</html> 
