@@ -10,6 +10,9 @@
     <!-- TensorFlow.js and COCO-SSD for local offline edge intelligence -->
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"></script>
+    <!-- Firebase Realtime Database for Live Cross-Device Sync -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
     <style>
         :root {
@@ -632,93 +635,99 @@
         EcoVoice.init();
 
         // ==========================================
-        // 3. CAMPUS NETWORK: GLOBAL & PERSONAL TRACKING
-        // ==========================================
-        const CampusNetwork = {
-            key: "eco_campus_global_db",
-            data: {},
-            
-            init: function() {
-                const stored = localStorage.getItem(this.key);
-                if (stored) {
-                    try { this.data = JSON.parse(stored); } catch(e) {}
-                }
-                if (Object.keys(this.data).length === 0) {
-                    this.data = {
-                        "Aditi_CSE": { xp: 1250, divertedKg: 14.5, co2SavedKg: 18.2, compostKg: 5.0, scans: 142 },
-                        "Rohan_Mech": { xp: 840, divertedKg: 8.2, co2SavedKg: 10.1, compostKg: 2.1, scans: 89 },
-                        "Priya_Bio": { xp: 2100, divertedKg: 25.4, co2SavedKg: 30.5, compostKg: 12.0, scans: 256 }
-                    };
-                    this.save();
-                }
-            },
-            save: function() {
-                localStorage.setItem(this.key, JSON.stringify(this.data));
-            },
-            updateUser: function(username, personalImpactData, userXp) {
-                this.data[username] = {
-                    xp: userXp,
-                    divertedKg: personalImpactData.divertedKg,
-                    co2SavedKg: personalImpactData.co2SavedKg,
-                    compostKg: personalImpactData.compostKg,
-                    scans: personalImpactData.scans
+// 3. CLOUD CAMPUS NETWORK: REAL-TIME NAAC SYNC
+// ==========================================
+const firebaseConfig = {
+    databaseURL: "https://ecolens-live-default-rtdb.asia-southeast1.firebasedatabase.app"
+};
+
+// Initialize Firebase Realtime Database
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
+const db = firebase.database();
+
+const CampusNetwork = {
+    dbRef: db.ref('campus_leaderboard'),
+
+    init: function() {
+        this.dbRef.on('value', (snapshot) => {
+            const cloudData = snapshot.val();
+            if (cloudData) {
+                this.data = cloudData;
+            } else {
+                this.data = {
+                    "Aditi_CSE": { xp: 1250, divertedKg: 14.5, co2SavedKg: 18.2, compostKg: 5.0, scans: 142 },
+                    "Rohan_Mech": { xp: 840, divertedKg: 8.2, co2SavedKg: 10.1, compostKg: 2.1, scans: 89 },
+                    "Priya_Bio": { xp: 2100, divertedKg: 25.4, co2SavedKg: 30.5, compostKg: 12.0, scans: 256 }
                 };
-                this.save();
-                this.updateGlobalUI();
-            },
-            updateGlobalUI: function() {
-                let totalDiverted = 0;
-                let totalCo2 = 0;
-                let totalScans = 0;
-                
-                const usersArray = [];
-                
-                for (const [uname, stats] of Object.entries(this.data)) {
-                    totalDiverted += stats.divertedKg || 0;
-                    totalCo2 += stats.co2SavedKg || 0;
-                    totalScans += stats.scans || 0;
-                    usersArray.push({ name: uname, ...stats });
-                }
-                
-                document.getElementById('gStatDiverted').innerText = totalDiverted.toFixed(2) + " kg";
-                document.getElementById('gStatCo2').innerText = totalCo2.toFixed(2) + " kg";
-                document.getElementById('gStatScans').innerText = totalScans;
-                
-                usersArray.sort((a, b) => b.divertedKg - a.divertedKg);
-                
-                const lbList = document.getElementById('globalLeaderboardList');
-                lbList.innerHTML = "";
-                
-                usersArray.forEach((u, index) => {
-                    const rank = index + 1;
-                    let rankClass = "";
-                    if (rank === 1) rankClass = "rank-1";
-                    else if (rank === 2) rankClass = "rank-2";
-                    else if (rank === 3) rankClass = "rank-3";
-                    
-                    const isMe = u.name === currentUser;
-                    
-                    const li = document.createElement('li');
-                    li.className = "leaderboard-item";
-                    li.style.animationDelay = `${index * 0.1}s`;
-                    
-                    if (isMe) li.style.borderColor = "var(--duo-blue)";
-
-                    li.innerHTML = `
-                        <div class="leaderboard-left">
-                            <div class="rank-badge ${rankClass}">#${rank}</div>
-                            <div class="lb-name">${u.name} ${isMe ? '<span style="color:var(--duo-blue); font-size:0.8rem;">(You)</span>' : ''}</div>
-                        </div>
-                        <div class="lb-stats">
-                            <div class="lb-xp">${u.xp} XP</div>
-                            <div>${(u.divertedKg || 0).toFixed(2)} kg Saved</div>
-                        </div>
-                    `;
-                    lbList.appendChild(li);
-                });
             }
-        };
+            this.updateGlobalUI();
+        });
+    },
 
+    updateUser: function(username, personalImpactData, userXp) {
+        if (!username) return;
+        const safeKey = username.replace(/[.#$[\]]/g, "_");
+        db.ref(`campus_leaderboard/${safeKey}`).set({
+            xp: userXp,
+            divertedKg: personalImpactData.divertedKg,
+            co2SavedKg: personalImpactData.co2SavedKg,
+            compostKg: personalImpactData.compostKg,
+            scans: personalImpactData.scans,
+            lastActive: Date.now()
+        });
+    },
+
+    updateGlobalUI: function() {
+        let totalDiverted = 0; let totalCo2 = 0; let totalScans = 0;
+        const usersArray = [];
+
+        for (const [uname, stats] of Object.entries(this.data)) {
+            totalDiverted += stats.divertedKg || 0;
+            totalCo2 += stats.co2SavedKg || 0;
+            totalScans += stats.scans || 0;
+            usersArray.push({ name: uname, ...stats });
+        }
+
+        const gDivertedElem = document.getElementById('gStatDiverted');
+        const gCo2Elem = document.getElementById('gStatCo2');
+        const gScansElem = document.getElementById('gStatScans');
+
+        if (gDivertedElem) gDivertedElem.innerText = totalDiverted.toFixed(2) + " kg";
+        if (gCo2Elem) gCo2Elem.innerText = totalCo2.toFixed(2) + " kg";
+        if (gScansElem) gScansElem.innerText = totalScans;
+
+        usersArray.sort((a, b) => (b.divertedKg || 0) - (a.divertedKg || 0));
+
+        const lbList = document.getElementById('globalLeaderboardList');
+        if (!lbList) return;
+        lbList.innerHTML = "";
+
+        usersArray.forEach((u, index) => {
+            const rank = index + 1;
+            let rankClass = rank === 1 ? "rank-1" : rank === 2 ? "rank-2" : rank === 3 ? "rank-3" : "";
+            const isMe = u.name === currentUser;
+
+            const li = document.createElement('li');
+            li.className = "leaderboard-item";
+            li.style.animationDelay = `${index * 0.05}s`;
+            if (isMe) li.style.borderColor = "var(--duo-blue)";
+
+            li.innerHTML = `
+                <div class="leaderboard-left">
+                    <div class="rank-badge ${rankClass}">#${rank}</div>
+                    <div class="lb-name">${u.name} ${isMe ? '<span style="color:var(--duo-blue); font-size:0.8rem;">(You)</span>' : ''}</div>
+                </div>
+                <div class="lb-stats">
+                    <div class="lb-xp">${u.xp} XP</div>
+                    <div>${(u.divertedKg || 0).toFixed(2)} kg Saved</div>
+                </div>
+            `;
+            lbList.appendChild(li);
+        });
+    }
+};
         const CampusImpact = {
             data: { scans: 0, divertedKg: 0, co2SavedKg: 0, compostKg: 0 },
 
