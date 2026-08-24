@@ -1270,17 +1270,20 @@ const CampusNetwork = {
         }
 
 // ====================================================
-// GEMINI 2.5 FLASH VISION HANDLER (HIGH POWER MODE)
+// GEMINI 2.5 FLASH VISION HANDLER (CHAIN-OF-THOUGHT ORDERED)
 // ====================================================
 async function processWithGeminiAPI(base64Image) {
-    // Strip base64 metadata header to prevent 400 Bad Request errors
     const cleanBase64 = base64Image.replace(/^data:image\/(png|jpeg|jpg|webp);base64,/, "");
 
-    const promptText = `You are an elite civic waste auditor. Analyze the image with extreme precision.
-    CRITICAL RULES:
-    1. Scan the image for MULTIPLE objects. If you see more than one distinct item (e.g., a plastic bottle AND a cardboard box, or a can AND a wrapper), you MUST classify the overall category as "mixed".
-    2. You must list EVERY individual item you see in the "components" array, no matter how small.
-    3. If there is only ONE item in the entire image, set the overall category to its specific type ("biodegradable", "non-biodegradable", etc.).`;
+    const promptText = `Analyze this civic waste image step-by-step:
+STEP 1: Identify and list EVERY distinct physical object visible in the frame (e.g., bottle, can, wrapper, box, apple core, battery).
+STEP 2: For each item, assign its exact disposal category:
+  - "biodegradable": food scraps, organics, paper, cardboard.
+  - "non-biodegradable": plastic bottles, plastic packaging, glass, metal cans.
+  - "hazardous": electronics, batteries, aerosol sprays, chemical containers.
+  - "inert": bricks, concrete, stone, construction dust.
+  - "living_being": humans, pets, living plants.
+STEP 3: If 2 or more items are present, the overall category MUST be "mixed".`;
 
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
     
@@ -1295,24 +1298,15 @@ async function processWithGeminiAPI(base64Image) {
                 ]
             }],
             generationConfig: {
-                // Force strict JSON adherence at the API level
                 responseMimeType: "application/json",
-                temperature: 0.0, // Absolute zero creativity, 100% analytical precision
+                temperature: 0.0,
                 responseSchema: {
                     type: "OBJECT",
                     properties: {
-                        itemName: {
-                            type: "STRING",
-                            description: "Title of the waste. Use 'Mixed Waste' if there are multiple items."
-                        },
-                        category: {
-                            type: "STRING",
-                            description: "Must be 'mixed' if 2 or more distinct items are detected.",
-                            enum: ["biodegradable", "non-biodegradable", "hazardous", "inert", "mixed", "living_being"]
-                        },
+                        // 1. COMPONENTS FIRST: Forces Gemini to find all objects BEFORE setting category
                         components: {
                             type: "ARRAY",
-                            description: "List every individual item found in the image. Break them down meticulously.",
+                            description: "List every distinct item visible in the frame.",
                             items: {
                                 type: "OBJECT",
                                 properties: {
@@ -1321,11 +1315,21 @@ async function processWithGeminiAPI(base64Image) {
                                         type: "STRING",
                                         enum: ["biodegradable", "non-biodegradable", "hazardous", "inert", "living_being"]
                                     }
-                                }
+                                },
+                                required: ["name", "category"]
                             }
+                        },
+                        category: {
+                            type: "STRING",
+                            description: "Overall category. Must be 'mixed' if components array has 2 or more items.",
+                            enum: ["biodegradable", "non-biodegradable", "hazardous", "inert", "mixed", "living_being"]
+                        },
+                        itemName: {
+                            type: "STRING",
+                            description: "Descriptive name of the object(s) detected."
                         }
                     },
-                    required: ["itemName", "category", "components"]
+                    required: ["components", "category", "itemName"]
                 }
             }
         })
@@ -1338,10 +1342,18 @@ async function processWithGeminiAPI(base64Image) {
 
     const data = await response.json();
     let rawText = data.candidates[0].content.parts[0].text;
-    
-    // Fallback cleanup just in case
     rawText = rawText.replace(/```json/gi, "").replace(/```/g, "").trim();
-    return JSON.parse(rawText);
+    
+    const parsed = JSON.parse(rawText);
+
+    // DETERMINISTIC JAVASCRIPT SAFEGUARD:
+    // If Gemini detected 2 or more items, force "mixed" mode regardless of LLM top-level output
+    if (parsed.components && parsed.components.length > 1) {
+        parsed.category = "mixed";
+        parsed.itemName = `Mixed Waste (${parsed.components.map(c => c.name).join(' + ')})`;
+    }
+
+    return parsed;
 }
 
         // ====================================================
