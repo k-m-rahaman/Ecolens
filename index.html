@@ -556,7 +556,7 @@
         };
 
         // ==========================================
-        // 2. MULTILINGUAL VOICE ASSISTANT
+        // 2. ENHANCED MULTILINGUAL VOICE ASSISTANT
         // ==========================================
         const EcoVoice = {
             lastSpokenText: "",
@@ -570,13 +570,38 @@
                 };
             },
 
+            // High-power, educational voice prompts
             prompts: {
-                "biodegradable": { en: "Biodegradable waste detected.", hi: "बायोडिग्रेडेबल कचरा मिला है।", bn: "বায়োডিগ্রেডেবল বর্জ্য শনাক্ত হয়েছে।" },
-                "non-biodegradable": { en: "Recyclable waste detected.", hi: "रीसाइक्लिंग कचरा मिला है।", bn: "পুনর্ব্যবহারযোগ্য বর্জ্য শনাক্ত হয়েছে।" },
-                "hazardous": { en: "Hazardous E-waste detected.", hi: "खतरनाक कचरा मिला है।", bn: "বিপজ্জনক বর্জ্য শনাক্ত হয়েছে।" },
-                "inert": { en: "Inert debris detected.", hi: "अक्रिय मलबा मिला है।", bn: "নিষ্ক্রিয় বর্জ্য শনাক্ত হয়েছে।" },
-                "mixed": { en: "Mixed waste detected. Please separate the items.", hi: "मिश्रित कचरा मिला है।", bn: "মিশ্র বর্জ্য শনাক্ত হয়েছে। আলাদা করুন।" },
-                "living_being": { en: "Living being detected.", hi: "जीवित प्राणी पहचाना गया है।", bn: "জীবিত प्राणी শনাক্ত হয়েছে।" }
+                "biodegradable": { 
+                    en: "Biodegradable organic waste detected. Please dispose of this in the Green Compost Bin to help create fertilizer.", 
+                    hi: "बायोडिग्रेडेबल जैविक कचरा मिला है। कृपया इसे हरे कम्पोस्ट बिन में डालें ताकि खाद बन सके।", 
+                    bn: "বায়োডিগ্রেডেবল জৈব বর্জ্য শনাক্ত হয়েছে। সার তৈরির জন্য অনুগ্রহ করে এটি সবুজ কম্পোস্ট বিনে ফেলুন।" 
+                },
+                "non-biodegradable": { 
+                    en: "Recyclable waste detected. Remember to empty any liquids and crush the item before placing it in the Blue Bin.", 
+                    hi: "रीसाइक्लिंग कचरा मिला है। कृपया नीले डिब्बे में डालने से पहले तरल पदार्थ खाली करें और वस्तु को कुचल दें।", 
+                    bn: "পুনর্ব্যবহারযোগ্য বর্জ্য শনাক্ত হয়েছে। নীল বিনে রাখার আগে তরল খালি করতে এবং বস্তুটি দুমড়ে ফেলতে ভুলবেন না।" 
+                },
+                "hazardous": { 
+                    en: "Warning. Hazardous E-waste detected. Do not mix this with regular trash. Please take it to the designated Red E-Waste Kiosk immediately.", 
+                    hi: "चेतावनी। खतरनाक ई-कचरा मिला है। इसे सामान्य कचरे के साथ न मिलाएं। कृपया इसे लाल ई-कचरा कियोस्क पर ले जाएं।", 
+                    bn: "সতর্কতা। বিপজ্জনক ই-বর্জ্য শনাক্ত হয়েছে। সাধারণ আবর্জনার সাথে এটি মেশাবেন না। অনুগ্রহ করে এটি লাল ই-বর্জ্য কিওস্কে নিয়ে যান।" 
+                },
+                "inert": { 
+                    en: "Inert heavy waste detected. Please transfer this debris to the grey stream for civil works collection.", 
+                    hi: "अक्रिय भारी मलबा मिला है। कृपया इस मलबे को निर्माण संग्रह के लिए ग्रे डिब्बे में डालें।", 
+                    bn: "নিষ্ক্রিয় ভারী বর্জ্য শনাক্ত হয়েছে। অনুগ্রহ করে এই ধ্বংসাবশেষ ধূসর বিনে স্থানান্তর করুন।" 
+                },
+                "mixed": { 
+                    en: "Mixed waste pile detected. You must physically separate these different materials into their correct bins to prevent contamination.", 
+                    hi: "मिश्रित कचरा मिला है। संदूषण को रोकने के लिए आपको इन सामग्रियों को उनके सही डिब्बे में अलग करना होगा।", 
+                    bn: "মিশ্র বর্জ্য শনাক্ত হয়েছে। দূষণ রোধ করতে আপনার এই উপাদানগুলোকে সঠিক বিনে আলাদা করে ফেলা উচিত।" 
+                },
+                "living_being": { 
+                    en: "Living being detected. Please point the camera only at discarded waste items.", 
+                    hi: "जीवित प्राणी पहचाना गया है। कृपया कैमरा केवल कचरे पर केंद्रित करें।", 
+                    bn: "জীবিত প্রাণী শনাক্ত হয়েছে। অনুগ্রহ করে ক্যামেরা কেবল বর্জ্য পদার্থের দিকে রাখুন।" 
+                }
             },
 
             speak: function(itemKey) {
@@ -635,99 +660,100 @@
         EcoVoice.init();
 
         // ==========================================
-// 3. CLOUD CAMPUS NETWORK: REAL-TIME NAAC SYNC
-// ==========================================
-const firebaseConfig = {
-    databaseURL: "https://ecolens-live-default-rtdb.asia-southeast1.firebasedatabase.app"
-};
+        // 3. CLOUD CAMPUS NETWORK: REAL-TIME NAAC SYNC
+        // ==========================================
+        const firebaseConfig = {
+            databaseURL: "https://ecolens-live-default-rtdb.asia-southeast1.firebasedatabase.app"
+        };
 
-// Initialize Firebase Realtime Database
-if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
-}
-const db = firebase.database();
-
-const CampusNetwork = {
-    dbRef: db.ref('campus_leaderboard'),
-
-    init: function() {
-        this.dbRef.on('value', (snapshot) => {
-            const cloudData = snapshot.val();
-            if (cloudData) {
-                this.data = cloudData;
-            } else {
-                this.data = {
-                    "Aditi_CSE": { xp: 1250, divertedKg: 14.5, co2SavedKg: 18.2, compostKg: 5.0, scans: 142 },
-                    "Rohan_Mech": { xp: 840, divertedKg: 8.2, co2SavedKg: 10.1, compostKg: 2.1, scans: 89 },
-                    "Priya_Bio": { xp: 2100, divertedKg: 25.4, co2SavedKg: 30.5, compostKg: 12.0, scans: 256 }
-                };
-            }
-            this.updateGlobalUI();
-        });
-    },
-
-    updateUser: function(username, personalImpactData, userXp) {
-        if (!username) return;
-        const safeKey = username.replace(/[.#$[\]]/g, "_");
-        db.ref(`campus_leaderboard/${safeKey}`).set({
-            xp: userXp,
-            divertedKg: personalImpactData.divertedKg,
-            co2SavedKg: personalImpactData.co2SavedKg,
-            compostKg: personalImpactData.compostKg,
-            scans: personalImpactData.scans,
-            lastActive: Date.now()
-        });
-    },
-
-    updateGlobalUI: function() {
-        let totalDiverted = 0; let totalCo2 = 0; let totalScans = 0;
-        const usersArray = [];
-
-        for (const [uname, stats] of Object.entries(this.data)) {
-            totalDiverted += stats.divertedKg || 0;
-            totalCo2 += stats.co2SavedKg || 0;
-            totalScans += stats.scans || 0;
-            usersArray.push({ name: uname, ...stats });
+        // Initialize Firebase Realtime Database
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
         }
+        const db = firebase.database();
 
-        const gDivertedElem = document.getElementById('gStatDiverted');
-        const gCo2Elem = document.getElementById('gStatCo2');
-        const gScansElem = document.getElementById('gStatScans');
+        const CampusNetwork = {
+            dbRef: db.ref('campus_leaderboard'),
 
-        if (gDivertedElem) gDivertedElem.innerText = totalDiverted.toFixed(2) + " kg";
-        if (gCo2Elem) gCo2Elem.innerText = totalCo2.toFixed(2) + " kg";
-        if (gScansElem) gScansElem.innerText = totalScans;
+            init: function() {
+                this.dbRef.on('value', (snapshot) => {
+                    const cloudData = snapshot.val();
+                    if (cloudData) {
+                        this.data = cloudData;
+                    } else {
+                        this.data = {
+                            "Aditi_CSE": { xp: 1250, divertedKg: 14.5, co2SavedKg: 18.2, compostKg: 5.0, scans: 142 },
+                            "Rohan_Mech": { xp: 840, divertedKg: 8.2, co2SavedKg: 10.1, compostKg: 2.1, scans: 89 },
+                            "Priya_Bio": { xp: 2100, divertedKg: 25.4, co2SavedKg: 30.5, compostKg: 12.0, scans: 256 }
+                        };
+                    }
+                    this.updateGlobalUI();
+                });
+            },
 
-        usersArray.sort((a, b) => (b.divertedKg || 0) - (a.divertedKg || 0));
+            updateUser: function(username, personalImpactData, userXp) {
+                if (!username) return;
+                const safeKey = username.replace(/[.#$[\]]/g, "_");
+                db.ref(`campus_leaderboard/${safeKey}`).set({
+                    xp: userXp,
+                    divertedKg: personalImpactData.divertedKg,
+                    co2SavedKg: personalImpactData.co2SavedKg,
+                    compostKg: personalImpactData.compostKg,
+                    scans: personalImpactData.scans,
+                    lastActive: Date.now()
+                });
+            },
 
-        const lbList = document.getElementById('globalLeaderboardList');
-        if (!lbList) return;
-        lbList.innerHTML = "";
+            updateGlobalUI: function() {
+                let totalDiverted = 0; let totalCo2 = 0; let totalScans = 0;
+                const usersArray = [];
 
-        usersArray.forEach((u, index) => {
-            const rank = index + 1;
-            let rankClass = rank === 1 ? "rank-1" : rank === 2 ? "rank-2" : rank === 3 ? "rank-3" : "";
-            const isMe = u.name === currentUser;
+                for (const [uname, stats] of Object.entries(this.data)) {
+                    totalDiverted += stats.divertedKg || 0;
+                    totalCo2 += stats.co2SavedKg || 0;
+                    totalScans += stats.scans || 0;
+                    usersArray.push({ name: uname, ...stats });
+                }
 
-            const li = document.createElement('li');
-            li.className = "leaderboard-item";
-            li.style.animationDelay = `${index * 0.05}s`;
-            if (isMe) li.style.borderColor = "var(--duo-blue)";
+                const gDivertedElem = document.getElementById('gStatDiverted');
+                const gCo2Elem = document.getElementById('gStatCo2');
+                const gScansElem = document.getElementById('gStatScans');
 
-            li.innerHTML = `
-                <div class="leaderboard-left">
-                    <div class="rank-badge ${rankClass}">#${rank}</div>
-                    <div class="lb-name">${u.name} ${isMe ? '<span style="color:var(--duo-blue); font-size:0.8rem;">(You)</span>' : ''}</div>
-                </div>
-                <div class="lb-stats">
-                    <div class="lb-xp">${u.xp} XP</div>
-                    <div>${(u.divertedKg || 0).toFixed(2)} kg Saved</div>
-                </div>
-            `;
-            lbList.appendChild(li);
-        });
-    }
-};
+                if (gDivertedElem) gDivertedElem.innerText = totalDiverted.toFixed(2) + " kg";
+                if (gCo2Elem) gCo2Elem.innerText = totalCo2.toFixed(2) + " kg";
+                if (gScansElem) gScansElem.innerText = totalScans;
+
+                usersArray.sort((a, b) => (b.divertedKg || 0) - (a.divertedKg || 0));
+
+                const lbList = document.getElementById('globalLeaderboardList');
+                if (!lbList) return;
+                lbList.innerHTML = "";
+
+                usersArray.forEach((u, index) => {
+                    const rank = index + 1;
+                    let rankClass = rank === 1 ? "rank-1" : rank === 2 ? "rank-2" : rank === 3 ? "rank-3" : "";
+                    const isMe = u.name === currentUser;
+
+                    const li = document.createElement('li');
+                    li.className = "leaderboard-item";
+                    li.style.animationDelay = `${index * 0.05}s`;
+                    if (isMe) li.style.borderColor = "var(--duo-blue)";
+
+                    li.innerHTML = `
+                        <div class="leaderboard-left">
+                            <div class="rank-badge ${rankClass}">#${rank}</div>
+                            <div class="lb-name">${u.name} ${isMe ? '<span style="color:var(--duo-blue); font-size:0.8rem;">(You)</span>' : ''}</div>
+                        </div>
+                        <div class="lb-stats">
+                            <div class="lb-xp">${u.xp} XP</div>
+                            <div>${(u.divertedKg || 0).toFixed(2)} kg Saved</div>
+                        </div>
+                    `;
+                    lbList.appendChild(li);
+                });
+            }
+        };
+
         const CampusImpact = {
             data: { scans: 0, divertedKg: 0, co2SavedKg: 0, compostKg: 0 },
 
@@ -1269,92 +1295,92 @@ const CampusNetwork = {
             screens[targetScreenKey].classList.add('active-screen');
         }
 
-// ====================================================
-// GEMINI 2.5 FLASH VISION HANDLER (CHAIN-OF-THOUGHT ORDERED)
-// ====================================================
-async function processWithGeminiAPI(base64Image) {
-    const cleanBase64 = base64Image.replace(/^data:image\/(png|jpeg|jpg|webp);base64,/, "");
+        // ====================================================
+        // GEMINI 2.5 FLASH VISION HANDLER (BULLETPROOF MIXED WASTE)
+        // ====================================================
+        async function processWithGeminiAPI(base64Image) {
+            const cleanBase64 = base64Image.replace(/^data:image\/(png|jpeg|jpg|webp);base64,/, "");
 
-    const promptText = `Analyze this civic waste image step-by-step:
-STEP 1: Identify and list EVERY distinct physical object visible in the frame (e.g., bottle, can, wrapper, box, apple core, battery).
-STEP 2: For each item, assign its exact disposal category:
-  - "biodegradable": food scraps, organics, paper, cardboard.
-  - "non-biodegradable": plastic bottles, plastic packaging, glass, metal cans.
-  - "hazardous": electronics, batteries, aerosol sprays, chemical containers.
-  - "inert": bricks, concrete, stone, construction dust.
-  - "living_being": humans, pets, living plants.
-STEP 3: If 2 or more items are present, the overall category MUST be "mixed".`;
+            // Powerful prompt that strictly forbids grouping objects together
+            const promptText = `Analyze this civic waste image with absolute precision.
+STEP 1: Visually isolate EVERY single physical object in the frame.
+STEP 2: Create a separate component entry for EACH distinct object. NEVER group items together (e.g. do not say "bottle and wrapper", list them as two separate items in the array).
+STEP 3: Assign the exact category for each item:
+  - "biodegradable": organics, food, paper, leaves.
+  - "non-biodegradable": plastic, glass, metal.
+  - "hazardous": batteries, electronics, chemicals.
+  - "inert": bricks, stone, dust.
+STEP 4: If you found 2 or more separate objects, the top-level category MUST be "mixed".`;
 
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
-    
-    const response = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            contents: [{
-                parts: [
-                    { text: promptText },
-                    { inlineData: { mimeType: "image/jpeg", data: cleanBase64 } }
-                ]
-            }],
-            generationConfig: {
-                responseMimeType: "application/json",
-                temperature: 0.0,
-                responseSchema: {
-                    type: "OBJECT",
-                    properties: {
-                        // 1. COMPONENTS FIRST: Forces Gemini to find all objects BEFORE setting category
-                        components: {
-                            type: "ARRAY",
-                            description: "List every distinct item visible in the frame.",
-                            items: {
-                                type: "OBJECT",
-                                properties: {
-                                    name: { type: "STRING" },
-                                    category: {
-                                        type: "STRING",
-                                        enum: ["biodegradable", "non-biodegradable", "hazardous", "inert", "living_being"]
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+            
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{
+                        parts: [
+                            { text: promptText },
+                            { inlineData: { mimeType: "image/jpeg", data: cleanBase64 } }
+                        ]
+                    }],
+                    generationConfig: {
+                        responseMimeType: "application/json",
+                        temperature: 0.1, // Near zero for strict logical adherence, tiny bit of room to prevent loop failures
+                        responseSchema: {
+                            type: "OBJECT",
+                            properties: {
+                                components: {
+                                    type: "ARRAY",
+                                    description: "List every distinct item visible in the frame separately.",
+                                    items: {
+                                        type: "OBJECT",
+                                        properties: {
+                                            name: { type: "STRING" },
+                                            category: {
+                                                type: "STRING",
+                                                enum: ["biodegradable", "non-biodegradable", "hazardous", "inert", "living_being"]
+                                            }
+                                        },
+                                        required: ["name", "category"]
                                     }
                                 },
-                                required: ["name", "category"]
-                            }
-                        },
-                        category: {
-                            type: "STRING",
-                            description: "Overall category. Must be 'mixed' if components array has 2 or more items.",
-                            enum: ["biodegradable", "non-biodegradable", "hazardous", "inert", "mixed", "living_being"]
-                        },
-                        itemName: {
-                            type: "STRING",
-                            description: "Descriptive name of the object(s) detected."
+                                category: {
+                                    type: "STRING",
+                                    description: "Overall category. Must be 'mixed' if components array has 2 or more items.",
+                                    enum: ["biodegradable", "non-biodegradable", "hazardous", "inert", "mixed", "living_being"]
+                                },
+                                itemName: {
+                                    type: "STRING",
+                                    description: "Descriptive name of the object(s) detected."
+                                }
+                            },
+                            required: ["components", "category", "itemName"]
                         }
-                    },
-                    required: ["components", "category", "itemName"]
-                }
+                    }
+                })
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Gemini API Error (${response.status}): ${errorText}`);
             }
-        })
-    });
 
-    if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Gemini API Error (${response.status}): ${errorText}`);
-    }
+            const data = await response.json();
+            let rawText = data.candidates[0].content.parts[0].text;
+            rawText = rawText.replace(/```json/gi, "").replace(/```/g, "").trim();
+            
+            const parsed = JSON.parse(rawText);
 
-    const data = await response.json();
-    let rawText = data.candidates[0].content.parts[0].text;
-    rawText = rawText.replace(/```json/gi, "").replace(/```/g, "").trim();
-    
-    const parsed = JSON.parse(rawText);
+            // DETERMINISTIC JAVASCRIPT SAFEGUARD:
+            // Forces "mixed" mode if LLM found multiple distinct components
+            if (parsed.components && parsed.components.length >= 2) {
+                parsed.category = "mixed";
+                parsed.itemName = `Mixed Waste Pile (${parsed.components.length} Items)`;
+            }
 
-    // DETERMINISTIC JAVASCRIPT SAFEGUARD:
-    // If Gemini detected 2 or more items, force "mixed" mode regardless of LLM top-level output
-    if (parsed.components && parsed.components.length > 1) {
-        parsed.category = "mixed";
-        parsed.itemName = `Mixed Waste (${parsed.components.map(c => c.name).join(' + ')})`;
-    }
-
-    return parsed;
-}
+            return parsed;
+        }
 
         // ====================================================
         // LOCAL EDGE AI FALLBACK HANDLER
@@ -1685,4 +1711,4 @@ STEP 3: If 2 or more items are present, the overall category MUST be "mixed".`;
         });
     </script>
 </body>
-</html> 
+</html>
