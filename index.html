@@ -1127,14 +1127,19 @@
                         <ul style="padding-left:0; list-style:none; display:flex; flex-direction:column; gap:8px;">`;
 
                     currentDetectedComponents.forEach((comp, idx) => {
-                        let binConfig = SMART_BIN_CONFIG[comp.category] || SMART_BIN_CONFIG["non-biodegradable"];
+                        let itemCat = comp.category || "non-biodegradable";
+                        let binConfig = SMART_BIN_CONFIG[itemCat] || SMART_BIN_CONFIG["non-biodegradable"];
                         let binName = binConfig.badgeText[lang] || binConfig.badgeText['en'];
-                        let adviceText = comp.disposalAdvice || `Place in the ${binName}`;
+                        
+                        let adviceText = `➔ <b style="color: #047857;">${binName}</b>`;
+                        if (comp.disposalAdvice && !comp.disposalAdvice.includes("designated Smart Bin")) {
+                            adviceText += `<br><span style="font-weight:700; font-size:0.85rem; color:#065f46; margin-top:4px; display:block;">ℹ️ ${comp.disposalAdvice}</span>`;
+                        }
                         
                         dynamicGuide += `
                         <li style="background:white; border:1.5px solid #e5e7eb; padding:10px; border-radius:8px; display:flex; flex-direction:column; gap:4px;">
-                            <b style="color:#1f2937; font-size:1rem;">${idx + 1}. ${comp.name}</b>
-                            <span style="color:#059669; font-size:0.85rem; font-weight:800;">➔ ${adviceText}</span>
+                            <b style="color:#1f2937; font-size:1.05rem;">${idx + 1}. ${comp.name}</b>
+                            <span style="font-size:0.95rem; font-weight:800; line-height:1.4;">${adviceText}</span>
                         </li>`;
                     });
                     
@@ -1320,7 +1325,7 @@
             CRITICAL INSTRUCTIONS:
             1. First, mathematically count the distinct objects you see. If there is a bottle AND a wrapper, that is exactly 2 objects.
             2. You must NEVER group objects into a single string. (WRONG: "bottle and wrapper". RIGHT: list "bottle" and "wrapper" separately).
-            3. For each object you find, generate a short 'disposalAdvice' string explicitly telling the user which bin to throw it in.
+            3. For each object you find, generate a short 'disposalAdvice' string explicitly telling the user how to prep it (e.g., 'Empty liquids and crush').
             
             CATEGORIES ALLOWED: "biodegradable", "non-biodegradable", "hazardous", "inert", "living_being".`;
 
@@ -1392,7 +1397,7 @@
             // If the AI flagged it as mixed, counted more than 1 item, OR generated an array of more than 1 item...
             if (parsed.isMixedWaste === true || parsed.totalItemCount >= 2 || (parsed.components && parsed.components.length >= 2)) {
                 parsed.category = "mixed";
-                parsed.itemName = `Mixed Waste Pile (${parsed.components.length} Items)`;
+                parsed.itemName = `Mixed Waste Pile (${parsed.components ? parsed.components.length : parsed.totalItemCount} Items)`;
             } else if (parsed.components && parsed.components.length === 1) {
                 parsed.category = parsed.components[0].category;
                 parsed.itemName = parsed.components[0].name;
