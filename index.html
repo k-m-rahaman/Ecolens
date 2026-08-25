@@ -536,7 +536,7 @@
             "hazardous": {
                 badgeClass: "bin-red-target",
                 badgeText: { en: "🔴 Red Kiosk (E-Waste)", bn: "🔴 লাল কিওস্ক", hi: "🔴 लाल कियोस्क" },
-                guideText: { en: "<b>⚠️ E-Waste:</b> Deposit strictly in the Red E-Waste kiosk.", bn: "লাল বক্সে জমা দিন।", hi: "लाल कलेक्शन बॉक्स में डालें।" }
+                guideText: { en: "<b>⚠️ E-Waste:</b> Deposit strictly in the Red E-Waste kiosk.", bn: "लाल बক্সে জমা দিন।", hi: "लाल कलेक्शन बॉक्स में डालें।" }
             },
             "inert": {
                 badgeClass: "bin-grey-target",
@@ -570,7 +570,6 @@
                 };
             },
 
-            // High-power, educational voice prompts
             prompts: {
                 "biodegradable": { 
                     en: "Biodegradable organic waste detected. Please dispose of this in the Green Compost Bin to help create fertilizer.", 
@@ -593,7 +592,7 @@
                     bn: "নিষ্ক্রিয় ভারী বর্জ্য শনাক্ত হয়েছে। অনুগ্রহ করে এই ধ্বংসাবশেষ ধূসর বিনে স্থানান্তর করুন।" 
                 },
                 "mixed": { 
-                    en: "Mixed waste pile detected. You must physically separate these different materials into their correct bins to prevent contamination.", 
+                    en: "Mixed waste pile detected. You must physically separate these different materials into their correct bins to prevent contamination. Check the screen for disposal steps.", 
                     hi: "मिश्रित कचरा मिला है। संदूषण को रोकने के लिए आपको इन सामग्रियों को उनके सही डिब्बे में अलग करना होगा।", 
                     bn: "মিশ্র বর্জ্য শনাক্ত হয়েছে। দূষণ রোধ করতে আপনার এই উপাদানগুলোকে সঠিক বিনে আলাদা করে ফেলা উচিত।" 
                 },
@@ -666,7 +665,6 @@
             databaseURL: "https://ecolens-live-default-rtdb.asia-southeast1.firebasedatabase.app"
         };
 
-        // Initialize Firebase Realtime Database
         if (!firebase.apps.length) {
             firebase.initializeApp(firebaseConfig);
         }
@@ -1116,15 +1114,31 @@
                 binTargetBadge.className = "bin-badge " + config.badgeClass;
                 binTargetBadge.innerText = config.badgeText[lang] || config.badgeText['en'];
                 
-                // DYNAMIC MIXED WASTE RENDERER FOR ANALYSIS SCREEN
-                if (selectedItemKey === "mixed" && currentDetectedComponents && currentDetectedComponents.length > 0) {
-                    let dynamicGuide = `<b>🔀 Separation Required:</b> We detected multiple items. Please separate them:<br><ul style="margin-top:8px; padding-left:20px; font-weight:800; font-size:0.9rem; color:var(--text-dark);">`;
-                    currentDetectedComponents.forEach(comp => {
+                // =======================================================
+                // THE PERMANENT FIX: DYNAMIC UI INSTRUCTIONS FOR MIXED WASTE
+                // =======================================================
+                if (selectedItemKey === "mixed" && currentDetectedComponents && currentDetectedComponents.length > 1) {
+                    let dynamicGuide = `
+                    <div style="background:#f3e8ff; border:2px solid #d8b4fe; padding:12px; border-radius:12px; margin-bottom:10px;">
+                        <h4 style="color:#6b21a8; margin-bottom:8px; font-weight:900; display:flex; align-items:center; gap:6px;">⚠️ SEPARATION REQUIRED</h4>
+                        <p style="font-size:0.9rem; color:#4c1d95; margin-bottom:12px; font-weight:800;">
+                            We detected ${currentDetectedComponents.length} different items. You must physically separate them:
+                        </p>
+                        <ul style="padding-left:0; list-style:none; display:flex; flex-direction:column; gap:8px;">`;
+
+                    currentDetectedComponents.forEach((comp, idx) => {
                         let binConfig = SMART_BIN_CONFIG[comp.category] || SMART_BIN_CONFIG["non-biodegradable"];
                         let binName = binConfig.badgeText[lang] || binConfig.badgeText['en'];
-                        dynamicGuide += `<li style="margin-bottom:4px;"><b>${comp.name}</b> ➔ ${binName}</li>`;
+                        let adviceText = comp.disposalAdvice || `Place in the ${binName}`;
+                        
+                        dynamicGuide += `
+                        <li style="background:white; border:1.5px solid #e5e7eb; padding:10px; border-radius:8px; display:flex; flex-direction:column; gap:4px;">
+                            <b style="color:#1f2937; font-size:1rem;">${idx + 1}. ${comp.name}</b>
+                            <span style="color:#059669; font-size:0.85rem; font-weight:800;">➔ ${adviceText}</span>
+                        </li>`;
                     });
-                    dynamicGuide += `</ul>`;
+                    
+                    dynamicGuide += `</ul></div>`;
                     binRecycleGuide.innerHTML = dynamicGuide;
                 } else {
                     binRecycleGuide.innerHTML = config.guideText[lang] || config.guideText['en'];
@@ -1296,21 +1310,19 @@
         }
 
         // ====================================================
-        // GEMINI 2.5 FLASH VISION HANDLER (BULLETPROOF MIXED WASTE)
+        // THE PERMANENT FIX: GEMINI AI WITH FORCED COUNTING
         // ====================================================
         async function processWithGeminiAPI(base64Image) {
             const cleanBase64 = base64Image.replace(/^data:image\/(png|jpeg|jpg|webp);base64,/, "");
 
-            // Powerful prompt that strictly forbids grouping objects together
-            const promptText = `Analyze this civic waste image with absolute precision.
-STEP 1: Visually isolate EVERY single physical object in the frame.
-STEP 2: Create a separate component entry for EACH distinct object. NEVER group items together (e.g. do not say "bottle and wrapper", list them as two separate items in the array).
-STEP 3: Assign the exact category for each item:
-  - "biodegradable": organics, food, paper, leaves.
-  - "non-biodegradable": plastic, glass, metal.
-  - "hazardous": batteries, electronics, chemicals.
-  - "inert": bricks, stone, dust.
-STEP 4: If you found 2 or more separate objects, the top-level category MUST be "mixed".`;
+            const promptText = `You are an elite, highly advanced robotic waste sorter. Your primary directive is to detect if a user is throwing away MULTIPLE different items at the same time.
+            
+            CRITICAL INSTRUCTIONS:
+            1. First, mathematically count the distinct objects you see. If there is a bottle AND a wrapper, that is exactly 2 objects.
+            2. You must NEVER group objects into a single string. (WRONG: "bottle and wrapper". RIGHT: list "bottle" and "wrapper" separately).
+            3. For each object you find, generate a short 'disposalAdvice' string explicitly telling the user which bin to throw it in.
+            
+            CATEGORIES ALLOWED: "biodegradable", "non-biodegradable", "hazardous", "inert", "living_being".`;
 
             const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
             
@@ -1326,36 +1338,40 @@ STEP 4: If you found 2 or more separate objects, the top-level category MUST be 
                     }],
                     generationConfig: {
                         responseMimeType: "application/json",
-                        temperature: 0.1, // Near zero for strict logical adherence, tiny bit of room to prevent loop failures
+                        temperature: 0.0, // Force strict mathematical logic
                         responseSchema: {
                             type: "OBJECT",
                             properties: {
+                                // Forcing the AI to calculate the exact count first breaks its habit of grouping items
+                                totalItemCount: {
+                                    type: "INTEGER",
+                                    description: "The exact numerical count of separate waste items detected."
+                                },
+                                isMixedWaste: {
+                                    type: "BOOLEAN",
+                                    description: "Must be true if totalItemCount is greater than 1."
+                                },
                                 components: {
                                     type: "ARRAY",
                                     description: "List every distinct item visible in the frame separately.",
                                     items: {
                                         type: "OBJECT",
                                         properties: {
-                                            name: { type: "STRING" },
+                                            name: { type: "STRING", description: "Name of the single item (e.g. 'Plastic Bottle')" },
                                             category: {
                                                 type: "STRING",
                                                 enum: ["biodegradable", "non-biodegradable", "hazardous", "inert", "living_being"]
+                                            },
+                                            disposalAdvice: {
+                                                type: "STRING",
+                                                description: "Direct action instruction. Example: 'Empty liquids and crush before putting in the Blue Bin.'"
                                             }
                                         },
-                                        required: ["name", "category"]
+                                        required: ["name", "category", "disposalAdvice"]
                                     }
-                                },
-                                category: {
-                                    type: "STRING",
-                                    description: "Overall category. Must be 'mixed' if components array has 2 or more items.",
-                                    enum: ["biodegradable", "non-biodegradable", "hazardous", "inert", "mixed", "living_being"]
-                                },
-                                itemName: {
-                                    type: "STRING",
-                                    description: "Descriptive name of the object(s) detected."
                                 }
                             },
-                            required: ["components", "category", "itemName"]
+                            required: ["totalItemCount", "isMixedWaste", "components"]
                         }
                     }
                 })
@@ -1372,11 +1388,17 @@ STEP 4: If you found 2 or more separate objects, the top-level category MUST be 
             
             const parsed = JSON.parse(rawText);
 
-            // DETERMINISTIC JAVASCRIPT SAFEGUARD:
-            // Forces "mixed" mode if LLM found multiple distinct components
-            if (parsed.components && parsed.components.length >= 2) {
+            // THE UNBREAKABLE SAFEGUARD
+            // If the AI flagged it as mixed, counted more than 1 item, OR generated an array of more than 1 item...
+            if (parsed.isMixedWaste === true || parsed.totalItemCount >= 2 || (parsed.components && parsed.components.length >= 2)) {
                 parsed.category = "mixed";
                 parsed.itemName = `Mixed Waste Pile (${parsed.components.length} Items)`;
+            } else if (parsed.components && parsed.components.length === 1) {
+                parsed.category = parsed.components[0].category;
+                parsed.itemName = parsed.components[0].name;
+            } else {
+                parsed.category = "non-biodegradable";
+                parsed.itemName = "Unknown Object";
             }
 
             return parsed;
@@ -1401,7 +1423,7 @@ STEP 4: If you found 2 or more separate objects, the top-level category MUST be 
                     else if (['bottle', 'cup', 'fork', 'knife', 'spoon', 'bowl'].includes(cls)) cat = "non-biodegradable";
                     else if (['cell phone', 'laptop', 'mouse', 'remote', 'keyboard', 'tv'].includes(cls)) cat = "hazardous";
                     
-                    return { name: cls.charAt(0).toUpperCase() + cls.slice(1), category: cat };
+                    return { name: cls.charAt(0).toUpperCase() + cls.slice(1), category: cat, disposalAdvice: "Place in the designated Smart Bin." };
                 });
 
                 let hasBio = detectedComponents.some(c => c.category === 'biodegradable');
@@ -1471,7 +1493,7 @@ STEP 4: If you found 2 or more separate objects, the top-level category MUST be 
 
             populateCategoryDropdown(); 
             categoryOverride.value = selectedItemKey;
-            handleCategorySelectionChange(); // This dynamically renders the mixed waste list
+            handleCategorySelectionChange(); 
             
             EcoVoice.speak(selectedItemKey);
             demoOverrideActive = false; 
