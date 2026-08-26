@@ -3,14 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EcoLens Pro | Smart Bin & Edge AI Waste Management System</title>
+    <title>EcoLens Pro | Multi-Campus Smart Bin & AI Waste Management System</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     
-    <!-- TensorFlow.js and COCO-SSD for local offline edge intelligence -->
+    <!-- TensorFlow.js and COCO-SSD for local offline edge fallback -->
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd"></script>
-    <!-- Firebase Realtime Database for Live Cross-Device Sync -->
+    
+    <!-- Firebase Realtime Database for Multi-Campus Live Sync -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 
@@ -46,7 +47,6 @@
 
         body { background-color: var(--duo-bg-main); color: var(--text-dark); display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding-bottom: 60px; overflow-x: hidden; }
 
-        /* ---------------- ANIMATIONS ---------------- */
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes popIn { 0% { transform: scale(0.92); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
         @keyframes radarScan { 0% { top: 0; opacity: 0; } 20% { opacity: 1; } 80% { opacity: 1; } 100% { top: 100%; opacity: 0; } }
@@ -55,33 +55,34 @@
 
         /* ---------------- AUTH OVERLAY ---------------- */
         .auth-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #f0fdf4 0%, #e0f2fe 100%); z-index: 2000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; transition: opacity 0.3s ease; }
-        .auth-card { width: 100%; max-width: 420px; text-align: center; display: flex; flex-direction: column; gap: 20px; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); padding: 40px 30px; border-radius: 32px; border: 2px solid var(--duo-card-border); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.1); animation: popIn 0.4s var(--transition-bounce); }
-        .auth-card h1 { font-weight: 900; font-size: 2.6rem; color: var(--duo-green); }
-        .auth-card p { font-weight: 700; color: var(--text-muted); line-height: 1.5; font-size: 1.05rem; }
-        .auth-input { width: 100%; border: 2px solid var(--duo-card-border); background: #f9fafb; padding: 18px; border-radius: var(--radius-lg); font-weight: 800; font-size: 1.1rem; outline: none; text-align: center; color: var(--text-dark); transition: var(--transition-smooth); }
+        .auth-card { width: 100%; max-width: 440px; text-align: center; display: flex; flex-direction: column; gap: 18px; background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(10px); padding: 36px 28px; border-radius: 32px; border: 2px solid var(--duo-card-border); box-shadow: 0 25px 50px -12px rgba(0,0,0,0.1); animation: popIn 0.4s var(--transition-bounce); }
+        .auth-card h1 { font-weight: 900; font-size: 2.4rem; color: var(--duo-green); }
+        .auth-card p { font-weight: 700; color: var(--text-muted); line-height: 1.4; font-size: 0.95rem; }
+        .auth-input { width: 100%; border: 2px solid var(--duo-card-border); background: #f9fafb; padding: 16px; border-radius: var(--radius-lg); font-weight: 800; font-size: 1.05rem; outline: none; text-align: center; color: var(--text-dark); transition: var(--transition-smooth); }
         .auth-input:focus { border-color: var(--duo-blue); background: white; box-shadow: 0 0 0 4px rgba(28, 176, 246, 0.15); }
+        .campus-select-box { text-align: left; font-weight: 800; font-size: 0.85rem; color: var(--text-muted); }
 
         /* ---------------- HEADER ---------------- */
         header { width: 100%; max-width: 540px; padding: 14px 20px; display: none; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--duo-card-border); background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); position: sticky; top: 0; z-index: 100; border-radius: 0 0 24px 24px; gap: 8px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.03); }
-        .header-brand { display: flex; align-items: center; gap: 10px; }
-        .logo-txt { font-weight: 900; font-size: 1.5rem; color: var(--duo-green); }
-        .header-controls { display: flex; align-items: center; gap: 8px; }
-        select.lang-picker { border: 2px solid var(--duo-card-border); border-radius: var(--radius-md); padding: 6px 10px; font-weight: 800; outline: none; cursor: pointer; font-size: 0.85rem; background: white; color: var(--text-dark); }
-        .user-avatar-tag { font-weight: 900; color: var(--duo-purple); text-transform: capitalize; background: #f1f0fe; padding: 8px 16px; border-radius: var(--radius-md); border: 2px solid #e2dbfc; }
+        .header-brand { display: flex; align-items: center; gap: 8px; }
+        .logo-txt { font-weight: 900; font-size: 1.4rem; color: var(--duo-green); }
+        .header-controls { display: flex; align-items: center; gap: 6px; }
+        select.lang-picker { border: 2px solid var(--duo-card-border); border-radius: var(--radius-md); padding: 6px 8px; font-weight: 800; outline: none; cursor: pointer; font-size: 0.8rem; background: white; color: var(--text-dark); }
+        .campus-badge-header { font-weight: 900; color: #0369a1; background: #e0f2fe; padding: 6px 12px; border-radius: var(--radius-md); font-size: 0.8rem; border: 1.5px solid #bae6fd; }
+        .user-avatar-tag { font-weight: 900; color: var(--duo-purple); text-transform: capitalize; background: #f1f0fe; padding: 6px 12px; border-radius: var(--radius-md); border: 2px solid #e2dbfc; font-size: 0.85rem; }
 
-        .mode-toggle-btn { background: #f1f5f9; border: 2px solid var(--duo-card-border); padding: 6px 12px; border-radius: var(--radius-md); font-weight: 900; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: var(--transition-smooth); }
-        .mode-toggle-btn:hover { transform: translateY(-2px); }
+        .mode-toggle-btn { background: #f1f5f9; border: 2px solid var(--duo-card-border); padding: 6px 10px; border-radius: var(--radius-md); font-weight: 900; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; gap: 4px; transition: var(--transition-smooth); }
         .mode-online { background: #e0f2fe; color: #0284c7; border-color: #bae6fd; }
         .mode-offline { background: #fef3c7; color: #d97706; border-color: #fde68a; }
 
         /* ---------------- STATUS & MAIN LAYOUT ---------------- */
-        .status-chips-row { width: 100%; max-width: 500px; display: none; gap: 12px; padding: 0 16px; margin-top: 20px; }
-        .status-chip { display: flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: var(--radius-md); font-weight: 800; font-size: 0.85rem; text-transform: uppercase; flex-grow: 1; justify-content: center; }
+        .status-chips-row { width: 100%; max-width: 500px; display: none; gap: 12px; padding: 0 16px; margin-top: 16px; }
+        .status-chip { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-radius: var(--radius-md); font-weight: 800; font-size: 0.85rem; text-transform: uppercase; flex-grow: 1; justify-content: center; }
         .chip-green { background: #e8f9e1; color: var(--duo-green); border: 2px solid #bceaa2; }
         .chip-blue { background: #e0f4fe; color: var(--duo-blue); border: 2px solid #9cd6f7; animation: pulseGlow 2s infinite; }
         .chip-purple { background: #f3e8ff; color: var(--duo-purple); border: 2px solid #d8b4fe; }
 
-        main { width: 100%; max-width: 540px; padding: 16px; display: none; flex-direction: column; gap: 24px; animation: fadeInUp 0.4s ease-out; }
+        main { width: 100%; max-width: 540px; padding: 16px; display: none; flex-direction: column; gap: 20px; animation: fadeInUp 0.4s ease-out; }
 
         /* ---------------- VIEWFINDER ---------------- */
         .viewport-frame { width: 100%; border-radius: 32px; overflow: hidden; border: 4px solid var(--duo-card-border); position: relative; background: var(--duo-bg-viewport); aspect-ratio: 4/3; box-shadow: 0 10px 0px #e5e7eb; }
@@ -94,39 +95,33 @@
         .radar-line { position: absolute; width: 100%; height: 2px; background: var(--duo-green); box-shadow: 0 0 8px 2px var(--duo-green); animation: radarScan 2s infinite linear; }
 
         /* ---------------- UI SCREENS & BUTTONS ---------------- */
-        .ui-screen { display: none; width: 100%; flex-direction: column; gap: 20px; }
+        .ui-screen { display: none; width: 100%; flex-direction: column; gap: 18px; }
         .ui-screen.active-screen { display: flex; animation: fadeInUp 0.3s ease-out; }
         .button-col { display: flex; flex-direction: column; gap: 12px; width: 100%; }
 
-        .btn-core { width: 100%; background: var(--duo-green); color: white; border: none; padding: 18px 24px; font-size: 1.2rem; font-weight: 900; border-radius: var(--radius-lg); text-transform: uppercase; cursor: pointer; box-shadow: 0 6px 0px var(--duo-green-shadow); transition: var(--transition-smooth); display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .btn-core { width: 100%; background: var(--duo-green); color: white; border: none; padding: 18px 24px; font-size: 1.15rem; font-weight: 900; border-radius: var(--radius-lg); text-transform: uppercase; cursor: pointer; box-shadow: 0 6px 0px var(--duo-green-shadow); transition: var(--transition-smooth); display: flex; align-items: center; justify-content: center; gap: 10px; }
         .btn-core:hover { transform: translateY(-2px); box-shadow: 0 8px 0px var(--duo-green-shadow); }
         .btn-core:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--duo-green-shadow); }
         .btn-core:disabled { background: #e5e7eb; color: #9ca3af; box-shadow: 0 6px 0 #d1d5db; cursor: not-allowed; transform: none; }
         
         .btn-blue { background: var(--duo-blue); box-shadow: 0 6px 0 var(--duo-blue-shadow); }
-        .btn-blue:hover { box-shadow: 0 8px 0 var(--duo-blue-shadow); }
-        .btn-blue:active { box-shadow: 0 2px 0 var(--duo-blue-shadow); }
         .btn-red { background: var(--duo-red); box-shadow: 0 6px 0 var(--duo-red-shadow); }
-        .btn-red:hover { box-shadow: 0 8px 0 var(--duo-red-shadow); }
-        .btn-red:active { box-shadow: 0 2px 0 var(--duo-red-shadow); }
         .btn-purple { background: var(--duo-purple); box-shadow: 0 6px 0 #8b4dd8; }
-        .btn-purple:hover { box-shadow: 0 8px 0 #8b4dd8; }
-        .btn-purple:active { box-shadow: 0 2px 0 #8b4dd8; }
 
         /* ---------------- CARDS & PROGRESS ---------------- */
-        .premium-card { background: white; border: 2px solid var(--duo-card-border); border-radius: var(--radius-xl); padding: 24px; box-shadow: 0 6px 12px -2px rgba(0,0,0,0.03); display: flex; flex-direction: column; gap: 16px; transition: var(--transition-smooth); }
+        .premium-card { background: white; border: 2px solid var(--duo-card-border); border-radius: var(--radius-xl); padding: 22px; box-shadow: 0 6px 12px -2px rgba(0,0,0,0.03); display: flex; flex-direction: column; gap: 14px; transition: var(--transition-smooth); }
         .premium-card:hover { border-color: #cbd5e1; transform: translateY(-2px); }
-        .premium-card h3 { font-size: 1.5rem; font-weight: 900; color: var(--text-dark); }
-        .meta-label { font-weight: 900; font-size: 1rem; color: var(--text-dark); display: flex; align-items: center; justify-content: space-between; text-transform: uppercase; }
-        .metric-highlight { font-weight: 900; color: var(--duo-green); background: #f0fdf4; padding: 8px 16px; border-radius: 12px; border: 1.5px solid #dcfce7; font-size: 1.1rem; text-align: center; }
-        select.category-override { border: 2px solid var(--duo-card-border); border-radius: var(--radius-md); padding: 14px; font-weight: 800; outline: none; cursor: pointer; color: var(--text-dark); font-size: 1.05rem; background: #f9fafb; width: 100%; margin-top: 4px; }
+        .premium-card h3 { font-size: 1.4rem; font-weight: 900; color: var(--text-dark); }
+        .meta-label { font-weight: 900; font-size: 0.95rem; color: var(--text-dark); display: flex; align-items: center; justify-content: space-between; text-transform: uppercase; }
+        .metric-highlight { font-weight: 900; color: var(--duo-green); background: #f0fdf4; padding: 10px 16px; border-radius: 12px; border: 1.5px solid #dcfce7; font-size: 1.15rem; text-align: center; }
+        select.category-override { border: 2px solid var(--duo-card-border); border-radius: var(--radius-md); padding: 12px; font-weight: 800; outline: none; cursor: pointer; color: var(--text-dark); font-size: 1rem; background: #f9fafb; width: 100%; margin-top: 4px; }
 
-        .progress-wrapper { width: 100%; display: none; flex-direction: column; gap: 10px; padding: 4px; }
-        .progress-label-row { display: flex; justify-content: space-between; font-weight: 900; font-size: 1rem; color: var(--text-dark); text-transform: uppercase; }
-        .progress-bar-container { width: 100%; height: 18px; background: #e5e7eb; border-radius: 20px; overflow: hidden; padding: 2px; }
+        .progress-wrapper { width: 100%; display: none; flex-direction: column; gap: 8px; padding: 4px; }
+        .progress-label-row { display: flex; justify-content: space-between; font-weight: 900; font-size: 0.95rem; color: var(--text-dark); text-transform: uppercase; }
+        .progress-bar-container { width: 100%; height: 16px; background: #e5e7eb; border-radius: 20px; overflow: hidden; padding: 2px; }
         .progress-bar-fill { width: 0%; height: 100%; background: linear-gradient(90deg, #58cc02 0%, #61e002 100%); border-radius: 20px; transition: width 0.4s ease; }
 
-        .warning-box { background: #fef2f2; border: 2px solid #fecaca; border-radius: var(--radius-md); padding: 14px; color: #b91c1c; font-weight: 800; font-size: 0.95rem; display: none; text-align: center; }
+        .warning-box { background: #fef2f2; border: 2px solid #fecaca; border-radius: var(--radius-md); padding: 12px; color: #b91c1c; font-weight: 800; font-size: 0.9rem; display: none; text-align: center; }
 
         /* ---------------- SMART BIN & TASKS ---------------- */
         .smart-bin-card { background: #f8fafc; border: 2px solid #e2e8f0; border-radius: var(--radius-lg); padding: 16px; display: flex; flex-direction: column; gap: 10px; }
@@ -138,58 +133,60 @@
         .bin-purple-target { background: #f3e8ff; color: #7e22ce; border: 1.5px solid #d8b4fe; }
         .recycle-guide-box { font-size: 0.95rem; color: #334155; font-weight: 700; line-height: 1.5; background: white; padding: 14px; border-radius: var(--radius-md); border: 1.5px dashed #cbd5e1; }
 
-        .step-item { display: flex; align-items: center; justify-content: space-between; padding: 18px 20px; border: 2px solid var(--duo-card-border); border-radius: var(--radius-lg); cursor: pointer; font-weight: 800; background: white; font-size: 1.1rem; transition: var(--transition-smooth); }
+        .step-item { display: flex; align-items: center; justify-content: space-between; padding: 16px 18px; border: 2px solid var(--duo-card-border); border-radius: var(--radius-lg); cursor: pointer; font-weight: 800; background: white; font-size: 1.05rem; transition: var(--transition-smooth); }
         .step-item:hover { border-color: #cbd5e1; background: #fafafa; transform: scale(1.01); }
-        .step-left { display: flex; align-items: center; gap: 16px; }
+        .step-left { display: flex; align-items: center; gap: 14px; }
         
-        .custom-check { width: 28px; height: 28px; border-radius: 50%; border: 3px solid var(--duo-card-border); display: flex; align-items: center; justify-content: center; background: white; font-size: 0.9rem; color: white; font-weight: 900; flex-shrink: 0; }
-        .step-xp-tag { color: var(--duo-green); font-weight: 900; font-size: 0.95rem; background: #f0fdf4; padding: 6px 12px; border-radius: 12px; border: 1px solid #bceaa2; }
+        .custom-check { width: 26px; height: 26px; border-radius: 50%; border: 3px solid var(--duo-card-border); display: flex; align-items: center; justify-content: center; background: white; font-size: 0.85rem; color: white; font-weight: 900; flex-shrink: 0; }
+        .step-xp-tag { color: var(--duo-green); font-weight: 900; font-size: 0.9rem; background: #f0fdf4; padding: 4px 10px; border-radius: 10px; border: 1px solid #bceaa2; }
         
         .step-item.completed-task { border-color: var(--duo-green); background: #f7fee7; color: var(--text-muted); text-decoration: line-through; }
         .step-item.completed-task .custom-check { background: var(--duo-green); border-color: var(--duo-green); }
         .step-item.completed-task .custom-check::before { content: '✓'; }
 
-        /* ---------------- DASHBOARD & IMPACT ---------------- */
-        .dashboard-grid { width: 100%; display: flex; flex-direction: column; gap: 20px; }
+        /* ---------------- DASHBOARD & MULTI-CAMPUS NAAC ---------------- */
+        .dashboard-grid { width: 100%; display: flex; flex-direction: column; gap: 18px; }
         
-        .profile-summary-card { background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%); display: flex; flex-direction: row; align-items: center; justify-content: space-between; border-radius: var(--radius-xl); padding: 20px 24px; border: 2px solid var(--duo-card-border); cursor: pointer; transition: var(--transition-smooth); }
+        .profile-summary-card { background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%); display: flex; flex-direction: row; align-items: center; justify-content: space-between; border-radius: var(--radius-xl); padding: 18px 22px; border: 2px solid var(--duo-card-border); cursor: pointer; transition: var(--transition-smooth); }
         .profile-summary-card:hover { transform: translateY(-2px); border-color: #cbd5e1; }
-        .profile-left { display: flex; align-items: center; gap: 16px; }
+        .profile-left { display: flex; align-items: center; gap: 14px; }
         
-        .profile-badge-avatar { width: 60px; height: 60px; border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; font-size: 2.2rem; color: white; }
+        .profile-badge-avatar { width: 56px; height: 56px; border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; font-size: 2rem; color: white; }
         .avatar-bronze { background: linear-gradient(135deg, #cd7f32 0%, #b06620 100%); }
         .avatar-silver { background: linear-gradient(135deg, #b5b8b1 0%, #939690 100%); }
         .avatar-gold { background: linear-gradient(135deg, #ffd700 0%, #e6be00 100%); }
         .avatar-diamond { background: linear-gradient(135deg, #45aaf2 0%, #2d98da 100%); }
         
-        .profile-details h2 { font-weight: 900; font-size: 1.4rem; color: var(--text-dark); }
-        .profile-details p { font-weight: 800; font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; margin-top: 2px; }
-        .header-xp-pill { text-align: right; font-weight: 900; font-size: 1.25rem; color: var(--duo-blue); background: #f0faff; border: 2px solid #dbf3ff; padding: 8px 16px; border-radius: var(--radius-lg); }
+        .profile-details h2 { font-weight: 900; font-size: 1.3rem; color: var(--text-dark); }
+        .profile-details p { font-weight: 800; font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; margin-top: 2px; }
+        .header-xp-pill { text-align: right; font-weight: 900; font-size: 1.15rem; color: var(--duo-blue); background: #f0faff; border: 2px solid #dbf3ff; padding: 6px 14px; border-radius: var(--radius-lg); }
 
-        .split-metrics-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; width: 100%; }
-        .metric-subcard { background: white; border: 2px solid var(--duo-card-border); border-radius: var(--radius-xl); padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; font-weight: 800; transition: var(--transition-smooth); }
+        .split-metrics-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; width: 100%; }
+        .metric-subcard { background: white; border: 2px solid var(--duo-card-border); border-radius: var(--radius-xl); padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; font-weight: 800; transition: var(--transition-smooth); }
         .metric-subcard:hover { transform: translateY(-2px); border-color: #cbd5e1; }
-        .metric-subcard-title { font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; font-weight: 900; }
-        .metric-subcard-val { font-size: 1.6rem; font-weight: 900; color: var(--text-dark); margin-top: 4px; }
-        .metric-badge-box { font-size: 1.8rem; width: 48px; height: 48px; background: #f3f4f6; border-radius: 14px; display: flex; align-items: center; justify-content: center; }
+        .metric-subcard-title { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 900; }
+        .metric-subcard-val { font-size: 1.45rem; font-weight: 900; color: var(--text-dark); margin-top: 2px; }
+        .metric-badge-box { font-size: 1.6rem; width: 44px; height: 44px; background: #f3f4f6; border-radius: 12px; display: flex; align-items: center; justify-content: center; }
 
-        .campus-impact-card { background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%); border: 2px solid #bbf7d0; border-radius: var(--radius-xl); padding: 22px; display: flex; flex-direction: column; gap: 14px; box-shadow: 0 4px 6px -1px rgba(22, 163, 74, 0.05); }
+        /* CAMPUS NAAC CARD */
+        .campus-impact-card { background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%); border: 2px solid #bbf7d0; border-radius: var(--radius-xl); padding: 20px; display: flex; flex-direction: column; gap: 14px; }
         .campus-impact-header { display: flex; justify-content: space-between; align-items: center; }
-        .campus-impact-title { font-weight: 900; font-size: 1.1rem; color: #166534; text-transform: uppercase; display: flex; align-items: center; gap: 8px; }
-        .campus-impact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .impact-metric-pill { background: white; border: 1.5px solid #dcfce7; padding: 12px 14px; border-radius: var(--radius-md); display: flex; flex-direction: column; }
+        .campus-impact-title { font-weight: 900; font-size: 1.05rem; color: #166534; text-transform: uppercase; display: flex; align-items: center; gap: 6px; }
+        .campus-impact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .impact-metric-pill { background: white; border: 1.5px solid #dcfce7; padding: 10px 12px; border-radius: var(--radius-md); display: flex; flex-direction: column; }
         .impact-metric-lbl { font-size: 0.75rem; color: #15803d; font-weight: 800; text-transform: uppercase; }
-        .impact-metric-num { font-size: 1.35rem; font-weight: 900; color: #166534; margin-top: 2px; }
+        .impact-metric-num { font-size: 1.25rem; font-weight: 900; color: #166534; margin-top: 2px; }
 
-        /* GLOBAL CAMPUS LEADERBOARD */
-        .campus-global-card { background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%); border-color: #cbd5e1; }
-        .global-aggregate-row { display: flex; justify-content: space-between; background: #f1f5f9; border-radius: var(--radius-md); padding: 12px; border: 1.5px solid #e2e8f0; }
-        .global-stat { display: flex; flex-direction: column; align-items: center; }
-        .global-stat-val { font-size: 1.2rem; font-weight: 900; color: var(--duo-blue); }
-        .global-stat-lbl { font-size: 0.7rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; }
-        .leaderboard-list { list-style: none; display: flex; flex-direction: column; gap: 8px; max-height: 250px; overflow-y: auto; padding-right: 4px; }
+        /* MULTI-CAMPUS COMPARISON TABLE */
+        .inter-campus-table { width: 100%; border-collapse: separate; border-spacing: 0 6px; font-size: 0.85rem; font-weight: 800; }
+        .inter-campus-table th { text-align: left; padding: 8px 10px; color: var(--text-muted); text-transform: uppercase; font-size: 0.75rem; }
+        .inter-campus-table td { padding: 10px; background: white; border-top: 1.5px solid var(--duo-card-border); border-bottom: 1.5px solid var(--duo-card-border); }
+        .inter-campus-table tr td:first-child { border-left: 1.5px solid var(--duo-card-border); border-radius: 12px 0 0 12px; }
+        .inter-campus-table tr td:last-child { border-right: 1.5px solid var(--duo-card-border); border-radius: 0 12px 12px 0; }
+        .inter-campus-table tr.active-campus-row td { background: #f0fdf4; border-color: #86efac; color: #166534; font-weight: 900; }
+
+        .leaderboard-list { list-style: none; display: flex; flex-direction: column; gap: 8px; max-height: 220px; overflow-y: auto; padding-right: 4px; }
         .leaderboard-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: white; border: 2px solid var(--duo-card-border); border-radius: var(--radius-md); transition: var(--transition-smooth); opacity: 0; animation: fadeInUp 0.4s forwards; }
-        .leaderboard-item:hover { transform: translateX(2px); border-color: #cbd5e1; }
         .leaderboard-left { display: flex; align-items: center; gap: 10px; }
         .rank-badge { width: 28px; height: 28px; border-radius: 50%; background: #e5e7eb; color: var(--text-muted); font-weight: 900; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; }
         .rank-1 { background: #fef08a; color: #d97706; border: 2px solid #fde68a; }
@@ -201,33 +198,28 @@
 
         .voice-bar-banner { display: flex; align-items: center; justify-content: space-between; background: #f8fafc; border: 2px solid var(--duo-card-border); padding: 12px 18px; border-radius: var(--radius-lg); }
         .btn-voice-replay { background: var(--duo-green); color: white; border: none; padding: 8px 14px; border-radius: 10px; font-weight: 900; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 3px 0 var(--duo-green-shadow); }
-        .btn-voice-replay:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--duo-green-shadow); }
 
-        .history-list { list-style: none; display: flex; flex-direction: column; gap: 12px; }
-        .history-item { background: white; padding: 16px; border-radius: var(--radius-lg); border: 2px solid var(--duo-card-border); display: flex; justify-content: space-between; align-items: center; font-weight: 800; opacity: 0; animation: fadeInUp 0.4s forwards; }
-        .history-tag { padding: 6px 12px; border-radius: 10px; color: white; font-size: 0.85rem; font-weight: 900; background-color: var(--duo-blue); }
+        .history-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+        .history-item { background: white; padding: 14px 16px; border-radius: var(--radius-lg); border: 2px solid var(--duo-card-border); display: flex; justify-content: space-between; align-items: center; font-weight: 800; opacity: 0; animation: fadeInUp 0.4s forwards; }
+        .history-tag { padding: 4px 10px; border-radius: 8px; color: white; font-size: 0.85rem; font-weight: 900; background-color: var(--duo-blue); }
 
-        .tree-section-header { text-align: center; font-weight: 900; font-size: 1.4rem; color: var(--text-dark); border-top: 2px dashed var(--duo-card-border); padding-top: 28px; margin-top: 10px; }
-        .duo-tree-map { display: flex; flex-direction: column; align-items: center; gap: 26px; width: 100%; padding: 24px 0; background: #ffffff; border: 2px solid var(--duo-card-border); border-radius: 32px; box-shadow: 0 10px 0px #e5e7eb; position: relative; }
-        .tree-node { width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: 900; color: white; position: relative; cursor: pointer; transition: var(--transition-bounce); z-index: 10; }
-        .tree-node:hover { transform: scale(1.1) translateY(-2px); }
-        
+        .tree-section-header { text-align: center; font-weight: 900; font-size: 1.3rem; color: var(--text-dark); border-top: 2px dashed var(--duo-card-border); padding-top: 24px; margin-top: 6px; }
+        .duo-tree-map { display: flex; flex-direction: column; align-items: center; gap: 24px; width: 100%; padding: 22px 0; background: #ffffff; border: 2px solid var(--duo-card-border); border-radius: 32px; box-shadow: 0 10px 0px #e5e7eb; position: relative; }
+        .tree-node { width: 76px; height: 76px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.9rem; font-weight: 900; color: white; position: relative; cursor: pointer; transition: var(--transition-bounce); z-index: 10; }
         .node-bronze-active { background: linear-gradient(135deg, #cd7f32 0%, #b06620 100%); box-shadow: 0 7px 0 #a05a15; }
         .node-silver-active { background: linear-gradient(135deg, #b5b8b1 0%, #939690 100%); box-shadow: 0 7px 0 #8a8d88; }
         .node-gold-active { background: linear-gradient(135deg, #ffd700 0%, #e6be00 100%); box-shadow: 0 7px 0 #cca300; color: #3c3c3c; }
         .node-diamond-active { background: linear-gradient(135deg, #45aaf2 0%, #2d98da 100%); box-shadow: 0 7px 0 #2d98da; }
         .node-completed { background: linear-gradient(135deg, #58cc02 0%, #46a302 100%); box-shadow: 0 7px 0 #46a302; }
         .node-locked { background: #e5e7eb; box-shadow: 0 7px 0 #cbd5e1; cursor: not-allowed; color: #9ca3af; }
-        
-        .node-left { transform: translateX(-48px); }
-        .node-right { transform: translateX(48px); }
-        
-        .tree-node::after { content: ''; position: absolute; width: 8px; height: 30px; background: var(--duo-card-border); bottom: -34px; left: 50%; transform: translateX(-50%); z-index: -1; }
+        .node-left { transform: translateX(-44px); }
+        .node-right { transform: translateX(44px); }
+        .tree-node::after { content: ''; position: absolute; width: 8px; height: 28px; background: var(--duo-card-border); bottom: -32px; left: 50%; transform: translateX(-50%); z-index: -1; }
         .tree-node:last-child::after { display: none; }
         .node-completed::after { background: var(--duo-green); }
 
         .modal-popup { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(6px); z-index: 3000; align-items: center; justify-content: center; padding: 24px; }
-        .modal-content { background: white; width: 100%; max-width: 420px; padding: 32px 24px; border-radius: 28px; border: 2px solid var(--duo-card-border); text-align: center; display: flex; flex-direction: column; gap: 18px; }
+        .modal-content { background: white; width: 100%; max-width: 420px; padding: 30px 24px; border-radius: 28px; border: 2px solid var(--duo-card-border); text-align: center; display: flex; flex-direction: column; gap: 16px; }
 
         #statusLogger { text-align: center; font-weight: 900; color: var(--text-muted); font-size: 0.95rem; }
         .reward-blast { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 3.5rem; z-index: 4000; display: none; pointer-events: none; font-weight: 900; color: var(--duo-blue); }
@@ -236,36 +228,50 @@
 </head>
 <body>
 
+    <!-- AUTH OVERLAY WITH CAMPUS SELECT -->
     <div class="auth-overlay" id="authGate">
         <div class="auth-card">
-            <img src="assets/images/Mascot.webp" alt="EcoLens Mascot" style="width:115px; height:115px; margin:0 auto; object-fit:contain;">
+            <img src="assets/images/Mascot.webp" alt="EcoLens Mascot" style="width:105px; height:105px; margin:0 auto; object-fit:contain;">
             <h1 id="authTitle">EcoLens Pro</h1>
-            <p id="authSubtitle">Institutional Edge AI Smart Bin Waste Sorting &amp; Sustainability Ecosystem.</p>
-            <input type="text" id="usernameInput" class="auth-input" placeholder="Enter Username...">
-            <button id="loginSubmitBtn" class="btn-core">Enter Dashboard 🚀</button>
+            <p id="authSubtitle">Institutional Edge AI Smart Bin Waste Sorting &amp; Multi-Campus NAAC Ecosystem.</p>
+            
+            <input type="text" id="usernameInput" class="auth-input" placeholder="Enter Your Name...">
+            
+            <div class="campus-select-box">
+                <label for="campusSelect">📍 Select University / Campus Hub:</label>
+                <select id="campusSelect" class="auth-input" style="margin-top:6px; font-weight:900; cursor:pointer;">
+                    <option value="BWU" selected>🏫 Brainware University (BWU)</option>
+                    <option value="JU">🏛️ Jadavpur University (JU)</option>
+                    <option value="TIU">🏢 Techno India University (TIU)</option>
+                </select>
+            </div>
+
+            <button id="loginSubmitBtn" class="btn-core">Enter Campus Dashboard 🚀</button>
         </div>
     </div>
 
+    <!-- MAIN HEADER -->
     <header id="mainHeader">
         <div class="header-brand">
             <span class="logo-txt">EcoLens</span>
+            <span class="campus-badge-header" id="headerCampusBadge">BWU Campus</span>
             <select id="langSelect" class="lang-picker">
-                <option value="en">English</option>
+                <option value="en">EN</option>
                 <option value="bn">বাংলা</option>
                 <option value="hi">हिंदी</option>
             </select>
         </div>
         <div class="header-controls">
-            <button id="modeToggleBtn" class="mode-toggle-btn mode-offline" title="Click to Switch AI Engine">
-                <span>💻 Offline Mode</span>
+            <button id="modeToggleBtn" class="mode-toggle-btn mode-online" title="Switch AI Engine">
+                <span>🌐 Online</span>
             </button>
             <span class="user-avatar-tag" id="profileNameDisplay">User</span>
         </div>
     </header>
 
     <div class="status-chips-row" id="statusChipsRow">
-        <div class="status-chip chip-green" id="weightActiveChip">✓ Edge AI Ready</div>
-        <div class="status-chip chip-blue" id="cameraStatusChip">🎥 Camera Initializing</div>
+        <div class="status-chip chip-purple" id="weightActiveChip">✨ Gemini Vision Active</div>
+        <div class="status-chip chip-blue" id="cameraStatusChip">🎥 Camera Active</div>
     </div>
 
     <main id="mainAppContent">
@@ -278,7 +284,7 @@
             <div class="progress-bar-container"><div class="progress-bar-fill" id="progressFill"></div></div>
         </div>
 
-        <p id="statusLogger">Initializing Operational Engine Parameters...</p>
+        <p id="statusLogger">Online Mode Active: Position camera and capture photo.</p>
 
         <div class="viewport-frame" id="viewportFrame">
             <div class="cv-reticle" id="reticle"><div class="radar-line"></div></div>
@@ -295,9 +301,7 @@
                 <div class="meta-label">
                     <span id="lblDetectionHeadline">🤖 AI Detected Object:</span>
                 </div>
-                <div class="metric-highlight" id="lblDetectedText" style="text-align:center; font-size:1.2rem; margin-top:2px;">
-                    Detecting...
-                </div>
+                <div class="metric-highlight" id="lblDetectedText">Detecting...</div>
 
                 <!-- SMART BIN ROUTING & RECYCLING GUIDE -->
                 <div class="smart-bin-card" id="smartBinContainer">
@@ -310,13 +314,12 @@
                     </div>
                 </div>
 
-                <!-- Voice Replay & Guidance Assistant -->
+                <!-- Voice Replay -->
                 <div class="voice-bar-banner">
                     <span style="font-weight:900; font-size:0.95rem; color:#1e293b;" id="lblVoicePrompt">🔊 Voice Assistant</span>
                     <button class="btn-voice-replay" id="btnVoiceReplay" onclick="EcoVoice.replayLast()">▶ Listen</button>
                 </div>
 
-                <!-- Living Being Warning Box -->
                 <div class="warning-box" id="livingBeingWarning">
                     ⚠️ Living Being Detected! Please point the camera at discarded waste items only.
                 </div>
@@ -324,7 +327,6 @@
                 <label for="categoryOverride" id="lblYoloAssignment" style="font-weight: 800; font-size: 0.95rem; color: var(--text-muted);">
                     Verify the official waste category classification below:
                 </label>
-                
                 <select id="categoryOverride" class="category-override"></select>
             </div>
             
@@ -351,6 +353,7 @@
             <button id="submitProofPhotoBtn" class="btn-core btn-blue">Snap Proof &amp; Claim XP 🏆</button>
         </div>
 
+        <!-- DASHBOARDS -->
         <div class="dashboard-grid">
             <div class="profile-summary-card" id="activeProfileBoxContainer">
                 <div class="profile-left">
@@ -382,49 +385,61 @@
                 </div>
             </div>
 
-            <!-- PERSONAL CAMPUS IMPACT DASHBOARD -->
+            <!-- MY CAMPUS SPECIFIC NAAC IMPACT -->
             <div class="campus-impact-card">
                 <div class="campus-impact-header">
-                    <span class="campus-impact-title" id="lblCampusImpactTitle">🌱 My Campus Impact</span>
-                    <span style="font-size:0.75rem; font-weight:900; color:#16a34a; background:#dcfce7; padding:4px 10px; border-radius:8px;">NAAC Metrics</span>
+                    <span class="campus-impact-title" id="lblMyCampusNaacTitle">🌱 My Campus NAAC Impact</span>
+                    <span style="font-size:0.75rem; font-weight:900; color:#16a34a; background:#dcfce7; padding:4px 10px; border-radius:8px;" id="currentCampusTagBadge">BWU Hub</span>
                 </div>
                 <div class="campus-impact-grid">
                     <div class="impact-metric-pill">
-                        <span class="impact-metric-lbl" id="lblDiverted">📦 Landfill Diverted</span>
+                        <span class="impact-metric-lbl">📦 Landfill Diverted</span>
                         <span class="impact-metric-num" id="statDiverted">0.00 kg</span>
                     </div>
                     <div class="impact-metric-pill">
-                        <span class="impact-metric-lbl" id="lblCo2">💨 CO₂ Prevented</span>
+                        <span class="impact-metric-lbl">💨 CO₂ Prevented</span>
                         <span class="impact-metric-num" id="statCo2">0.00 kg</span>
                     </div>
                     <div class="impact-metric-pill">
-                        <span class="impact-metric-lbl" id="lblCompost">🌿 Compost Yield</span>
+                        <span class="impact-metric-lbl">🌿 Compost Yield</span>
                         <span class="impact-metric-num" id="statCompost">0.00 kg</span>
                     </div>
                     <div class="impact-metric-pill">
-                        <span class="impact-metric-lbl" id="lblItemsScanned">🔢 Verified Items</span>
+                        <span class="impact-metric-lbl">🔢 Verified Scans</span>
                         <span class="impact-metric-num" id="statScans">0</span>
                     </div>
                 </div>
             </div>
 
-            <!-- GLOBAL CAMPUS LEADERBOARD -->
-            <div class="campus-global-card premium-card">
-                <div class="campus-impact-header" style="margin-bottom: 8px;">
-                    <span class="campus-impact-title" id="lblGlobalImpactTitle">🌍 Global Campus Impact</span>
+            <!-- INTER-CAMPUS NAAC BENCHMARK TABLE -->
+            <div class="premium-card">
+                <div class="campus-impact-header">
+                    <span class="campus-impact-title" style="color: #0369a1;">🏛️ Inter-Campus NAAC Matrix</span>
                     <span style="font-size:0.75rem; font-weight:900; color:#0284c7; background:#e0f2fe; padding:4px 10px; border-radius:8px;">Live Network</span>
                 </div>
                 
-                <div class="global-aggregate-row">
-                    <div class="global-stat"><span class="global-stat-val" id="gStatDiverted">0.00 kg</span><span class="global-stat-lbl">Total Diverted</span></div>
-                    <div class="global-stat"><span class="global-stat-val" id="gStatCo2">0.00 kg</span><span class="global-stat-lbl">CO₂ Saved</span></div>
-                    <div class="global-stat"><span class="global-stat-val" id="gStatScans">0</span><span class="global-stat-lbl">Total Scans</span></div>
-                </div>
+                <table class="inter-campus-table" id="campusNaacTable">
+                    <thead>
+                        <tr>
+                            <th>Campus Hub</th>
+                            <th>Diverted</th>
+                            <th>CO₂ Saved</th>
+                            <th>Audits</th>
+                        </tr>
+                    </thead>
+                    <tbody id="campusNaacBody">
+                        <!-- Populated dynamically via Firebase -->
+                    </tbody>
+                </table>
+            </div>
 
-                <h4 id="lblTopContributors" style="font-size: 0.9rem; font-weight: 900; text-transform: uppercase; color: var(--text-muted); margin-top: 16px; border-bottom: 2px dashed var(--duo-card-border); padding-bottom: 8px;">🏆 Top Campus Contributors</h4>
-                <ul class="leaderboard-list" id="globalLeaderboardList">
-                    <!-- Populated dynamically -->
-                </ul>
+            <!-- LOCAL CAMPUS LEADERBOARD -->
+            <div class="premium-card">
+                <div class="campus-impact-header" style="margin-bottom: 8px;">
+                    <span class="campus-impact-title" id="lblGlobalImpactTitle">🏆 Campus Leaderboard</span>
+                    <span style="font-size:0.75rem; font-weight:900; color:#0284c7; background:#e0f2fe; padding:4px 10px; border-radius:8px;" id="lblRankCampusPill">BWU</span>
+                </div>
+                <ul class="leaderboard-list" id="globalLeaderboardList"></ul>
             </div>
 
             <div class="dashboard-panel premium-card">
@@ -440,8 +455,8 @@
     <!-- LEVEL INFO MODAL -->
     <div class="modal-popup" id="levelInfoModal">
         <div class="modal-content">
-            <h3 id="modalTitle">Status Blueprint</h3>
-            <p id="modalDescription">System diagnostics information.</p>
+            <h3 id="modalTitle" style="color:var(--text-dark); font-weight:900; font-size:1.5rem;">Status Blueprint</h3>
+            <p id="modalDescription" style="color:var(--text-muted); font-size:1rem; font-weight:700; white-space: pre-wrap;">System diagnostics information.</p>
             <button id="modalCloseBtn" class="btn-core btn-blue">Got it! 👍</button>
         </div>
     </div>
@@ -450,12 +465,38 @@
 
     <script>
         // ==========================================
-        // ⚠️ API KEY CONFIGURATION ⚠️
+        // 1. CONFIGURATION & STATE
         // ==========================================
         const GEMINI_API_KEY = "AQ.Ab8RN6IMEcTRbwpv2IvyqDP8bP5qwSwgMruSwpFnTiKjGDhIFg"; 
         
-        let isOnlineMode = false;
+        let isOnlineMode = true; 
+        let selectedCampus = "BWU";
+        let currentUser = "";
+        let userXP = 0;
+        let loggedQuests = [];
+        let sessionEarnedXP = 0;
+        let demoOverrideActive = false; 
+        let selectedItemKey = "non-biodegradable"; 
+        let isProcessingSecondaryProof = false;
+        let cocoModel = null; 
+        let liveTrackingActive = false;
+        let currentDetectedComponents = [];
 
+        const CAMPUS_NAMES = {
+            "BWU": "Brainware University",
+            "JU": "Jadavpur University",
+            "TIU": "Techno India University"
+        };
+
+        // RESTORED LEAGUE SYSTEM
+        const LEAGUE_BRACKETS = [
+            { name: "Bronze League", icon: "🥉", class: "avatar-bronze", minXp: 0, desc: "Welcome to Bronze League! Scan items to earn XP." },
+            { name: "Silver League", icon: "🥈", class: "avatar-silver", minXp: 250, desc: "Silver League Active! Great job recycling." },
+            { name: "Gold League", icon: "🥇", class: "avatar-gold", minXp: 700, desc: "Gold Medal Status! You are a campus leader." },
+            { name: "Diamond League", icon: "💎", class: "avatar-diamond", minXp: 1350, desc: "The Elite Diamond Rank! Ultimate sustainability master." }
+        ];
+
+        // UI Selectors
         const video = document.getElementById('cameraFeed');
         const canvas = document.getElementById('photoCanvas');
         const statusLogger = document.getElementById('statusLogger');
@@ -474,10 +515,12 @@
 
         const authGate = document.getElementById('authGate');
         const usernameInput = document.getElementById('usernameInput');
+        const campusSelect = document.getElementById('campusSelect');
         const loginSubmitBtn = document.getElementById('loginSubmitBtn');
         const mainHeader = document.getElementById('mainHeader');
         const mainAppContent = document.getElementById('mainAppContent');
         const profileNameDisplay = document.getElementById('profileNameDisplay');
+        const headerCampusBadge = document.getElementById('headerCampusBadge');
         const langSelect = document.getElementById('langSelect');
         const modeToggleBtn = document.getElementById('modeToggleBtn');
 
@@ -507,20 +550,8 @@
         const questCancelBtn = document.getElementById('questCancelBtn');
         const submitProofPhotoBtn = document.getElementById('submitProofPhotoBtn');
 
-        let selectedItemKey = "non-biodegradable"; 
-        let isProcessingSecondaryProof = false;
-        let currentUser = "";
-        let userXP = 0;
-        let loggedQuests = [];
-        let sessionEarnedXP = 0;
-        let demoOverrideActive = false; 
-        
-        let cocoModel = null; 
-        let liveTrackingActive = false;
-        let currentDetectedComponents = [];
-
         // ==========================================
-        // 1. RECYCLING & SMART BIN ROUTING DATABASE
+        // 2. SMART BIN ROUTING DATABASE
         // ==========================================
         const SMART_BIN_CONFIG = {
             "biodegradable": {
@@ -556,7 +587,7 @@
         };
 
         // ==========================================
-        // 2. ENHANCED MULTILINGUAL VOICE ASSISTANT
+        // 3. VOICE ASSISTANT
         // ==========================================
         const EcoVoice = {
             lastSpokenText: "",
@@ -572,34 +603,34 @@
 
             prompts: {
                 "biodegradable": { 
-                    en: "Biodegradable organic waste detected. Please dispose of this in the Green Compost Bin to help create fertilizer.", 
-                    hi: "बायोडिग्रेडेबल जैविक कचरा मिला है। कृपया इसे हरे कम्पोस्ट बिन में डालें ताकि खाद बन सके।", 
-                    bn: "বায়োডিগ্রেডেবল জৈব বর্জ্য শনাক্ত হয়েছে। সার তৈরির জন্য অনুগ্রহ করে এটি সবুজ কম্পোস্ট বিনে ফেলুন।" 
+                    en: "Biodegradable organic waste detected. Please dispose of this in the Green Compost Bin to create natural compost.", 
+                    hi: "बायोडिग्रेडेबल जैविक कचरा मिला है। कृपया इसे हरे कम्पोस्ट बिन में डालें।", 
+                    bn: "বায়োডিগ্রেডেবল জৈব বর্জ্য শনাক্ত হয়েছে। সার তৈরির জন্য এটি সবুজ বিনে ফেলুন।" 
                 },
                 "non-biodegradable": { 
-                    en: "Recyclable waste detected. Remember to empty any liquids and crush the item before placing it in the Blue Bin.", 
-                    hi: "रीसाइक्लिंग कचरा मिला है। कृपया नीले डिब्बे में डालने से पहले तरल पदार्थ खाली करें और वस्तु को कुचल दें।", 
-                    bn: "পুনর্ব্যবহারযোগ্য বর্জ্য শনাক্ত হয়েছে। নীল বিনে রাখার আগে তরল খালি করতে এবং বস্তুটি দুমড়ে ফেলতে ভুলবেন না।" 
+                    en: "Recyclable dry waste detected. Empty any liquid and crush the body before placing it in the Blue Bin.", 
+                    hi: "रीसाइक्लिंग कचरा मिला है। कृपया नीले डिब्बे में डालने से पहले तरल पदार्थ खाली करें।", 
+                    bn: "পুনর্ব্যবহারযোগ্য বর্জ্য শনাক্ত হয়েছে। নীল বিনে রাখার আগে তরল খালি করে ফেলুন।" 
                 },
                 "hazardous": { 
-                    en: "Warning. Hazardous E-waste detected. Do not mix this with regular trash. Please take it to the designated Red E-Waste Kiosk immediately.", 
-                    hi: "चेतावनी। खतरनाक ई-कचरा मिला है। इसे सामान्य कचरे के साथ न मिलाएं। कृपया इसे लाल ई-कचरा कियोस्क पर ले जाएं।", 
-                    bn: "সতর্কতা। বিপজ্জনক ই-বর্জ্য শনাক্ত হয়েছে। সাধারণ আবর্জনার সাথে এটি মেশাবেন না। অনুগ্রহ করে এটি লাল ই-বর্জ্য কিওস্কে নিয়ে যান।" 
+                    en: "Warning. Hazardous electronic waste detected. Take this immediately to the Red E-Waste kiosk.", 
+                    hi: "चेतावनी। खतरनाक ई-कचरा मिला है। कृपया इसे लाल ई-कचरा कियोस्क पर ले जाएं।", 
+                    bn: "সতর্কতা। বিপজ্জনক ই-বর্জ্য শনাক্ত হয়েছে। অনুগ্রহ করে এটি লাল কিওস্কে জমা দিন।" 
                 },
                 "inert": { 
-                    en: "Inert heavy waste detected. Please transfer this debris to the grey stream for civil works collection.", 
-                    hi: "अक्रिय भारी मलबा मिला है। कृपया इस मलबे को निर्माण संग्रह के लिए ग्रे डिब्बे में डालें।", 
-                    bn: "নিষ্ক্রিয় ভারী বর্জ্য শনাক্ত হয়েছে। অনুগ্রহ করে এই ধ্বংসাবশেষ ধূসর বিনে স্থানান্তর করুন।" 
+                    en: "Inert heavy waste detected. Transfer this debris to the grey stream.", 
+                    hi: "अक्रिय भारी मलबा मिला है। इसे ग्रे डिब्बे में डालें।", 
+                    bn: "নিষ্ক্রিয় ভারী বর্জ্য শনাক্ত হয়েছে। এটি ধূসর বিনে রাখুন।" 
                 },
                 "mixed": { 
-                    en: "Mixed waste pile detected. You must physically separate these different materials into their correct bins to prevent contamination. Check the screen for disposal steps.", 
-                    hi: "मिश्रित कचरा मिला है। संदूषण को रोकने के लिए आपको इन सामग्रियों को उनके सही डिब्बे में अलग करना होगा।", 
-                    bn: "মিশ্র বর্জ্য শনাক্ত হয়েছে। দূষণ রোধ করতে আপনার এই উপাদানগুলোকে সঠিক বিনে আলাদা করে ফেলা উচিত।" 
+                    en: "Mixed waste pile detected. You must separate these materials into their respective colored smart bins.", 
+                    hi: "मिश्रित कचरा मिला है। आपको इन सामग्रियों को उनके सही डिब्बे में अलग करना होगा।", 
+                    bn: "মিশ্র বর্জ্য শনাক্ত হয়েছে। অনুগ্রহ করে জিনিসগুলো আলাদা করে সঠিক বিনে ফেলুন।" 
                 },
                 "living_being": { 
-                    en: "Living being detected. Please point the camera only at discarded waste items.", 
-                    hi: "जीवित प्राणी पहचाना गया है। कृपया कैमरा केवल कचरे पर केंद्रित करें।", 
-                    bn: "জীবিত প্রাণী শনাক্ত হয়েছে। অনুগ্রহ করে ক্যামেরা কেবল বর্জ্য পদার্থের দিকে রাখুন।" 
+                    en: "Living being detected. Please point the camera only at campus waste.", 
+                    hi: "जीवित प्राणी पहचाना गया है। कृपया कैमरा कचरे पर रखें।", 
+                    bn: "জীবিত প্রাণী শনাক্ত হয়েছে। ক্যামেরা বর্জ্য বস্তুর দিকে রাখুন।" 
                 }
             },
 
@@ -613,15 +644,9 @@
                 
                 this.lastSpokenText = text;
                 const utterance = new SpeechSynthesisUtterance(text);
+                if (!this.cachedVoices.length) this.cachedVoices = window.speechSynthesis.getVoices();
 
-                if (!this.cachedVoices.length) {
-                    this.cachedVoices = window.speechSynthesis.getVoices();
-                }
-
-                let targetPrefix = 'en';
-                if (currentLang === 'bn') targetPrefix = 'bn';
-                else if (currentLang === 'hi') targetPrefix = 'hi';
-
+                let targetPrefix = (currentLang === 'bn') ? 'bn' : (currentLang === 'hi') ? 'hi' : 'en';
                 const matchedVoice = this.cachedVoices.find(v => v.lang.toLowerCase().startsWith(targetPrefix));
                 if (matchedVoice) {
                     utterance.voice = matchedVoice;
@@ -635,31 +660,14 @@
             },
 
             replayLast: function() {
-                if (!this.lastSpokenText && selectedItemKey) {
-                    this.speak(selectedItemKey);
-                    return;
-                }
-                if (this.lastSpokenText && ('speechSynthesis' in window)) {
-                    window.speechSynthesis.cancel();
-                    const currentLang = langSelect ? langSelect.value : 'en';
-                    const utterance = new SpeechSynthesisUtterance(this.lastSpokenText);
-                    
-                    if (!this.cachedVoices.length) this.cachedVoices = window.speechSynthesis.getVoices();
-                    let targetPrefix = (currentLang === 'bn') ? 'bn' : (currentLang === 'hi') ? 'hi' : 'en';
-                    const matchedVoice = this.cachedVoices.find(v => v.lang.toLowerCase().startsWith(targetPrefix));
-                    
-                    if (matchedVoice) utterance.voice = matchedVoice;
-                    utterance.lang = (currentLang === 'bn') ? 'bn-IN' : (currentLang === 'hi') ? 'hi-IN' : 'en-US';
-                    utterance.rate = 0.92;
-                    window.speechSynthesis.speak(utterance);
-                }
+                if (selectedItemKey) this.speak(selectedItemKey);
             }
         };
 
         EcoVoice.init();
 
         // ==========================================
-        // 3. CLOUD CAMPUS NETWORK: REAL-TIME NAAC SYNC
+        // 4. FIREBASE MULTI-CAMPUS NAAC & NETWORK
         // ==========================================
         const firebaseConfig = {
             databaseURL: "https://ecolens-live-default-rtdb.asia-southeast1.firebasedatabase.app"
@@ -671,28 +679,40 @@
         const db = firebase.database();
 
         const CampusNetwork = {
-            dbRef: db.ref('campus_leaderboard'),
+            campusStats: {},
+            leaderboardData: {},
 
             init: function() {
-                this.dbRef.on('value', (snapshot) => {
-                    const cloudData = snapshot.val();
-                    if (cloudData) {
-                        this.data = cloudData;
+                db.ref('campuses_naac').on('value', (snapshot) => {
+                    const data = snapshot.val();
+                    if (data) {
+                        this.campusStats = data;
                     } else {
-                        this.data = {
-                            "Aditi_CSE": { xp: 1250, divertedKg: 14.5, co2SavedKg: 18.2, compostKg: 5.0, scans: 142 },
-                            "Rohan_Mech": { xp: 840, divertedKg: 8.2, co2SavedKg: 10.1, compostKg: 2.1, scans: 89 },
-                            "Priya_Bio": { xp: 2100, divertedKg: 25.4, co2SavedKg: 30.5, compostKg: 12.0, scans: 256 }
+                        this.campusStats = {
+                            "BWU": { divertedKg: 42.8, co2SavedKg: 53.4, scans: 380, name: "Brainware Univ (BWU)" },
+                            "JU": { divertedKg: 38.2, co2SavedKg: 46.1, scans: 310, name: "Jadavpur Univ (JU)" },
+                            "TIU": { divertedKg: 29.5, co2SavedKg: 35.8, scans: 240, name: "Techno India (TIU)" }
                         };
                     }
-                    this.updateGlobalUI();
+                    this.renderInterCampusTable();
+                    this.updateMyCampusAggregates();
+                });
+
+                db.ref(`leaderboards/${selectedCampus}`).on('value', (snapshot) => {
+                    const data = snapshot.val();
+                    this.leaderboardData = data || {
+                        "Aditi_CSE": { xp: 1250, divertedKg: 14.5, scans: 142 },
+                        "Rohan_AIML": { xp: 920, divertedKg: 9.1, scans: 95 }
+                    };
+                    this.renderCampusLeaderboard();
                 });
             },
 
             updateUser: function(username, personalImpactData, userXp) {
                 if (!username) return;
                 const safeKey = username.replace(/[.#$[\]]/g, "_");
-                db.ref(`campus_leaderboard/${safeKey}`).set({
+
+                db.ref(`leaderboards/${selectedCampus}/${safeKey}`).set({
                     xp: userXp,
                     divertedKg: personalImpactData.divertedKg,
                     co2SavedKg: personalImpactData.co2SavedKg,
@@ -700,32 +720,66 @@
                     scans: personalImpactData.scans,
                     lastActive: Date.now()
                 });
+
+                const campusRef = db.ref(`campuses_naac/${selectedCampus}`);
+                campusRef.transaction((current) => {
+                    if (!current) {
+                        return {
+                            name: CAMPUS_NAMES[selectedCampus],
+                            divertedKg: personalImpactData.divertedKg,
+                            co2SavedKg: personalImpactData.co2SavedKg,
+                            scans: personalImpactData.scans
+                        };
+                    }
+                    return {
+                        name: CAMPUS_NAMES[selectedCampus],
+                        divertedKg: (current.divertedKg || 0) + 0.12,
+                        co2SavedKg: (current.co2SavedKg || 0) + 0.15,
+                        scans: (current.scans || 0) + 1
+                    };
+                });
             },
 
-            updateGlobalUI: function() {
-                let totalDiverted = 0; let totalCo2 = 0; let totalScans = 0;
-                const usersArray = [];
+            renderInterCampusTable: function() {
+                const tbody = document.getElementById('campusNaacBody');
+                if (!tbody) return;
+                tbody.innerHTML = "";
 
-                for (const [uname, stats] of Object.entries(this.data)) {
-                    totalDiverted += stats.divertedKg || 0;
-                    totalCo2 += stats.co2SavedKg || 0;
-                    totalScans += stats.scans || 0;
-                    usersArray.push({ name: uname, ...stats });
-                }
+                const entries = Object.entries(this.campusStats);
+                entries.sort((a, b) => (b[1].divertedKg || 0) - (a[1].divertedKg || 0));
 
-                const gDivertedElem = document.getElementById('gStatDiverted');
-                const gCo2Elem = document.getElementById('gStatCo2');
-                const gScansElem = document.getElementById('gStatScans');
+                entries.forEach(([cCode, stats]) => {
+                    const isMyCampus = cCode === selectedCampus;
+                    const tr = document.createElement('tr');
+                    if (isMyCampus) tr.className = "active-campus-row";
 
-                if (gDivertedElem) gDivertedElem.innerText = totalDiverted.toFixed(2) + " kg";
-                if (gCo2Elem) gCo2Elem.innerText = totalCo2.toFixed(2) + " kg";
-                if (gScansElem) gScansElem.innerText = totalScans;
+                    tr.innerHTML = `
+                        <td><strong>${cCode}</strong> ${isMyCampus ? '<span style="font-size:0.7rem; color:#16a34a;">(Active)</span>' : ''}</td>
+                        <td>${(stats.divertedKg || 0).toFixed(1)} kg</td>
+                        <td>${(stats.co2SavedKg || 0).toFixed(1)} kg</td>
+                        <td>${stats.scans || 0}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            },
 
-                usersArray.sort((a, b) => (b.divertedKg || 0) - (a.divertedKg || 0));
+            updateMyCampusAggregates: function() {
+                const cStats = this.campusStats[selectedCampus] || { divertedKg: 0, co2SavedKg: 0, scans: 0 };
+                const currentBadge = document.getElementById('currentCampusTagBadge');
+                if (currentBadge) currentBadge.innerText = `${selectedCampus} Campus`;
+            },
 
+            renderCampusLeaderboard: function() {
                 const lbList = document.getElementById('globalLeaderboardList');
                 if (!lbList) return;
                 lbList.innerHTML = "";
+
+                const usersArray = [];
+                for (const [uname, stats] of Object.entries(this.leaderboardData)) {
+                    usersArray.push({ name: uname, ...stats });
+                }
+
+                usersArray.sort((a, b) => (b.divertedKg || 0) - (a.divertedKg || 0));
 
                 usersArray.forEach((u, index) => {
                     const rank = index + 1;
@@ -756,7 +810,7 @@
             data: { scans: 0, divertedKg: 0, co2SavedKg: 0, compostKg: 0 },
 
             init: function() {
-                const saved = localStorage.getItem(`ecoImpact_${currentUser}`);
+                const saved = localStorage.getItem(`ecoImpact_${selectedCampus}_${currentUser}`);
                 if (saved) {
                     try { this.data = JSON.parse(saved); } catch(e) { }
                 } else {
@@ -787,13 +841,12 @@
                     this.data.divertedKg += 0.50;
                     this.data.co2SavedKg += 0.05;
                 } else if (itemKey === "mixed") {
-                    this.data.divertedKg += 0.10;
-                    this.data.co2SavedKg += 0.10;
+                    this.data.divertedKg += 0.18;
+                    this.data.co2SavedKg += 0.16;
                 }
 
-                localStorage.setItem(`ecoImpact_${currentUser}`, JSON.stringify(this.data));
+                localStorage.setItem(`ecoImpact_${selectedCampus}_${currentUser}`, JSON.stringify(this.data));
                 this.updateUI();
-                
                 CampusNetwork.updateUser(currentUser, this.data, userXP);
             },
 
@@ -810,201 +863,28 @@
             }
         };
 
-        window.addEventListener('keydown', (e) => {
-            const key = e.key || e.code;
-            if (key === '1' || key === 'Digit1') applyDiscreteLock('biodegradable');
-            else if (key === '2' || key === 'Digit2') applyDiscreteLock('non-biodegradable');
-            else if (key === '3' || key === 'Digit3') applyDiscreteLock('hazardous');
-            else if (key === '4' || key === 'Digit4') applyDiscreteLock('inert');
-            else if (key === '5' || key === 'Digit5') applyDiscreteLock('living_being');
-            else if (key === '6' || key === 'Digit6') applyDiscreteLock('mixed');
-        });
-
-        function applyDiscreteLock(itemKey) {
-            selectedItemKey = itemKey;
-            demoOverrideActive = true; 
-            if (categoryOverride) categoryOverride.value = itemKey;
-            handleCategorySelectionChange();
-            EcoVoice.speak(selectedItemKey);
-        }
-
-        const SYSTEM_UI_DICTIONARY = {
-            en: {
-                authTitle: "EcoLens Pro", authSub: "Institutional Edge AI Smart Bin Waste Sorting & Sustainability Ecosystem.",
-                placeholder: "Enter Username...", btnLogin: "Enter Dashboard 🚀", btnSnap: "Capture Item Photo 📷",
-                lblYolo: "🤖 AI Classification Output:", lblYoloDesc: "Verify the official waste category classification below:",
-                btnRetake: "🔄 Retake", btnStartQ: "Start Micro-Quest 🚀", btnCancel: "🔄 Cancel & Reset",
-                lblGoal: "🌟 GOAL COMPLETED! 🌟", btnClaim: "Snap Proof & Claim XP 🏆", lblHistory: "📊 Activity History Logs",
-                lblMap: "🗺️ Campaign Journey Map", initAI: "Initializing Operational Engine Parameters...",
-                readyAI: "Engine Active. Position camera and capture photo.", 
-                calcAI: "Analyzing image with AI Engine... 🧠",
-                questActive: "Complete all verification checkpoints!", evalProof: "Evaluating verification thresholds...",
-                secondaryProof: "Secondary Verification View active. Capture the final processed proof picture!",
-                confirmProofBtn: "Confirm & Process Proof Frame 📸", logEmpty: "No activities logged today.",
-                verifiedAt: "Verified: ", progress: "Quest Progress",
-                lblImpactTitle: "🌱 My Campus Impact", lblDiverted: "📦 Landfill Diverted",
-                lblCo2: "💨 CO₂ Prevented", lblCompost: "🌿 Compost Yield", lblItemsScanned: "🔢 Verified Items",
-                lblGlobalImpactTitle: "🌍 Global Campus Impact", lblTopContributors: "🏆 Top Campus Contributors",
-                lblVoice: "🔊 Voice Assistant", btnListen: "▶ Listen",
-                lblQuestsDone: "Quests Done", lblStreakLevel: "Streak Level",
-                livingWarning: "⚠️ Living Being Detected! Please point the camera at discarded waste items only.",
-                lblSmartBin: "Smart Bin Destination:",
-                btnDisposeBin: "🗑️ Throw in Smart Bin", btnUpcycle: "🎨 Creative Upcycle (DIY)"
-            },
-            bn: {
-                authTitle: "ইকোলেন্স প্রো", authSub: "ক্যাম্পাস স্মার্ট বিন বর্জ্য ব্যবস্থাপনা ও টেকসই পরিবেশ ট্র্যাকার।",
-                placeholder: "ইউজারনেম লিখুন...", btnLogin: "ড্যাশবোর্ডে প্রবেশ করুন 🚀", btnSnap: "বস্তুর ছবি তুলুন 📷",
-                lblYolo: "🤖 এআই ক্লাসিফিকেশন আউটপুট:", lblYoloDesc: "অফিসিয়াল বর্জ্য বিভাগটি নিশ্চিত করুন:",
-                btnRetake: "🔄 আবার তুলুন", btnStartQ: "মাইক্রো-কোয়েস্ট শুরু করুন 🚀", btnCancel: "🔄 বাতিল ও রিসেট",
-                lblGoal: "🌟 মিশন সম্পূর্ণ! 🌟", btnClaim: "প্রমাণ জমা দিয়ে এক্সপি নিন 🏆", lblHistory: "📊 পূর্ববর্তী কাজের ইতিহাস",
-                lblMap: "🗺️ ক্যাম্পেইন জার্নি ম্যাপ", initAI: "এআই ইঞ্জিন চালু হচ্ছে...",
-                readyAI: "ইঞ্জিন প্রস্তুত। ক্যামেরা তাক করে ছবি তুলুন।", calcAI: "ছবি বিশ্লেষণ করা হচ্ছে... 🧠",
-                questActive: "সবকটি চেকবক্স পূরণ করুন!", evalProof: "কাজের সত্যতা যাচাই করা হচ্ছে...",
-                secondaryProof: "দ্বিতীয় ভেরিফিকেশন চালু হয়েছে। ছবি তুলুন!",
-                confirmProofBtn: "ছবি নিশ্চিত করুন 📸", logEmpty: "আজ কোনো কাজ রেকর্ড করা হয়নি।",
-                verifiedAt: "যাচাই করা হয়েছে: ", progress: "মিশন অগ্রগতি",
-                lblImpactTitle: "🌱 আমার ক্যাম্পাস প্রভাব", lblDiverted: "📦 আবর্জনা হ্রাস",
-                lblCo2: "💨 কার্বন নির্গমন রোধ", lblCompost: "🌿 জৈব সার উৎপাদন", lblItemsScanned: "🔢 মোট প্রক্রিয়াকৃত",
-                lblGlobalImpactTitle: "🌍 গ্লোবাল ক্যাম্পাস প্রভাব", lblTopContributors: "🏆 শীর্ষ ক্যাম্পাস অবদানকারী",
-                lblVoice: "🔊 ভয়েস সহকারী", btnListen: "▶ শুনুন",
-                lblQuestsDone: "সম্পূর্ণ কোয়েস্ট", lblStreakLevel: "স্ট্রিক লেভেল",
-                livingWarning: "⚠️ জীবিত প্রাণী শনাক্ত হয়েছে! অনুগ্রহ করে কেবল নির্জীব বর্জ্যের ছবি তুলুন।",
-                lblSmartBin: "স্মার্ট বিন গন্তব্য:",
-                btnDisposeBin: "🗑️ স্মার্ট বিনে ফেলুন", btnUpcycle: "🎨 ক্রিয়েটিভ আপসাইকেল (DIY)"
-            },
-            hi: {
-                authTitle: "इकोलेंस प्रो", authSub: "स्मार्ट बिन कचरा प्रबंधन और स्थिरता पारिस्थितिकी तंत्र।",
-                placeholder: "यूज़रनेम दर्ज करें...", btnLogin: "डैशबोर्ड में जाएं 🚀", btnSnap: "वस्तु की फोटो लें 📷",
-                lblYolo: "🤖 एआई वर्गीकरण आउटपुट:", lblYoloDesc: "आधिकारिक कचरा श्रेणी की पुष्टि करें:",
-                btnRetake: "🔄 दोबारा लें", btnStartQ: "माइक्रो-क्वेस्ट शुरू करें 🚀", btnCancel: "🔄 रद्द और रीसेट",
-                lblGoal: "🌟 মিশন पूरा हुआ! 🌟", btnClaim: "प्रमाण लें और एक्सपी पाएं 🏆", lblHistory: "📊 पिछला गतिविधि लॉग",
-                lblMap: "🗺️ अभियान यात्रा मानचित्र", initAI: "एआई इंजन शुरू हो रहा है...",
-                readyAI: "इंजन तैयार है। फोटो खींचने के लिए कैमरा सामने लाएं।", calcAI: "विश्लेषण किया जा रहा है... 🧠",
-                questActive: "सभी चेकपॉइंट पूरे करें!", evalProof: "सत्यापन की जांच की जा रही है...",
-                secondaryProof: "द्वितीय सत्यापन सक्रिय है। फोटो लें!",
-                confirmProofBtn: "फोटो की पुष्टि करें 📸", logEmpty: "आज कोई गतिविधि लॉग नहीं हुई।",
-                verifiedAt: "सत्यापित समय: ", progress: "क्वेस्ट प्रगति",
-                lblImpactTitle: "🌱 मेरा परिसर प्रभाव", lblDiverted: "📦 लैंडफिल से बचाव",
-                lblCo2: "💨 CO₂ रोकथाम", lblCompost: "🌿 जैविक खाद उत्पादन", lblItemsScanned: "🔢 कुल सत्यापित",
-                lblGlobalImpactTitle: "🌍 ग्लोबल कैंपस प्रभाव", lblTopContributors: "🏆 शीर्ष कैंपस योगदानकर्ता",
-                lblVoice: "🔊 वॉइस असिस्टेंट", btnListen: "▶ सुनें",
-                lblQuestsDone: "पूरे किए गए क्वेस्ट", lblStreakLevel: "स्ट्रिक लेवल",
-                livingWarning: "⚠️ जीवित प्राणी पहचाना गया है! कृपया केवल निर्जीव कचरे की फोटो लें।",
-                lblSmartBin: "स्मार्ट डस्टबिन गंतव्य:",
-                btnDisposeBin: "🗑️ स्मार्ट डिब्बे में डालें", btnUpcycle: "🎨 रचनात्मक अपसाइकिल (DIY)"
-            }
-        };
-
-        const LEAGUE_BRACKETS = [
-            { name: "Bronze League", icon: "🥉", class: "avatar-bronze", minXp: 0, desc: { en: "Welcome to Bronze League! Scan items to earn XP.", bn: "ব্রোঞ্জ লীগে স্বাগতম!", hi: "ब्रॉन्ज लीग में आपका स्वागत है!" }},
-            { name: "Silver League", icon: "🥈", class: "avatar-silver", minXp: 250, desc: { en: "Silver League Active!", bn: "সিলভার লীগ আনলক হয়েছে!", hi: "सिल्वर लीग अनलॉक!" }},
-            { name: "Gold League", icon: "🥇", class: "avatar-gold", minXp: 700, desc: { en: "Gold Medal Status!", bn: "গোল্ড মেডেল স্ট্যাটাস!", hi: "गोल्ड मेडल स्टेटस!" }},
-            { name: "Diamond League", icon: "💎", class: "avatar-diamond", minXp: 1350, desc: { en: "The Elite Diamond Rank!", bn: "এলিট ডায়মন্ড র্যাঙ্ক!", hi: "अभिजात वर्ग डायमंड रैंक!" }}
-        ];
-
-        const LEVEL_TREE_DATABASE = [
-            { id: 1, segment: "bronze", icon: "🌱", minXp: 0, titles: { en: "Eco Novice", bn: "ইকো নোভিস", hi: "इको नौसिखिया" }, descs: { en: "Earn 100 XP to unlock Level 2!", bn: "১০০ এক্সপি অর্জনে লেভেল ২ আনলক হবে!", hi: "100 XP हासिल करके लेवल 2 अनलॉक करें!" }},
-            { id: 2, segment: "bronze", icon: "🔍", minXp: 100, titles: { en: "Waste Identifier", bn: "বর্জ্য শনাক্তকারী", hi: "कचरा पहचानकर्ता" }, descs: { en: "Master category segregation.", bn: "বর্জ্য পৃথকীকরণ শিখুন।", hi: "कचरा अलगाव में माहिर बनें।" }},
-            { id: 3, segment: "bronze", icon: "♻️", minXp: 250, titles: { en: "Sorting Apprentice", bn: "বিন্যাস শিক্ষানবিশ", hi: "छंटाई प्रशिक्षु" }, descs: { en: "Process campus recyclables.", bn: "বর্জ্য রিসাইকেল করুন।", hi: "रीसाइक्लिंग शुरू करें।" }},
-            { id: 4, segment: "silver", icon: "🛡️", minXp: 450, titles: { en: "Campus Guardian", bn: "ক্যাম্পাস গাইড", hi: "परिसर रक्षक" }, descs: { en: "Manage composite waste.", bn: "মিশ্র বর্জ্য সামলান।", hi: "मिश्रित कचरा संभालें।" }},
-            { id: 5, segment: "silver", icon: "⚡", minXp: 700, titles: { en: "Segregation Specialist", bn: "পৃথকীকরণ বিশেষজ্ঞ", hi: "अलगाव विशेषज्ञ" }, descs: { en: "Zero waste master.", bn: "টেকসই বর্জ্য রূপান্তর।", hi: "शून्य कचरा मास्टर।" }},
-            { id: 6, segment: "gold", icon: "🎓", minXp: 1000, titles: { en: "Sustainability Scholar", bn: "টেকসই স্কলার", hi: "स्थिरता विद्वान" }, descs: { en: "Campus leader.", bn: "ক্যাম্পাস প্রতিনিধি।", hi: "परिसर प्रतिनिधि।" }},
-            { id: 7, segment: "gold", icon: "⚔️", minXp: 1350, titles: { en: "Eco Warrior", bn: "ইকো ওয়ারিয়র", hi: "इको योद्धा" }, descs: { en: "Organic composting lead.", bn: "জৈব সার প্রক্রিয়াকরণ।", hi: "कम्पोस्टिंग विशेषज्ञ।" }},
-            { id: 8, segment: "diamond", icon: "🧠", minXp: 1750, titles: { en: "Recycling Strategist", bn: "রিসাইক্লিং স্ট্র্যাটেজিস্ট", hi: "रीसाइक्लिंग रणनीतिकार" }, descs: { en: "E-waste & Hazard expert.", bn: "ই-বর্জ্য বিশেষজ্ঞ।", hi: "ई-कचरा विशेषज्ञ।" }},
-            { id: 9, segment: "diamond", icon: "🏆", minXp: 2250, titles: { en: "Zero-Waste Champion", bn: "জিরো-ওয়েস্ট চ্যাম্পিয়ন", hi: "जीरो-वेस्ट चैंपियन" }, descs: { en: "Institutional leader.", bn: "ক্যাম্পাস জিরো-ওয়েস্ট চ্যাম্পিয়ন।", hi: "संस्थागत लीडर।" }},
-            { id: 10, segment: "diamond", icon: "👑", minXp: 3000, titles: { en: "EcoLens Master", bn: "ইকোলেন্স মাস্টার", hi: "इकोलेंस मास्टर" }, descs: { en: "Ultimate Sustainability Master.", bn: "সর্বোচ্চ পরিবেশ নেতা।", hi: "परम पर्यावरण नेता।" }}
-        ];
-
-        const DYNAMIC_TASK_POOLS = {
-            "biodegradable": [
-                { primary: ["Ensure zero plastic wrappers are mixed in.", "Separate paper or cardboard from food scraps.", "Deposit cleanly in the Green Compost Bin."], bonus: "Chop food scraps to speed decomposition." }
-            ],
-            "non-biodegradable": [
-                { primary: ["Drain all remaining liquids entirely.", "Unscrew plastic/metal cap & crush body flat.", "Deposit into the Blue Recycling Bin."], bonus: "Check bottom for PETE recycling code." }
-            ],
-            "hazardous": [
-                { primary: ["Do not throw into regular campus dustbins.", "Safely insulate exposed battery contacts.", "Take to designated Red E-Waste Kiosk."], bonus: "Keep away from moisture." }
-            ],
-            "inert": [
-                { primary: ["Gather soil, stones, or construction debris.", "Ensure zero plastics are mixed in the rubble.", "Dispose of in the Grey heavy waste bin."], bonus: "Bag dust to prevent air pollution." }
-            ],
-            "mixed": [
-                { primary: ["Carefully separate all the different items in this pile."], bonus: "Never throw composite waste together into general trash." }
-            ],
-            "upcycle": [
-                { primary: ["Clean the item thoroughly.", "Safely cut or modify the material.", "Repurpose it into a planter, pen stand, or decor."], bonus: "Share your creation to inspire others!" }
-            ],
-            "default": [
-                { primary: ["Examine if item is biodegradable or non-biodegradable.", "Isolate any hazardous components.", "Deposit safely in the designated smart bin."], bonus: "Wipe clean before sorting." }
-            ]
-        };
-
-        const localizationEngine = {
-            "biodegradable": { en: { title: "🌿 Biodegradable Waste", proofText: "Snap a photo of the item inside the Green Compost Bin." }, bn: { title: "🌿 বায়োডিগ্রেডেবল বর্জ্য", proofText: "সবুজ কম্পোস্ট বিনে রাখা বর্জ্যের ছবি তুলুন।" }, hi: { title: "🌿 बायोडिग्रेडेबल कचरा", proofText: "हरे कम्पोस्ट बिन में रखे कचरे की फोटो लें।" } },
-            "non-biodegradable": { en: { title: "♻️ Non-Biodegradable (Recyclable)", proofText: "Snap a photo of the crushed item in the Blue Bin." }, bn: { title: "♻️ নন-বায়োডিগ্রেডেবল (পুনর্ব্যবহারযোগ্য)", proofText: "নীল রিসাইক্লিং বিনে রাখা বর্জ্যের ছবি তুলুন।" }, hi: { title: "♻️ गैर-बायोडिग्रेडेबल (रीसाइक्लिंग योग्य)", proofText: "नीले रीसाइक्लिंग बिन में रखी वस्तु की फोटो लें।" } },
-            "hazardous": { en: { title: "⚠️ Hazardous / E-Waste", proofText: "Snap a photo at the Red Hazardous Kiosk." }, bn: { title: "⚠️ বিপজ্জনক / ই-বর্জ্য", proofText: "লাল ই-বর্জ্য সংগ্রহ কিওস্কে জমার ছবি তুলুন।" }, hi: { title: "⚠️ खतरनाक / ई-कचरा", proofText: "लाल ई-कचरा बॉक्स में रखे आइटम की फोटो लें।" } },
-            "inert": { en: { title: "🧱 Inert Heavy Waste", proofText: "Snap a photo of the debris in the Grey Bin." }, bn: { title: "🧱 নিষ্ক্রিয় ভারী বর্জ্য", proofText: "ধূসর ভারী বর্জ্য বিনে জমার ছবি তুলুন।" }, hi: { title: "🧱 अक्रिय भारी मलबा", proofText: "ग्रे भारी कचरे के डिब्बे में मलबे की फोटो लें।" } },
-            "mixed": { en: { title: "🔀 Mixed / Composite Waste", proofText: "Snap a photo showing the separated items in their correct bins." }, bn: { title: "🔀 মিশ্র বর্জ্য", proofText: "সঠিক বিনে আলাদা করা জিনিসগুলোর ছবি তুলুন।" }, hi: { title: "🔀 मिश्रित कचरा", proofText: "अलग किए गए कचरे को सही डिब्बे में डालते हुए फोटो लें।" } },
-            "upcycle": { en: { title: "🎨 DIY Upcycle Project", proofText: "Snap a photo of your new upcycled creation!" }, bn: { title: "🎨 DIY আপসাইকেল প্রজেক্ট", proofText: "আপনার নতুন তৈরি জিনিসটির ছবি তুলুন!" }, hi: { title: "🎨 DIY अपसाइकिल प्रोजेक्ट", proofText: "अपने नए बनाए गए आइटम की फोटो लें!" } },
-            "living_being": { en: { title: "⚠️ Living Being Detected", proofText: "Non-disposable entity. No action required." }, bn: { title: "⚠️ জীবিত প্রাণী শনাক্ত", proofText: "কোনো পদক্ষেপের প্রয়োজন নেই।" }, hi: { title: "⚠️ जीवित प्राणी पहचाना गया", proofText: "कोई कार्रवाई आवश्यक नहीं है।" } },
-            "default": { en: { title: "General Municipal Waste", proofText: "Snap a photo of your sorted waste." }, bn: { title: "সাধারণ বর্জ্য", proofText: "সঠিক বিনে রাখা বর্জ্যের ছবি তুলুন।" }, hi: { title: "सामान्य कचरा", proofText: "व्यवस्थित कचरे की फोटो लें।" } }
-        };
-
         // ==========================================
-        // 5. MODE SWITCHER LOGIC
+        // 5. AUTH & NAVIGATION
         // ==========================================
-        function updateModeUI() {
-            const weightActiveChip = document.getElementById('weightActiveChip');
-            if (isOnlineMode) {
-                modeToggleBtn.className = "mode-toggle-btn mode-online";
-                modeToggleBtn.innerHTML = "<span>🌐 Online (Gemini AI)</span>";
-                weightActiveChip.className = "status-chip chip-purple";
-                weightActiveChip.innerHTML = "✨ Gemini Vision Active";
-                
-                liveTrackingActive = false;
-                const ctx = canvas.getContext('2d');
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                statusLogger.innerText = "Online Mode Active: Point camera at any item and snap photo.";
-            } else {
-                modeToggleBtn.className = "mode-toggle-btn mode-offline";
-                modeToggleBtn.innerHTML = "<span>💻 Offline Mode</span>";
-                weightActiveChip.className = "status-chip chip-green";
-                weightActiveChip.innerHTML = "✓ Edge AI Active";
-                startLiveARHUD();
-            }
-        }
-
-        modeToggleBtn.addEventListener('click', () => {
-            if (!isOnlineMode) {
-                if (!GEMINI_API_KEY || GEMINI_API_KEY === "YOUR_API_KEY_HERE" || GEMINI_API_KEY.length < 10) {
-                    alert("⚠️ No API Key found!\n\nPlease paste your Gemini API Key into the GEMINI_API_KEY variable at the top of the script code to use Online Mode.");
-                    return;
-                }
-                isOnlineMode = true;
-            } else {
-                isOnlineMode = false;
-            }
-            updateModeUI();
-        });
-
-        // LOGIN INITIALIZATION
         loginSubmitBtn.addEventListener('click', () => {
             const val = usernameInput.value.trim();
             if (val === "") { alert("Please input a valid profile name!"); return; }
             currentUser = val;
-            profileNameDisplay.innerText = currentUser;
+            selectedCampus = campusSelect.value;
 
-            userXP = parseInt(localStorage.getItem(`ecoXP_${currentUser}`)) || 0;
-            if (isNaN(userXP)) userXP = 0; 
+            profileNameDisplay.innerText = currentUser;
+            headerCampusBadge.innerText = `${selectedCampus} Campus`;
+            document.getElementById('lblRankCampusPill').innerText = selectedCampus;
+
+            userXP = parseInt(localStorage.getItem(`ecoXP_${selectedCampus}_${currentUser}`)) || 0;
 
             try {
-                loggedQuests = JSON.parse(localStorage.getItem(`ecoHistory_${currentUser}`));
+                loggedQuests = JSON.parse(localStorage.getItem(`ecoHistory_${selectedCampus}_${currentUser}`));
                 if (!Array.isArray(loggedQuests)) loggedQuests = [];
             } catch(e) {
                 loggedQuests = [];
             }
 
-            // Smooth transition to dashboard
             authGate.style.opacity = '0';
             setTimeout(() => {
                 authGate.style.display = "none";
@@ -1014,320 +894,28 @@
 
                 CampusNetwork.init();
                 CampusImpact.init();
-                applyLanguageStrings();
+                
+                // Initialize the dashboard visually right away
+                updateScoreboardUi();
+                buildInteractiveVisualTree();
+                renderHistoryLogs();
+                populateCategoryDropdown();
                 updateModeUI();
-                bootSystem();
+                initCamera();
             }, 300);
         });
 
-        function applyLanguageStrings() {
-            const lang = langSelect.value;
-            const dict = SYSTEM_UI_DICTIONARY[lang];
-
-            document.getElementById('authTitle').innerText = dict.authTitle;
-            document.getElementById('authSubtitle').innerText = dict.authSub;
-            usernameInput.placeholder = dict.placeholder;
-            document.getElementById('loginSubmitBtn').innerText = dict.btnLogin;
-            snapPhotoBtn.innerText = dict.btnSnap;
-            document.getElementById('lblYoloAssignment').innerText = dict.lblYoloDesc;
-            analysisRetakeBtn.innerText = dict.btnRetake;
-            
-            questCancelBtn.innerText = dict.btnCancel;
-            document.getElementById('lblGoalCompleted').innerText = dict.lblGoal;
-            document.getElementById('lblHistoryTitle').innerText = dict.lblHistory;
-            document.getElementById('lblMapTitle').innerText = dict.lblMap;
-            document.getElementById('lblQuestProgress').innerText = dict.progress;
-            
-            document.getElementById('lblCampusImpactTitle').innerText = dict.lblImpactTitle;
-            document.getElementById('lblGlobalImpactTitle').innerText = dict.lblGlobalImpactTitle;
-            document.getElementById('lblTopContributors').innerText = dict.lblTopContributors;
-            
-            document.getElementById('lblDiverted').innerText = dict.lblDiverted;
-            document.getElementById('lblCo2').innerText = dict.lblCo2;
-            document.getElementById('lblCompost').innerText = dict.lblCompost;
-            document.getElementById('lblItemsScanned').innerText = dict.lblItemsScanned;
-            document.getElementById('lblVoicePrompt').innerText = dict.lblVoice;
-            document.getElementById('btnVoiceReplay').innerText = dict.btnListen;
-            document.getElementById('lblQuestsDone').innerText = dict.lblQuestsDone;
-            document.getElementById('lblStreakLevel').innerText = dict.lblStreakLevel;
-            document.getElementById('lblSmartBinHeader').innerText = dict.lblSmartBin;
-            livingBeingWarning.innerText = dict.livingWarning;
-            upcycleBtn.innerText = dict.btnUpcycle;
-
-            submitProofPhotoBtn.innerText = isProcessingSecondaryProof ? dict.confirmProofBtn : dict.btnClaim;
-            
-            populateCategoryDropdown();
-            updateScoreboardUi();
-            renderHistoryLogs();
-            buildInteractiveVisualTree();
-            handleCategorySelectionChange();
-        }
-
-        function populateCategoryDropdown() {
-            const lang = langSelect.value;
-            if (lang === 'bn') {
-                categoryOverride.innerHTML = `
-                    <option value="biodegradable">🌿 বায়োডিগ্রেডেবল (খাবার, পাতা, কাগজ, কৃষি বর্জ্য)</option>
-                    <option value="non-biodegradable">♻️ নন-বায়োডিগ্রেডেবল (প্লাস্টিক, কাঁচ, ধাতু - পুনর্ব্যবহারযোগ্য)</option>
-                    <option value="mixed">🔀 মিশ্র বর্জ্য (পৃথকীকরণ প্রয়োজন)</option>
-                    <option value="hazardous">⚠️ বিপজ্জনক বর্জ্য (রাসায়নিক, বিষাক্ত পদার্থ, ই-বর্জ্য)</option>
-                    <option value="inert">🧱 নিষ্ক্রিয় বর্জ্য (নির্মাণের ধ্বংসাবশেষ, মাটি, পাথর)</option>
-                    <option value="living_being">🚫 জীবিত প্রাণী / মানুষ (বর্জ্য নয়)</option>
-                `;
-            } else if (lang === 'hi') {
-                categoryOverride.innerHTML = `
-                    <option value="biodegradable">🌿 बायोडिग्रेडेबल (भोजन, पत्तियां, कागज, कृषि अवशेष)</option>
-                    <option value="non-biodegradable">♻️ गैर-बायोडिग्रेडेबल (प्लास्टिक, कांच, धातु - रीसाइक्लिंग)</option>
-                    <option value="mixed">🔀 मिश्रित कचरा (अलग करने की आवश्यकता)</option>
-                    <option value="hazardous">⚠️ खतरनाक कचरा (रसायन, विषाक्त सामग्री, ई-कचरा)</option>
-                    <option value="inert">🧱 अक्रिय कचरा (निर्माण का मलबा, मिट्टी, पत्थर)</option>
-                    <option value="living_being">🚫 जीवित प्राणी / मनुष्य (कचरा नहीं)</option>
-                `;
-            } else {
-                categoryOverride.innerHTML = `
-                    <option value="biodegradable">🌿 Biodegradable (Food scraps, leaves, paper, agricultural residues)</option>
-                    <option value="non-biodegradable">♻️ Non-Biodegradable (Plastics, glass, metals - Recyclable)</option>
-                    <option value="mixed">🔀 Mixed Waste (Requires Separation)</option>
-                    <option value="hazardous">⚠️ Hazardous Waste (Chemicals, toxic materials, biomedical, e-waste)</option>
-                    <option value="inert">🧱 Inert Waste (Construction debris, soil, stones)</option>
-                    <option value="living_being">🚫 Living Being / Human (Non-Waste)</option>
-                `;
-            }
-            categoryOverride.value = selectedItemKey;
-        }
-
-        function handleCategorySelectionChange() {
-            const lang = langSelect.value;
-            const dict = SYSTEM_UI_DICTIONARY[lang];
-            const config = SMART_BIN_CONFIG[selectedItemKey] || SMART_BIN_CONFIG["non-biodegradable"];
-
-            if (selectedItemKey === "living_being") {
-                livingBeingWarning.style.display = "block";
-                document.getElementById('smartBinContainer').style.display = "none";
-                startQuestBtn.disabled = true;
-                upcycleBtn.style.display = "none";
-            } else {
-                livingBeingWarning.style.display = "none";
-                document.getElementById('smartBinContainer').style.display = "flex";
-                startQuestBtn.disabled = false;
-
-                binTargetBadge.className = "bin-badge " + config.badgeClass;
-                binTargetBadge.innerText = config.badgeText[lang] || config.badgeText['en'];
-                
-                // =======================================================
-                // THE PERMANENT FIX: DYNAMIC UI INSTRUCTIONS FOR MIXED WASTE
-                // =======================================================
-                if (selectedItemKey === "mixed" && currentDetectedComponents && currentDetectedComponents.length > 1) {
-                    let dynamicGuide = `
-                    <div style="background:#f3e8ff; border:2px solid #d8b4fe; padding:12px; border-radius:12px; margin-bottom:10px;">
-                        <h4 style="color:#6b21a8; margin-bottom:8px; font-weight:900; display:flex; align-items:center; gap:6px;">⚠️ SEPARATION REQUIRED</h4>
-                        <p style="font-size:0.9rem; color:#4c1d95; margin-bottom:12px; font-weight:800;">
-                            We detected ${currentDetectedComponents.length} different items. You must physically separate them:
-                        </p>
-                        <ul style="padding-left:0; list-style:none; display:flex; flex-direction:column; gap:8px;">`;
-
-                    currentDetectedComponents.forEach((comp, idx) => {
-                        let itemCat = comp.category || "non-biodegradable";
-                        let binConfig = SMART_BIN_CONFIG[itemCat] || SMART_BIN_CONFIG["non-biodegradable"];
-                        let binName = binConfig.badgeText[lang] || binConfig.badgeText['en'];
-                        
-                        let adviceText = `➔ <b style="color: #047857;">${binName}</b>`;
-                        if (comp.disposalAdvice && !comp.disposalAdvice.includes("designated Smart Bin")) {
-                            adviceText += `<br><span style="font-weight:700; font-size:0.85rem; color:#065f46; margin-top:4px; display:block;">ℹ️ ${comp.disposalAdvice}</span>`;
-                        }
-                        
-                        dynamicGuide += `
-                        <li style="background:white; border:1.5px solid #e5e7eb; padding:10px; border-radius:8px; display:flex; flex-direction:column; gap:4px;">
-                            <b style="color:#1f2937; font-size:1.05rem;">${idx + 1}. ${comp.name}</b>
-                            <span style="font-size:0.95rem; font-weight:800; line-height:1.4;">${adviceText}</span>
-                        </li>`;
-                    });
-                    
-                    dynamicGuide += `</ul></div>`;
-                    binRecycleGuide.innerHTML = dynamicGuide;
-                } else {
-                    binRecycleGuide.innerHTML = config.guideText[lang] || config.guideText['en'];
-                }
-
-                if (selectedItemKey === "non-biodegradable") {
-                    upcycleBtn.style.display = "flex";
-                    startQuestBtn.innerText = dict.btnDisposeBin;
-                } else {
-                    upcycleBtn.style.display = "none";
-                    startQuestBtn.innerText = dict.btnStartQ;
-                }
-            }
-        }
-
-        categoryOverride.addEventListener('change', () => {
-            selectedItemKey = categoryOverride.value;
-            handleCategorySelectionChange();
-            EcoVoice.speak(selectedItemKey);
-        });
-
-        // ----------------------------------------------------
-        // LIVE AR HUD TRACKING ENGINE (OFFLINE MODE)
-        // ----------------------------------------------------
-        async function startLiveARHUD() {
-            if (isOnlineMode) return; 
-            
-            if (!cocoModel) {
-                cocoModel = await cocoSsd.load();
-            }
-            
-            liveTrackingActive = true;
-            canvas.style.display = "block";
-            statusLogger.innerText = "Offline AR Mode Active: Tracking objects live...";
-
-            async function trackFrame() {
-                if (!liveTrackingActive || isOnlineMode) return;
-
-                if (video.readyState === 4) {
-                    canvas.width = video.videoWidth;
-                    canvas.height = video.videoHeight;
-                    const ctx = canvas.getContext('2d');
-                    ctx.clearRect(0, 0, canvas.width, canvas.height); 
-
-                    const predictions = await cocoModel.detect(video);
-
-                    predictions.forEach(pred => {
-                        ctx.beginPath();
-                        ctx.rect(pred.bbox[0], pred.bbox[1], pred.bbox[2], pred.bbox[3]);
-                        ctx.lineWidth = 4;
-                        ctx.strokeStyle = '#1cb0f6';
-                        ctx.fillStyle = 'rgba(28, 176, 246, 0.15)';
-                        ctx.fill();
-                        ctx.stroke();
-
-                        ctx.fillStyle = '#1cb0f6';
-                        ctx.fillRect(pred.bbox[0], pred.bbox[1] - 30, pred.bbox[2], 30);
-
-                        ctx.fillStyle = 'white';
-                        ctx.font = 'bold 16px Nunito';
-                        ctx.fillText(`${pred.class.toUpperCase()} [${Math.round(pred.score * 100)}%]`, pred.bbox[0] + 8, pred.bbox[1] - 8);
-                    });
-                }
-                requestAnimationFrame(trackFrame);
-            }
-            trackFrame();
-        }
-
-        // Initialize Camera
-        async function initCamera() {
-            try {
-                const constraints = { video: { facingMode: 'environment', width: { ideal: 640 }, height: { ideal: 480 } } };
-                const stream = await navigator.mediaDevices.getUserMedia(constraints)
-                    .catch(() => navigator.mediaDevices.getUserMedia({ video: true })); 
-                
-                video.srcObject = stream;
-                video.addEventListener('loadeddata', () => { 
-                    snapPhotoBtn.disabled = false; 
-                    document.getElementById('cameraStatusChip').innerHTML = "🎥 Camera Active";
-                    
-                    if (!isOnlineMode) {
-                        startLiveARHUD();
-                    }
-                });
-            } catch (err) {
-                console.error("Camera access denied or unavailable", err);
-                statusLogger.innerText = "Camera initialization failed. Please allow permissions.";
-                document.getElementById('cameraStatusChip').innerHTML = "🎥 Camera Offline";
-            }
-        }
-
-        async function bootSystem() {
-            initCamera();
-        }
-
-        function getCurrentLeague() {
-            let activeLeague = LEAGUE_BRACKETS[0];
-            LEAGUE_BRACKETS.forEach(bracket => {
-                if (userXP >= bracket.minXp) activeLeague = bracket;
-            });
-            return activeLeague;
-        }
-
-        function updateScoreboardUi() {
-            const currentLeague = getCurrentLeague();
-            xpCountDisplay.innerText = `${userXP} XP`;
-            leagueNameDisplay.innerText = currentLeague.name;
-            
-            leagueAvatarDisplay.className = "profile-badge-avatar " + currentLeague.class;
-            leagueAvatarDisplay.innerText = currentLeague.icon;
-            document.getElementById('lblQuestsCountMetric').innerText = loggedQuests.length;
-        }
-
-        activeProfileBoxContainer.addEventListener('click', () => {
-            const curLg = getCurrentLeague();
-            modalTitle.innerText = `${curLg.icon} ${curLg.name}`;
-            modalDescription.innerText = curLg.desc[langSelect.value];
-            levelInfoModal.classList.add('show');
-        });
-
-        function buildInteractiveVisualTree() {
-            duoTreeMap.innerHTML = "";
-            LEVEL_TREE_DATABASE.forEach((node, idx) => {
-                const nodeButton = document.createElement('div');
-                nodeButton.className = "tree-node";
-                nodeButton.innerText = node.icon;
-
-                if (idx % 3 === 1) nodeButton.classList.add('node-left');
-                if (idx % 3 === 2) nodeButton.classList.add('node-right');
-
-                let isUnlocked = userXP >= node.minXp;
-                let nextNode = LEVEL_TREE_DATABASE[idx + 1];
-                let isMastered = nextNode ? (userXP >= nextNode.minXp) : (userXP >= node.minXp + 500);
-
-                if (isMastered) {
-                    nodeButton.classList.add('node-completed');
-                } else if (isUnlocked) {
-                    if (node.segment === "bronze") nodeButton.classList.add('node-bronze-active');
-                    if (node.segment === "silver") nodeButton.classList.add('node-silver-active');
-                    if (node.segment === "gold") nodeButton.classList.add('node-gold-active');
-                    if (node.segment === "diamond") nodeButton.classList.add('node-diamond-active');
-                } else {
-                    nodeButton.classList.add('node-locked');
-                }
-
-                nodeButton.addEventListener('click', () => {
-                    if (!isUnlocked) {
-                        modalTitle.innerText = "🔒 Locked Level Node";
-                        modalDescription.innerText = `Reach ${node.minXp} XP to unlock Level ${node.id}! Keep completing micro-quests.`;
-                    } else {
-                        modalTitle.innerText = `Level ${node.id}: ${node.titles[langSelect.value]}`;
-                        modalDescription.innerText = node.descs[langSelect.value];
-                    }
-                    levelInfoModal.classList.add('show');
-                });
-
-                duoTreeMap.appendChild(nodeButton);
-            });
-        }
-
-        modalCloseBtn.addEventListener('click', () => { levelInfoModal.classList.remove('show'); });
-
-        function shiftActiveScreen(targetScreenKey) {
-            Object.keys(screens).forEach(key => { screens[key].classList.remove('active-screen'); });
-            
-            // Force reflow to trigger CSS animation restart
-            void screens[targetScreenKey].offsetWidth; 
-            screens[targetScreenKey].classList.add('active-screen');
-        }
-
-        // ====================================================
-        // THE PERMANENT FIX: GEMINI AI WITH FORCED COUNTING
-        // ====================================================
+        // ==========================================
+        // 6. ENHANCED GEMINI 2.5 FLASH AI ENGINE
+        // ==========================================
         async function processWithGeminiAPI(base64Image) {
             const cleanBase64 = base64Image.replace(/^data:image\/(png|jpeg|jpg|webp);base64,/, "");
 
-            const promptText = `You are an elite, highly advanced robotic waste sorter. Your primary directive is to detect if a user is throwing away MULTIPLE different items at the same time.
-            
-            CRITICAL INSTRUCTIONS:
-            1. First, mathematically count the distinct objects you see. If there is a bottle AND a wrapper, that is exactly 2 objects.
-            2. You must NEVER group objects into a single string. (WRONG: "bottle and wrapper". RIGHT: list "bottle" and "wrapper" separately).
-            3. For each object you find, generate a short 'disposalAdvice' string explicitly telling the user how to prep it (e.g., 'Empty liquids and crush').
-            
-            CATEGORIES ALLOWED: "biodegradable", "non-biodegradable", "hazardous", "inert", "living_being".`;
+            const promptText = `You are a high-precision civic and university waste auditor scanning trash on a university campus.
+Analyze ALL objects in this image:
+1. Examine campus items: food containers, water bottles, banana peels, assignment sheets, cardboard boxes, chip wrappers, beverage cans, laboratory e-waste, stationery pens, broken building tiles.
+2. Count the distinct items. If there are 2 or more distinct materials/objects, you MUST flag isMixedWaste as true.
+3. For EVERY separate item, generate a clean name, accurate category, and actionable preparation step.`;
 
             const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
             
@@ -1343,34 +931,23 @@
                     }],
                     generationConfig: {
                         responseMimeType: "application/json",
-                        temperature: 0.0, // Force strict mathematical logic
+                        temperature: 0.0,
                         responseSchema: {
                             type: "OBJECT",
                             properties: {
-                                // Forcing the AI to calculate the exact count first breaks its habit of grouping items
-                                totalItemCount: {
-                                    type: "INTEGER",
-                                    description: "The exact numerical count of separate waste items detected."
-                                },
-                                isMixedWaste: {
-                                    type: "BOOLEAN",
-                                    description: "Must be true if totalItemCount is greater than 1."
-                                },
+                                totalItemCount: { type: "INTEGER" },
+                                isMixedWaste: { type: "BOOLEAN" },
                                 components: {
                                     type: "ARRAY",
-                                    description: "List every distinct item visible in the frame separately.",
                                     items: {
                                         type: "OBJECT",
                                         properties: {
-                                            name: { type: "STRING", description: "Name of the single item (e.g. 'Plastic Bottle')" },
+                                            name: { type: "STRING" },
                                             category: {
                                                 type: "STRING",
                                                 enum: ["biodegradable", "non-biodegradable", "hazardous", "inert", "living_being"]
                                             },
-                                            disposalAdvice: {
-                                                type: "STRING",
-                                                description: "Direct action instruction. Example: 'Empty liquids and crush before putting in the Blue Bin.'"
-                                            }
+                                            disposalAdvice: { type: "STRING" }
                                         },
                                         required: ["name", "category", "disposalAdvice"]
                                     }
@@ -1393,68 +970,43 @@
             
             const parsed = JSON.parse(rawText);
 
-            // THE UNBREAKABLE SAFEGUARD
-            // If the AI flagged it as mixed, counted more than 1 item, OR generated an array of more than 1 item...
             if (parsed.isMixedWaste === true || parsed.totalItemCount >= 2 || (parsed.components && parsed.components.length >= 2)) {
                 parsed.category = "mixed";
-                parsed.itemName = `Mixed Waste Pile (${parsed.components ? parsed.components.length : parsed.totalItemCount} Items)`;
+                parsed.itemName = `Mixed Waste Pile (${parsed.components.length} Items)`;
             } else if (parsed.components && parsed.components.length === 1) {
                 parsed.category = parsed.components[0].category;
                 parsed.itemName = parsed.components[0].name;
             } else {
                 parsed.category = "non-biodegradable";
-                parsed.itemName = "Unknown Object";
+                parsed.itemName = "Discovered Item";
             }
 
             return parsed;
         }
 
-        // ====================================================
-        // LOCAL EDGE AI FALLBACK HANDLER
-        // ====================================================
         async function processWithLocalFallback(videoElement) {
-            if (!cocoModel) {
-                cocoModel = await cocoSsd.load();
-            }
+            if (!cocoModel) cocoModel = await cocoSsd.load();
             const predictions = await cocoModel.detect(videoElement);
             
             if (predictions && predictions.length > 0) {
                 let uniqueClasses = [...new Set(predictions.map(p => p.class.toLowerCase()))];
-                
                 let detectedComponents = uniqueClasses.map(cls => {
                     let cat = "non-biodegradable";
-                    if (['person', 'cat', 'dog', 'bird', 'horse', 'sheep', 'cow'].includes(cls)) cat = "living_being";
-                    else if (['apple', 'banana', 'orange', 'broccoli', 'carrot', 'pizza', 'hot dog', 'sandwich'].includes(cls)) cat = "biodegradable";
-                    else if (['bottle', 'cup', 'fork', 'knife', 'spoon', 'bowl'].includes(cls)) cat = "non-biodegradable";
-                    else if (['cell phone', 'laptop', 'mouse', 'remote', 'keyboard', 'tv'].includes(cls)) cat = "hazardous";
-                    
-                    return { name: cls.charAt(0).toUpperCase() + cls.slice(1), category: cat, disposalAdvice: "Place in the designated Smart Bin." };
+                    if (['person', 'cat', 'dog'].includes(cls)) cat = "living_being";
+                    else if (['apple', 'banana', 'orange', 'sandwich', 'pizza'].includes(cls)) cat = "biodegradable";
+                    else if (['cell phone', 'laptop', 'mouse'].includes(cls)) cat = "hazardous";
+                    return { name: cls.charAt(0).toUpperCase() + cls.slice(1), category: cat, disposalAdvice: "Deposit in the designated bin." };
                 });
 
-                let hasBio = detectedComponents.some(c => c.category === 'biodegradable');
-                let hasNonBio = detectedComponents.some(c => c.category === 'non-biodegradable');
-                let hasHaz = detectedComponents.some(c => c.category === 'hazardous');
-                let hasLiving = detectedComponents.some(c => c.category === 'living_being');
-
-                let overallCategory = "non-biodegradable";
-                let overallName = detectedComponents[0].name + " (Edge AI)";
-
-                if (hasLiving) {
-                    overallCategory = "living_being";
-                } else if (detectedComponents.length > 1 && (hasBio + hasNonBio + hasHaz > 1)) {
-                    overallCategory = "mixed";
-                    overallName = "Mixed Waste Pile";
-                } else if (hasHaz) {
-                    overallCategory = "hazardous";
-                } else if (hasBio) {
-                    overallCategory = "biodegradable";
-                }
-
-                return { itemName: overallName, category: overallCategory, components: detectedComponents };
+                let overallCategory = detectedComponents.length > 1 ? "mixed" : detectedComponents[0].category;
+                return { itemName: overallCategory === "mixed" ? "Mixed Waste Pile" : detectedComponents[0].name, category: overallCategory, components: detectedComponents };
             }
-            return { itemName: "Unidentified Object (Edge AI)", category: "non-biodegradable", components: [] };
+            return { itemName: "Unidentified Object", category: "non-biodegradable", components: [] };
         }
 
+        // ==========================================
+        // 7. SCAN & QUEST PIPELINE
+        // ==========================================
         snapPhotoBtn.addEventListener('click', async () => {
             liveTrackingActive = false; 
             
@@ -1468,28 +1020,23 @@
             canvas.style.display = "block";
             
             shiftActiveScreen("ANALYSIS");
-            document.getElementById('lblDetectedText').innerText = isOnlineMode ? "Consulting Gemini Vision..." : "Processing Edge AI...";
-            statusLogger.innerText = SYSTEM_UI_DICTIONARY[langSelect.value].calcAI;
+            document.getElementById('lblDetectedText').innerText = "Analyzing waste stream...";
+            statusLogger.innerText = "Analyzing image with AI Engine... 🧠";
 
             try {
-                if (demoOverrideActive) {
-                    document.getElementById('lblDetectedText').innerText = "Manual Override";
-                    currentDetectedComponents = [];
+                let aiResult;
+                if (isOnlineMode && GEMINI_API_KEY && GEMINI_API_KEY.length > 10) {
+                    const base64Image = canvas.toDataURL('image/jpeg', 0.85).split(',')[1];
+                    aiResult = await processWithGeminiAPI(base64Image);
                 } else {
-                    let aiResult;
-                    if (isOnlineMode && GEMINI_API_KEY && GEMINI_API_KEY.length > 10 && GEMINI_API_KEY !== "YOUR_API_KEY_HERE") {
-                        const base64Image = canvas.toDataURL('image/jpeg', 0.85).split(',')[1];
-                        aiResult = await processWithGeminiAPI(base64Image);
-                    } else {
-                        aiResult = await processWithLocalFallback(canvas);
-                    }
-
-                    document.getElementById('lblDetectedText').innerText = aiResult.itemName;
-                    selectedItemKey = aiResult.category;
-                    currentDetectedComponents = aiResult.components || [];
+                    aiResult = await processWithLocalFallback(canvas);
                 }
-            } catch (inferenceErr) {
-                console.error("AI Analysis Error:", inferenceErr);
+
+                document.getElementById('lblDetectedText').innerText = aiResult.itemName;
+                selectedItemKey = aiResult.category;
+                currentDetectedComponents = aiResult.components || [];
+            } catch (err) {
+                console.error("AI Error:", err);
                 const fallbackResult = await processWithLocalFallback(canvas);
                 document.getElementById('lblDetectedText').innerText = fallbackResult.itemName;
                 selectedItemKey = fallbackResult.category;
@@ -1499,13 +1046,194 @@
             populateCategoryDropdown(); 
             categoryOverride.value = selectedItemKey;
             handleCategorySelectionChange(); 
-            
             EcoVoice.speak(selectedItemKey);
-            demoOverrideActive = false; 
         });
 
-        analysisRetakeBtn.addEventListener('click', resetToLiveCaptureView);
-        questCancelBtn.addEventListener('click', resetToLiveCaptureView);
+        function handleCategorySelectionChange() {
+            const lang = langSelect.value;
+            const config = SMART_BIN_CONFIG[selectedItemKey] || SMART_BIN_CONFIG["non-biodegradable"];
+
+            if (selectedItemKey === "living_being") {
+                livingBeingWarning.style.display = "block";
+                document.getElementById('smartBinContainer').style.display = "none";
+                startQuestBtn.disabled = true;
+                upcycleBtn.style.display = "none";
+            } else {
+                livingBeingWarning.style.display = "none";
+                document.getElementById('smartBinContainer').style.display = "flex";
+                startQuestBtn.disabled = false;
+
+                binTargetBadge.className = "bin-badge " + config.badgeClass;
+                binTargetBadge.innerText = config.badgeText[lang] || config.badgeText['en'];
+                
+                // MULTI-COMPONENT HARD-MAPPED BIN INSTRUCTIONS
+                if (selectedItemKey === "mixed" && currentDetectedComponents && currentDetectedComponents.length > 1) {
+                    let dynamicGuide = `
+                    <div style="background:#f3e8ff; border:2px solid #d8b4fe; padding:12px; border-radius:12px; margin-bottom:10px;">
+                        <h4 style="color:#6b21a8; margin-bottom:8px; font-weight:900;">⚠️ PHYSICAL SEPARATION REQUIRED</h4>
+                        <p style="font-size:0.85rem; color:#4c1d95; margin-bottom:10px; font-weight:800;">
+                            Detected ${currentDetectedComponents.length} items across multiple streams. Route them as follows:
+                        </p>
+                        <ul style="padding-left:0; list-style:none; display:flex; flex-direction:column; gap:8px;">`;
+
+                    currentDetectedComponents.forEach((comp, idx) => {
+                        let itemCat = comp.category || "non-biodegradable";
+                        let binConfig = SMART_BIN_CONFIG[itemCat] || SMART_BIN_CONFIG["non-biodegradable"];
+                        let binName = binConfig.badgeText[lang] || binConfig.badgeText['en'];
+                        
+                        dynamicGuide += `
+                        <li style="background:white; border:1.5px solid #e5e7eb; padding:10px; border-radius:8px; display:flex; flex-direction:column;">
+                            <b style="color:#1f2937; font-size:0.95rem;">${idx + 1}. ${comp.name}</b>
+                            <span style="font-size:0.9rem; font-weight:800; color:#047857;">➔ ${binName}</span>
+                            <span style="font-size:0.8rem; color:#6b7280; margin-top:2px;">${comp.disposalAdvice}</span>
+                        </li>`;
+                    });
+                    
+                    dynamicGuide += `</ul></div>`;
+                    binRecycleGuide.innerHTML = dynamicGuide;
+                } else {
+                    binRecycleGuide.innerHTML = config.guideText[lang] || config.guideText['en'];
+                }
+
+                upcycleBtn.style.display = (selectedItemKey === "non-biodegradable") ? "flex" : "none";
+            }
+        }
+
+        categoryOverride.addEventListener('change', () => {
+            selectedItemKey = categoryOverride.value;
+            handleCategorySelectionChange();
+            EcoVoice.speak(selectedItemKey);
+        });
+
+        startQuestBtn.addEventListener('click', () => {
+            selectedItemKey = categoryOverride.value;
+            if (selectedItemKey === "living_being") return;
+
+            shiftActiveScreen("QUEST");
+            progressWrapper.style.display = "flex";
+            compileDynamicChecklistStructure(selectedItemKey);
+        });
+
+        function compileDynamicChecklistStructure(itemKey) {
+            targetItemName.innerText = itemKey.toUpperCase() + " SORTING CHECKLIST";
+            tasksContainer.innerHTML = "";
+            sessionEarnedXP = 0;
+
+            let steps = [];
+            if (itemKey === "mixed" && currentDetectedComponents.length > 0) {
+                currentDetectedComponents.forEach(c => {
+                    let bin = SMART_BIN_CONFIG[c.category]?.badgeText['en'] || "Blue Bin";
+                    steps.push(`Separate ${c.name} and deposit cleanly into the ${bin}.`);
+                });
+            } else {
+                steps = [
+                    "Inspect item for liquid or contamination.",
+                    "Prep and separate any outer packaging.",
+                    "Deposit directly into the designated smart bin stream."
+                ];
+            }
+
+            steps.forEach(stepString => {
+                const card = document.createElement('div');
+                card.className = "step-item primary-task";
+                card.innerHTML = `
+                    <div class="step-left">
+                        <div class="custom-check"></div>
+                        <span>${stepString}</span>
+                    </div>
+                    <span class="step-xp-tag">+10 XP</span>
+                `;
+                card.addEventListener('click', () => {
+                    card.classList.toggle('completed-task');
+                    evaluateChecklistProgress();
+                });
+                tasksContainer.appendChild(card);
+            });
+            evaluateChecklistProgress();
+        }
+
+        function evaluateChecklistProgress() {
+            const primaryNodes = tasksContainer.querySelectorAll('.primary-task');
+            if (primaryNodes.length === 0) return;
+
+            let marked = 0;
+            primaryNodes.forEach(node => { if (node.classList.contains('completed-task')) marked++; });
+
+            const fill = Math.round((marked / primaryNodes.length) * 100);
+            progressFill.style.width = `${fill}%`;
+            progressPercentageText.innerText = `${fill}%`;
+
+            if (marked === primaryNodes.length) {
+                sessionEarnedXP = marked * 10;
+                setTimeout(() => shiftActiveScreen("PROOF"), 400);
+            }
+        }
+
+        submitProofPhotoBtn.addEventListener('click', () => {
+            if (!isProcessingSecondaryProof) {
+                isProcessingSecondaryProof = true;
+                canvas.style.display = "none";
+                video.style.display = "block";
+                reticle.style.display = "block";
+                submitProofPhotoBtn.innerText = "Confirm Proof Frame 📸";
+            } else {
+                const context = canvas.getContext('2d');
+                context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                video.style.display = "none";
+                canvas.style.display = "block";
+                submitProofPhotoBtn.disabled = true;
+
+                setTimeout(() => {
+                    const netEarned = sessionEarnedXP > 0 ? sessionEarnedXP : 30;
+                    userXP += netEarned;
+                    localStorage.setItem(`ecoXP_${selectedCampus}_${currentUser}`, userXP);
+
+                    CampusImpact.recordScan(selectedItemKey);
+
+                    // Add history entry
+                    loggedQuests.unshift({
+                        title: selectedItemKey.toUpperCase() + " Audit",
+                        reward: netEarned,
+                        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                    });
+                    if (loggedQuests.length > 5) loggedQuests.pop();
+                    localStorage.setItem(`ecoHistory_${selectedCampus}_${currentUser}`, JSON.stringify(loggedQuests));
+
+                    xpBlast.innerText = `💎 +${netEarned} XP!`;
+                    xpBlast.classList.remove('animate');
+                    void xpBlast.offsetWidth;
+                    xpBlast.classList.add('animate');
+
+                    setTimeout(() => {
+                        xpBlast.classList.remove('animate');
+                        submitProofPhotoBtn.disabled = false;
+                        resetToLiveCaptureView();
+                        updateScoreboardUi();
+                        renderHistoryLogs();
+                        buildInteractiveVisualTree(); // Refresh map to unlock nodes
+                    }, 1400);
+                }, 1000);
+            }
+        });
+
+        // ==========================================
+        // 8. CAMERA & SYSTEM HELPERS
+        // ==========================================
+        async function initCamera() {
+            try {
+                const constraints = { video: { facingMode: 'environment', width: { ideal: 640 }, height: { ideal: 480 } } };
+                const stream = await navigator.mediaDevices.getUserMedia(constraints)
+                    .catch(() => navigator.mediaDevices.getUserMedia({ video: true }));
+                video.srcObject = stream;
+                video.addEventListener('loadeddata', () => {
+                    snapPhotoBtn.disabled = false;
+                    document.getElementById('cameraStatusChip').innerHTML = "🎥 Camera Active";
+                });
+            } catch (err) {
+                console.error("Camera Error:", err);
+                statusLogger.innerText = "Camera permissions required for waste audits.";
+            }
+        }
 
         function resetToLiveCaptureView() {
             canvas.style.display = "none";
@@ -1514,228 +1242,157 @@
             progressWrapper.style.display = "none";
             livingBeingWarning.style.display = "none";
             isProcessingSecondaryProof = false;
-            submitProofPhotoBtn.innerText = SYSTEM_UI_DICTIONARY[langSelect.value].btnClaim;
-            submitProofPhotoBtn.classList.add('btn-blue');
-            currentDetectedComponents = []; 
-            
+            submitProofPhotoBtn.innerText = "Snap Proof & Claim XP 🏆";
+            currentDetectedComponents = [];
             shiftActiveScreen("CAPTURE");
-            
-            if (!isOnlineMode) {
-                startLiveARHUD(); 
+        }
+
+        function shiftActiveScreen(screenKey) {
+            Object.keys(screens).forEach(k => screens[k].classList.remove('active-screen'));
+            void screens[screenKey].offsetWidth;
+            screens[screenKey].classList.add('active-screen');
+        }
+
+        function updateModeUI() {
+            const weightChip = document.getElementById('weightActiveChip');
+            if (isOnlineMode) {
+                modeToggleBtn.className = "mode-toggle-btn mode-online";
+                modeToggleBtn.innerHTML = "<span>🌐 Online</span>";
+                weightChip.className = "status-chip chip-purple";
+                weightChip.innerHTML = "✨ Gemini Vision Active";
             } else {
-                statusLogger.innerText = "Online Mode Active: Position camera and capture photo.";
+                modeToggleBtn.className = "mode-toggle-btn mode-offline";
+                modeToggleBtn.innerHTML = "<span>💻 Offline</span>";
+                weightChip.className = "status-chip chip-green";
+                weightChip.innerHTML = "✓ Edge AI Active";
             }
         }
 
-        // TRIGGER NORMAL BIN DISPOSAL
-        startQuestBtn.addEventListener('click', () => {
-            selectedItemKey = categoryOverride.value;
-            if (selectedItemKey === "living_being") return;
-
-            shiftActiveScreen("QUEST");
-            progressWrapper.style.display = "flex";
-            statusLogger.innerText = SYSTEM_UI_DICTIONARY[langSelect.value].questActive;
-            compileDynamicChecklistStructure(selectedItemKey);
+        modeToggleBtn.addEventListener('click', () => {
+            isOnlineMode = !isOnlineMode;
+            updateModeUI();
         });
 
-        // TRIGGER CREATIVE DIY UPCYCLE
-        upcycleBtn.addEventListener('click', () => {
-            selectedItemKey = "upcycle"; 
-            shiftActiveScreen("QUEST");
-            progressWrapper.style.display = "flex";
-            statusLogger.innerText = SYSTEM_UI_DICTIONARY[langSelect.value].questActive;
-            compileDynamicChecklistStructure("upcycle");
-        });
+        function populateCategoryDropdown() {
+            categoryOverride.innerHTML = `
+                <option value="biodegradable">🌿 Biodegradable (Compost / Food Scraps / Paper)</option>
+                <option value="non-biodegradable">♻️ Non-Biodegradable (Plastics / Metal / Glass)</option>
+                <option value="mixed">🔀 Mixed Waste (Requires Physical Separation)</option>
+                <option value="hazardous">⚠️ Hazardous / E-Waste (Batteries / Electronics)</option>
+                <option value="inert">🧱 Inert Heavy Waste (Debris / Masonry)</option>
+                <option value="living_being">🚫 Living Entity (Non-Waste)</option>
+            `;
+            categoryOverride.value = selectedItemKey;
+        }
 
-        function compileDynamicChecklistStructure(itemKey) {
-            const lang = langSelect.value;
-            const contextData = localizationEngine[itemKey] ? localizationEngine[itemKey][lang] : localizationEngine["default"][lang];
-            
-            targetItemName.innerText = contextData.title;
-            tasksContainer.innerHTML = "";
-            sessionEarnedXP = 0;
-
-            let stepsToRender = [];
-
-            if (itemKey === "mixed" && currentDetectedComponents && currentDetectedComponents.length > 0) {
-                // Generate quest steps based on detected components
-                currentDetectedComponents.forEach(comp => {
-                    let binConfig = SMART_BIN_CONFIG[comp.category] || SMART_BIN_CONFIG["non-biodegradable"];
-                    let binName = binConfig.badgeText[lang] || binConfig.badgeText['en'];
-                    stepsToRender.push(`Dispose of the ${comp.name} into the ${binName}.`);
-                });
-            } else {
-                const poolSet = DYNAMIC_TASK_POOLS[itemKey] || DYNAMIC_TASK_POOLS["default"];
-                const randomIndex = Math.floor(Math.random() * poolSet.length);
-                const activePool = poolSet[randomIndex];
-                stepsToRender = [...activePool.primary];
-                stepsToRender.sort(() => Math.random() - 0.5);
-                
-                if (activePool.bonus) {
-                    setTimeout(() => { renderTaskCard(`🌟 Bonus Quest: ${activePool.bonus}`, "+15 XP", true); }, 100);
-                }
-            }
-
-            stepsToRender.forEach(stepString => {
-                renderTaskCard(stepString, "+10 XP", false);
+        // ==========================================
+        // 9. LEAGUE, UI UPDATES & INTERACTIVE MAP
+        // ==========================================
+        function getCurrentLeague() {
+            let activeLeague = LEAGUE_BRACKETS[0];
+            LEAGUE_BRACKETS.forEach(bracket => {
+                if (userXP >= bracket.minXp) activeLeague = bracket;
             });
-
-            evaluateChecklistProgress();
+            return activeLeague;
         }
 
-        function renderTaskCard(stepString, xpTagText, isBonus = false) {
-            const stepCardLabel = document.createElement('div');
-            stepCardLabel.className = "step-item" + (isBonus ? " bonus-task" : " primary-task");
-            if (isBonus) stepCardLabel.style.borderColor = "var(--duo-orange)";
+        function updateScoreboardUi() {
+            xpCountDisplay.innerText = `${userXP} XP`;
+            document.getElementById('lblQuestsCountMetric').innerText = loggedQuests.length;
             
-            const interiorLeftWrapper = document.createElement('div');
-            interiorLeftWrapper.className = "step-left";
-            
-            const customIndicatorNode = document.createElement('div');
-            customIndicatorNode.className = "custom-check";
-            
-            const textSpan = document.createElement('span');
-            textSpan.innerText = stepString;
-            
-            interiorLeftWrapper.appendChild(customIndicatorNode);
-            interiorLeftWrapper.appendChild(textSpan);
-            stepCardLabel.appendChild(interiorLeftWrapper);
-
-            const ptsTag = document.createElement('span');
-            ptsTag.className = "step-xp-tag";
-            ptsTag.innerText = xpTagText;
-            if (isBonus) {
-                ptsTag.style.background = "#fff7ed";
-                ptsTag.style.color = "var(--duo-orange)";
-                ptsTag.style.borderColor = "#ffedd5";
-            }
-            stepCardLabel.appendChild(ptsTag);
-            
-            stepCardLabel.addEventListener('click', () => {
-                stepCardLabel.classList.toggle('completed-task');
-                evaluateChecklistProgress();
-            });
-
-            tasksContainer.appendChild(stepCardLabel);
+            // Restored the dynamic league updating logic
+            const currentLeague = getCurrentLeague();
+            leagueNameDisplay.innerText = currentLeague.name;
+            leagueAvatarDisplay.className = "profile-badge-avatar " + currentLeague.class;
+            leagueAvatarDisplay.innerText = currentLeague.icon;
         }
 
-        function evaluateChecklistProgress() {
-            const primaryNodes = tasksContainer.querySelectorAll('.primary-task');
-            if (primaryNodes.length === 0) return;
-
-            let markedPrimary = 0;
-            primaryNodes.forEach(node => { if (node.classList.contains('completed-task')) markedPrimary++; });
-
-            const percentageFillRatio = Math.round((markedPrimary / primaryNodes.length) * 100);
-            progressFill.style.width = `${percentageFillRatio}%`;
-            progressPercentageText.innerText = `${percentageFillRatio}%`;
-
-            if (markedPrimary === primaryNodes.length) {
-                let totalXP = 0;
-                tasksContainer.querySelectorAll('.completed-task .step-xp-tag').forEach(tag => {
-                    totalXP += parseInt(tag.innerText.replace(/\D/g, '')) || 0;
-                });
-                sessionEarnedXP = totalXP;
-
-                setTimeout(() => {
-                    shiftActiveScreen("PROOF");
-                    document.getElementById('proofInstruction').innerText = localizationEngine[selectedItemKey] ? localizationEngine[selectedItemKey][langSelect.value].proofText : localizationEngine["default"][langSelect.value].proofText;
-                }, 400);
-            }
-        }
-
-        submitProofPhotoBtn.addEventListener('click', () => {
-            const dict = SYSTEM_UI_DICTIONARY[langSelect.value];
-            if (!isProcessingSecondaryProof) {
-                isProcessingSecondaryProof = true;
-                canvas.style.display = "none";
-                video.style.display = "block";
-                reticle.style.display = "block";
-                progressWrapper.style.display = "none";
-                
-                statusLogger.innerText = dict.secondaryProof;
-                submitProofPhotoBtn.innerText = dict.confirmProofBtn;
-                submitProofPhotoBtn.classList.remove('btn-blue');
-            } else {
-                const context = canvas.getContext('2d');
-                context.drawImage(video, 0, 0, canvas.width, canvas.height);
-                
-                video.style.display = "none";
-                reticle.style.display = "none";
-                canvas.style.display = "block";
-                
-                submitProofPhotoBtn.disabled = true;
-                statusLogger.innerText = dict.evalProof;
-
-                setTimeout(() => {
-                    const netEarnedXp = sessionEarnedXP > 0 ? sessionEarnedXP : 30; 
-                    const oldLeague = getCurrentLeague();
-                    
-                    userXP += netEarnedXp;
-                    localStorage.setItem(`ecoXP_${currentUser}`, userXP);
-                    
-                    CampusImpact.recordScan(selectedItemKey);
-
-                    const currentTimestamp = new Date();
-                    const timeString = currentTimestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                    const dateString = currentTimestamp.toLocaleDateString([], { month: 'short', day: 'numeric' });
-                    
-                    const activityRowItem = {
-                        title: localizationEngine[selectedItemKey] ? localizationEngine[selectedItemKey][langSelect.value].title : localizationEngine["default"][langSelect.value].title,
-                        reward: netEarnedXp,
-                        timestamp: `${dateString}, ${timeString}`
-                    };
-                    
-                    loggedQuests.unshift(activityRowItem);
-                    if (loggedQuests.length > 5) loggedQuests.pop();
-                    localStorage.setItem(`ecoHistory_${currentUser}`, JSON.stringify(loggedQuests));
-
-                    // Trigger improved XP blast animation
-                    xpBlast.innerText = `💎 +${netEarnedXp} XP!`;
-                    xpBlast.classList.remove('animate');
-                    void xpBlast.offsetWidth;
-                    xpBlast.classList.add('animate');
-                    
-                    setTimeout(() => {
-                        xpBlast.classList.remove('animate');
-                        submitProofPhotoBtn.disabled = false;
-                        
-                        applyLanguageStrings();
-                        resetToLiveCaptureView();
-                    }, 1500);
-
-                }, 1200);
-            }
+        // Allow user to click their profile box to see their active league
+        activeProfileBoxContainer.addEventListener('click', () => {
+            const curLg = getCurrentLeague();
+            modalTitle.innerText = `${curLg.icon} ${curLg.name}`;
+            modalDescription.innerText = curLg.desc;
+            levelInfoModal.style.display = 'flex';
         });
 
         function renderHistoryLogs() {
             historyLog.innerHTML = "";
-            const dict = SYSTEM_UI_DICTIONARY[langSelect.value];
             if (loggedQuests.length === 0) {
-                historyLog.innerHTML = `<li class="history-item" style="color: var(--text-muted); font-size:0.95rem; justify-content:center;">${dict.logEmpty}</li>`;
+                historyLog.innerHTML = `<li class="history-item" style="color:var(--text-muted); justify-content:center;">No campus audits recorded yet today.</li>`;
                 return;
             }
-            loggedQuests.forEach((record, index) => {
-                const entryNode = document.createElement('li');
-                entryNode.className = "history-item";
-                entryNode.style.animationDelay = `${index * 0.1}s`;
-                entryNode.innerHTML = `
+            loggedQuests.forEach((r, idx) => {
+                const li = document.createElement('li');
+                li.className = "history-item";
+                li.style.animationDelay = `${idx * 0.05}s`;
+                li.innerHTML = `
                     <div>
-                        <span style="font-weight:900; color:var(--text-dark);">${record.title}</span>
-                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top:4px;">${dict.verifiedAt}${record.timestamp}</div>
+                        <span style="font-weight:900;">${r.title}</span>
+                        <div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">Verified: ${r.timestamp}</div>
                     </div>
-                    <span class="history-tag">+${record.reward} XP</span>
+                    <span class="history-tag">+${r.reward} XP</span>
                 `;
-                historyLog.appendChild(entryNode);
+                historyLog.appendChild(li);
             });
         }
 
-        langSelect.addEventListener('change', () => {
-            applyLanguageStrings();
-            if (selectedItemKey) {
-                EcoVoice.speak(selectedItemKey);
-            }
+        function buildInteractiveVisualTree() {
+            duoTreeMap.innerHTML = "";
+            const nodes = [
+                { id: 1, minXp: 0, icon: "🌱", title: "Eco Novice" },
+                { id: 2, minXp: 100, icon: "🔍", title: "Waste Identifier" },
+                { id: 3, minXp: 250, icon: "♻️", title: "Sorting Apprentice" },
+                { id: 4, minXp: 450, icon: "🛡️", title: "Campus Guardian" },
+                { id: 5, minXp: 700, icon: "⚡", title: "Segregation Specialist" },
+                { id: 6, minXp: 1000, icon: "🎓", title: "Sustainability Scholar" },
+                { id: 7, minXp: 1350, icon: "⚔️", title: "Eco Warrior" },
+                { id: 8, minXp: 1750, icon: "🧠", title: "Recycling Strategist" },
+                { id: 9, minXp: 2250, icon: "🏆", title: "Zero-Waste Champion" },
+                { id: 10, minXp: 3000, icon: "👑", title: "EcoLens Master" }
+            ];
+
+            nodes.forEach((n, idx) => {
+                const node = document.createElement('div');
+                let isUnlocked = userXP >= n.minXp;
+                
+                // Segment colors based on Rank minimums
+                let segmentClass = "node-locked";
+                if (isUnlocked) {
+                    if (n.minXp >= 1350) segmentClass = "node-diamond-active";
+                    else if (n.minXp >= 700) segmentClass = "node-gold-active";
+                    else if (n.minXp >= 250) segmentClass = "node-silver-active";
+                    else segmentClass = "node-bronze-active";
+                }
+                
+                node.className = `tree-node ${segmentClass}`;
+                if (idx % 2 === 1) node.classList.add('node-left');
+                if (idx % 2 === 0 && idx !== 0) node.classList.add('node-right');
+                node.innerText = n.icon;
+
+                // NEW: INTERACTIVE XP UNLOCK ALERT
+                node.addEventListener('click', () => {
+                    if (!isUnlocked) {
+                        const xpNeeded = n.minXp - userXP;
+                        modalTitle.innerText = `🔒 Locked: Level ${n.id}`;
+                        modalDescription.innerText = `You need ${n.minXp} total XP to unlock "${n.title}".\n\nKeep scanning items to earn ${xpNeeded} more XP!`;
+                    } else {
+                        modalTitle.innerText = `✅ Level ${n.id}: ${n.title}`;
+                        modalDescription.innerText = `You have successfully unlocked this level! Keep going!`;
+                    }
+                    levelInfoModal.style.display = 'flex';
+                });
+
+                duoTreeMap.appendChild(node);
+            });
+        }
+
+        // Ensure the close button hides the modal overlay
+        modalCloseBtn.addEventListener('click', () => { 
+            levelInfoModal.style.display = 'none'; 
         });
+
+        analysisRetakeBtn.addEventListener('click', resetToLiveCaptureView);
+        questCancelBtn.addEventListener('click', resetToLiveCaptureView);
     </script>
 </body>
 </html>
