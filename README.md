@@ -136,7 +136,7 @@ No accuracy percentage has been measured on a held-out campus photo set, and liv
 
 ## Project layout
 
-The HTML loads `bootstrap.js` and the complete generated interface under `releases/naac-v9/`. New release paths bypass older service-worker caches that could otherwise mix a new page with old translations/scripts. The worker downloads a complete interface before activating it; online interface files are refreshed, while unchanged model weights keep their existing cache. Saved profiles and progress are not cleared. Offline readiness requires both the interface and model pack.
+The HTML loads `bootstrap.js` and the complete generated interface under `releases/naac-v10/`. New release paths bypass older service-worker caches that could otherwise mix a new page with old translations/scripts. The worker downloads a complete interface before activating it; online interface files are refreshed, while unchanged model weights keep their existing cache. Saved profiles and progress are not cleared. Offline readiness requires both the interface and model pack.
 
 `npm start` prepares the generated interface automatically before serving. After editing source files for a static preview, run `npm run build`; the generated release files are also included in this source archive. When shipping a later interface release, use a new release directory/version consistently in the builder, bootstrap, HTML and worker.
 

@@ -204,6 +204,7 @@ const rows = {
   onlineTimeout: l('Online check took too long. Your on-device result is ready.', 'অনলাইন যাচাইয়ে বেশি সময় লাগছে। ডিভাইসের ফল তৈরি আছে।', 'ऑनलाइन जाँच में अधिक समय लगा। डिवाइस का परिणाम तैयार है।'),
   cameraUnavailable: l('Camera unavailable. Allow camera access or upload a photo.', 'ক্যামেরা পাওয়া যাচ্ছে না। অনুমতি দিন বা ছবি আপলোড করুন।', 'कैमरा उपलब्ध नहीं है। कैमरे की अनुमति दें या फोटो अपलोड करें।'),
   readyToScan: l('Ready to scan', 'স্ক্যানের জন্য প্রস্তুত', 'स्कैन के लिए तैयार'),
+  scannerIdle: l('Start scanning or prepare offline access', 'স্ক্যান শুরু করুন বা অফলাইন ব্যবহার প্রস্তুত করুন', 'स्कैन शुरू करें या ऑफ़लाइन उपयोग तैयार करें'),
   cachePreparing: l('Saving offline files…', 'অফলাইন ফাইল সেভ হচ্ছে…', 'ऑफ़लाइन फाइलें सहेजी जा रही हैं…'),
   cacheReady: l('Offline files are saved', 'অফলাইন ফাইল সেভ হয়েছে', 'ऑफ़लाइन फाइलें सहेजी गई हैं'),
   loadingRuntime: l('Starting the scanner', 'স্ক্যানার চালু হচ্ছে', 'स्कैनर शुरू हो रहा है'),

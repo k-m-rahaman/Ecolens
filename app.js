@@ -45,7 +45,7 @@ function updateStatus(message){
  $('engineLabel').textContent=tr(analysis?.source==='online'?'modelCloud':analysis||!cloudReady?'modelLocal':'modelCloud');
  $('cloudStatus').textContent=tr(endpoint?'cloudPrivacy':'cloudNotConnected');
  document.querySelector('[data-i18n="endpointHint"]').textContent=tr(endpoint?'endpointHint':'hostedEndpointHint');
- if(!busy){$('statusTitle').textContent=message||tr(modelReady?'readyToScan':'loadingOffline');$('statusText').textContent=tr(state.settings.mode==='online'?(endpoint?'onlineHint':'cloudNotConnected'):'offlineHint');}
+ if(!busy){const scanner=getOfflineStatus();const status=scanner.loading||scanner.warming?'loadingOffline':modelReady||scanner.ready?'readyToScan':'scannerIdle';$('statusTitle').textContent=message||tr(status);$('statusText').textContent=tr(state.settings.mode==='online'?(endpoint?'onlineHint':'cloudNotConnected'):'offlineHint');}
 }
 async function ensureModel(){
  if(!offlinePromise)offlinePromise=initOffline({onProgress:showScanProgress}).then(result=>{modelReady=result.ready;updateStatus();return result;}).catch(error=>{offlinePromise=null;updateStatus(tr('modelError'));throw error;});

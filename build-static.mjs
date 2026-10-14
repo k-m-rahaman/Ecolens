@@ -6,11 +6,14 @@ import { RELEASE } from './build-release.mjs';
 const root=path.dirname(fileURLToPath(import.meta.url));
 const output=path.join(root,'dist');
 const marker='.ecolens-static-build';
+const interfaceFiles=['app.js','core.js','data.js','inference.js','scan-flow.js','media.js','report.js','public-sync.js','public-config.js','firebase-sync.js','styles.css'];
+// Retain the previously published graph for visitors with an open older tab.
+const interfaces=[...new Set([RELEASE,'naac-v9'])];
 // This list is the publication boundary. Never serve the repository itself.
 const files=[
  'index.html','bootstrap.js','sw.js','manifest.webmanifest','THIRD_PARTY_NOTICES.md',
  'assets/icon.svg','assets/ecolens-mark.svg','assets/ecolens-logo.svg','assets/images/Mascot.webp',
- ...['app.js','core.js','data.js','inference.js','scan-flow.js','media.js','report.js','public-sync.js','public-config.js','firebase-sync.js','styles.css'].map(file=>`releases/${RELEASE}/${file}`),
+ ...interfaces.flatMap(version=>interfaceFiles.map(file=>`releases/${version}/${file}`)),
  ...['ort.min.js','ort-wasm-simd-threaded.mjs','ort-wasm-simd-threaded.wasm','tf.min.js','coco-ssd.min.js','LICENSE-onnxruntime.txt','LICENSE-tensorflow.txt'].map(file=>`vendor/${file}`),
  'models/custom-yolo/GarbageDetector.onnx','models/coco/model.json',
  ...Array.from({length:5},(_,i)=>`models/coco/group1-shard${i+1}of5`),
