@@ -1,0 +1,1 @@
+{"name":"ecolens-pro","version":"2.0.0","private":true,"type":"module","scripts":{"start":"node server.mjs","test":"node --test *.test.mjs","build":"node build-release.mjs","build:static":"node build-static.mjs","prestart":"node build-release.mjs"},"engines":{"node":">=20"}}

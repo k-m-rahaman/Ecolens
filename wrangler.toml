@@ -1,0 +1,22 @@
+name = "ecolens-vision"
+main = "cloudflare-worker.mjs"
+compatibility_date = "2026-10-12"
+
+[vars]
+GEMINI_MODEL = "gemini-2.5-flash"
+FREE_TIER_ONLY = "0"
+DAILY_SCAN_LIMIT = "20"
+SCANS_PER_MINUTE = "3"
+# Replace with your actual frontend origin before deployment.
+ALLOWED_ORIGIN = "https://example.invalid"
+
+[[durable_objects.bindings]]
+name = "QUOTA"
+class_name = "EcoLensQuota"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["EcoLensQuota"]
+
+# Set GEMINI_API_KEY through deployment secret storage, not this file.
+# Set FREE_TIER_ONLY to "1" only for a confirmed unbilled provider project.

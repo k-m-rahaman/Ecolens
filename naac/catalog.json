@@ -1,0 +1,206 @@
+[
+  {
+    "institutionId": "brainware",
+    "name": "Brainware University",
+    "type": "university",
+    "area": "Barasat · Greater Kolkata"
+  },
+  {
+    "institutionId": "jadavpur",
+    "name": "Jadavpur University",
+    "type": "university",
+    "area": "Jadavpur · Kolkata"
+  },
+  {
+    "institutionId": "techno-india",
+    "name": "Techno India University",
+    "type": "university",
+    "area": "Salt Lake · Greater Kolkata"
+  },
+  {
+    "institutionId": "calcutta",
+    "name": "University of Calcutta",
+    "type": "university",
+    "area": "College Street · Kolkata"
+  },
+  {
+    "institutionId": "presidency",
+    "name": "Presidency University",
+    "type": "university",
+    "area": "College Street · Kolkata"
+  },
+  {
+    "institutionId": "amity",
+    "name": "Amity University Kolkata",
+    "type": "university",
+    "area": "New Town · Greater Kolkata"
+  },
+  {
+    "institutionId": "adamas",
+    "name": "Adamas University",
+    "type": "university",
+    "area": "Barasat · Greater Kolkata"
+  },
+  {
+    "institutionId": "aliah",
+    "name": "Aliah University",
+    "type": "university",
+    "area": "New Town / Park Circus · Kolkata region"
+  },
+  {
+    "institutionId": "rabindra-bharati",
+    "name": "Rabindra Bharati University",
+    "type": "university",
+    "area": "Kolkata"
+  },
+  {
+    "institutionId": "xaviers-university",
+    "name": "St. Xavier’s University, Kolkata",
+    "type": "university",
+    "area": "New Town · Greater Kolkata"
+  },
+  {
+    "institutionId": "sister-nivedita",
+    "name": "Sister Nivedita University",
+    "type": "university",
+    "area": "New Town · Greater Kolkata"
+  },
+  {
+    "institutionId": "jis",
+    "name": "JIS University",
+    "type": "university",
+    "area": "Agarpara · Greater Kolkata"
+  },
+  {
+    "institutionId": "uem",
+    "name": "University of Engineering & Management, Kolkata",
+    "type": "university",
+    "area": "New Town · Greater Kolkata"
+  },
+  {
+    "institutionId": "iiser",
+    "name": "IISER Kolkata",
+    "type": "college",
+    "area": "Mohanpur, Nadia · Nearby region, outside Kolkata"
+  },
+  {
+    "institutionId": "iim",
+    "name": "Indian Institute of Management Calcutta",
+    "type": "college",
+    "area": "Joka · Kolkata"
+  },
+  {
+    "institutionId": "xaviers-college",
+    "name": "St. Xavier’s College (Autonomous), Kolkata",
+    "type": "college",
+    "area": "Park Street · Kolkata"
+  },
+  {
+    "institutionId": "scottish-church",
+    "name": "Scottish Church College",
+    "type": "college",
+    "area": "Kolkata"
+  },
+  {
+    "institutionId": "heritage-institute",
+    "name": "Heritage Institute of Technology",
+    "type": "college",
+    "area": "Anandapur · Kolkata"
+  },
+  {
+    "institutionId": "bethune",
+    "name": "Bethune College",
+    "type": "college",
+    "area": "Kolkata"
+  },
+  {
+    "institutionId": "asutosh",
+    "name": "Asutosh College",
+    "type": "college",
+    "area": "Bhowanipore · Kolkata"
+  },
+  {
+    "institutionId": "la-martiniere-boys",
+    "name": "La Martiniere for Boys",
+    "type": "school",
+    "area": "Kolkata"
+  },
+  {
+    "institutionId": "la-martiniere-girls",
+    "name": "La Martiniere for Girls",
+    "type": "school",
+    "area": "Kolkata"
+  },
+  {
+    "institutionId": "south-point",
+    "name": "South Point School / South Point High School",
+    "type": "school",
+    "area": "Kolkata"
+  },
+  {
+    "institutionId": "modern-high",
+    "name": "Modern High School for Girls",
+    "type": "school",
+    "area": "Kolkata"
+  },
+  {
+    "institutionId": "don-bosco",
+    "name": "Don Bosco School, Park Circus",
+    "type": "school",
+    "area": "Park Circus · Kolkata"
+  },
+  {
+    "institutionId": "xaviers-collegiate",
+    "name": "St. Xavier’s Collegiate School",
+    "type": "school",
+    "area": "Park Street · Kolkata"
+  },
+  {
+    "institutionId": "birla-high",
+    "name": "Birla High School",
+    "type": "school",
+    "area": "Kolkata"
+  },
+  {
+    "institutionId": "loreto-house",
+    "name": "Loreto House",
+    "type": "school",
+    "area": "Kolkata"
+  },
+  {
+    "institutionId": "hindu-school",
+    "name": "Hindu School",
+    "type": "school",
+    "area": "College Street · Kolkata"
+  },
+  {
+    "institutionId": "heritage-school",
+    "name": "The Heritage School",
+    "type": "school",
+    "area": "Anandapur · Kolkata"
+  },
+  {
+    "institutionId": "dps-newtown",
+    "name": "Delhi Public School Newtown",
+    "type": "school",
+    "area": "New Town · Greater Kolkata"
+  },
+  {
+    "institutionId": "calcutta-international",
+    "name": "Calcutta International School",
+    "type": "school",
+    "area": "Anandapur · Kolkata"
+  },
+  {
+    "institutionId": "ashok-hall",
+    "name": "Ashok Hall Girls’ Higher Secondary School",
+    "type": "school",
+    "area": "Sarat Bose Road · Kolkata"
+  },
+  {
+    "institutionId": "dps-ruby",
+    "name": "Delhi Public School Ruby Park, Kolkata",
+    "type": "school",
+    "area": "Ruby Park · Kolkata"
+  }
+]

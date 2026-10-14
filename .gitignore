@@ -1,0 +1,10 @@
+.ecolens/
+.env
+.env.*
+!.env.example
+.dev.vars
+node_modules/
+.firebase/
+.wrangler/
+*.log
+dist/

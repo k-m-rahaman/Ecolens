@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="520" height="160" viewBox="0 0 520 160" role="img" aria-labelledby="title desc">
+  <title id="title">EcoLens Pro</title>
+  <desc id="desc">The EcoLens leaf-and-planet lens mark beside the EcoLens Pro wordmark.</desc>
+  <g>
+    <circle cx="80" cy="80" r="73" fill="#174d3a"/>
+    <path d="M126 42a60 60 0 1 0 12 55" fill="none" stroke="#8fd3b2" stroke-width="6" stroke-linecap="round"/>
+    <circle cx="137" cy="61" r="7" fill="#bcf173"/>
+    <circle cx="80" cy="80" r="39" fill="#24694e" stroke="#8fd3b2" stroke-width="3"/>
+    <g fill="none" stroke="#8fd3b2" stroke-width="2.5" stroke-linecap="round" opacity=".65">
+      <path d="M79 42c-22 21-22 55 0 76M42 80h76M48 100c18-8 46-8 64 0"/>
+    </g>
+    <path d="M54 101C49 78 62 56 108 49c4 31-20 55-54 52Z" fill="#bcf173"/>
+    <path d="m60 95 37-34M75 80l-1-13" fill="none" stroke="#174d3a" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <text x="180" y="99" fill="#174d3a" font-family="Segoe UI, Arial, sans-serif" font-size="63" font-weight="700" letter-spacing="-2.5">EcoLens</text>
+  <rect x="422" y="36" width="70" height="27" rx="13.5" fill="#bcf173"/>
+  <text x="457" y="55" text-anchor="middle" fill="#174d3a" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" letter-spacing="1.5">PRO</text>
+</svg>

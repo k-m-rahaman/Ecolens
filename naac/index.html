@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#174d3a">
+  <meta name="description" content="Public EcoLens institution reports: shared waste-sorting and landfill-diversion estimates for universities, colleges and schools.">
+  <title>EcoLens · Public NAAC Reports</title>
+  <link rel="icon" href="./assets/ecolens-mark.svg" type="image/svg+xml">
+  <script>try{let p=JSON.parse(localStorage.getItem('ecolens-public-preferences')||'{}');document.documentElement.dataset.theme=p.theme==='dark'||(!p.theme&&matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light'}catch{}</script>
+  <link rel="stylesheet" href="./styles.css">
+  <script type="module" src="./public.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#reports" data-i18n="skip">Skip to reports</a>
+  <header class="page-header">
+    <a class="brand" href="./" aria-label="EcoLens public NAAC reports"><img src="./assets/ecolens-mark.svg" width="52" height="52" alt=""><span>EcoLens <small>PRO</small></span></a>
+    <div class="preferences">
+      <label class="sr-only" for="language" data-i18n="language">Language</label>
+      <select id="language" aria-label="Language"><option value="en">English</option><option value="bn">বাংলা</option><option value="hi">हिन्दी</option></select>
+      <button id="theme" class="icon-button" type="button" aria-label="Switch to dark theme">☾</button>
+    </div>
+  </header>
+  <main>
+    <section class="hero" aria-labelledby="pageTitle">
+      <div><span class="eyebrow" data-i18n="publicBadge">PUBLIC INSTITUTION REPORTS</span><h1 id="pageTitle" data-i18n="title">NAAC Sustainability Reports</h1><p class="intro" data-i18n="intro">Explore how universities, colleges and schools contribute to a cleaner campus. These shared totals can be viewed by everyone.</p></div>
+      <div class="privacy-note"><span class="privacy-icon" aria-hidden="true">◎</span><p data-i18n="privacy">Only institution totals are public. Student names, photos, personal activity and XP are not included.</p></div>
+    </section>
+    <div id="loadStatus" class="status" role="status" aria-live="polite"><span class="status-dot" aria-hidden="true"></span><div><strong id="statusTitle" data-i18n="loading">Loading shared reports…</strong><p id="statusText" data-i18n="loadingDetail">Connecting to the public report service.</p></div><button id="refresh" type="button" class="secondary" data-i18n="refresh">Refresh</button></div>
+    <section class="summary" aria-label="Shared report totals" id="summary"><article><span data-i18n="institutions">Institutions</span><strong id="totalInstitutions">—</strong></article><article><span data-i18n="sorted">Estimated material sorted</span><strong id="totalSorted">—</strong></article><article><span data-i18n="diverted">Estimated landfill diversion</span><strong id="totalDiverted">—</strong></article><article><span data-i18n="co2">Estimated CO₂e potential</span><strong id="totalCo2">—</strong></article></section>
+    <section class="directory" id="reports" aria-labelledby="directoryTitle">
+      <div class="section-heading"><div><h2 id="directoryTitle" data-i18n="directory">All institution reports</h2><p id="resultCount" aria-live="polite"></p></div><button id="exportAll" type="button" class="secondary" disabled data-i18n="exportAll">Download all reports · CSV</button></div>
+      <div class="filters"><div class="search-wrap"><span aria-hidden="true">⌕</span><label class="sr-only" for="search" data-i18n="search">Search institutions</label><input id="search" type="search" placeholder="Search institution or area" autocomplete="off"></div><label class="sr-only" for="typeFilter" data-i18n="institutionType">Institution type</label><select id="typeFilter"><option value="all" data-i18n="allTypes">All institution types</option><option value="university" data-i18n="university">Universities</option><option value="college" data-i18n="college">Colleges & institutes</option><option value="school" data-i18n="school">Schools</option><option value="other" data-i18n="other">Other institutions</option></select></div>
+      <div id="institutionGrid" class="institution-grid"></div>
+      <p id="emptyResults" class="empty" hidden data-i18n="noMatches">No matching institutions. Try another search.</p>
+    </section>
+    <aside class="methodology"><h2 data-i18n="methodTitle">What these figures mean</h2><p data-i18n="method">Totals come from shared EcoLens activity submitted by participating users. Material mass and CO₂e are estimates; diversion is recorded from user-confirmed sorting and estimated weights, not a verified waste audit. The directory is not a list of EcoLens partner institutions.</p><p data-i18n="naacNote">This is supporting sustainability information for a NAAC report. It is not a NAAC accreditation result or an official certificate. Schools can view the same environmental summary.</p></aside>
+  </main>
+  <footer><strong>EcoLens</strong><span data-i18n="footer">Small actions. A greener campus.</span></footer>
+  <dialog id="institutionDialog" aria-labelledby="dialogTitle"><div class="dialog-header"><span class="eyebrow" data-i18n="reportBadge">PUBLIC NAAC REPORT</span><button id="closeDialog" class="icon-button" type="button" aria-label="Close report">×</button></div><h2 id="dialogTitle"></h2><p id="dialogArea" class="muted"></p><p id="dialogAvailability" class="report-availability"></p><div id="dialogMetrics" class="detail-metrics"></div><p id="profileCountNote" class="detail-note"></p><p class="detail-note" data-i18n="detailNote">All values are institution aggregates. Confirmed and assumed diversion use estimated item weights; no student details are shown.</p><div class="dialog-actions"><button id="exportInstitution" class="primary" type="button" disabled data-i18n="downloadReport">Download institution report · CSV</button><button id="dialogDone" class="secondary" type="button" data-i18n="done">Done</button></div></dialog>
+</body>
+</html>

@@ -1,0 +1,14 @@
+{
+  "projects": {},
+  "targets": {
+    "ecolens-live": {
+      "hosting": {
+        "app": ["ecolens-live"],
+        "naac": [
+          "ecolens-live-naac"
+        ]
+      }
+    }
+  },
+  "etags": {}
+}

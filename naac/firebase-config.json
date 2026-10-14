@@ -1,0 +1,7 @@
+{
+  "version": 1,
+  "provider": "firebase",
+  "projectId": "ecolens-live",
+  "apiKey": "AIzaSyC4oDzQ98HpW77QknAuUNUnJC3Rfu17LR4",
+  "databaseURL": "https://ecolens-live-default-rtdb.asia-southeast1.firebasedatabase.app"
+}

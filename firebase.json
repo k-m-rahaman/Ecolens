@@ -1,0 +1,28 @@
+{
+  "hosting": [{
+    "target": "app",
+    "public": "dist",
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "headers": [
+      {"source": "/index.html", "headers": [{"key": "Cache-Control", "value": "no-cache"}]},
+      {"source": "/bootstrap.js", "headers": [{"key": "Cache-Control", "value": "no-cache"}]},
+      {"source": "/sw.js", "headers": [{"key": "Cache-Control", "value": "no-cache"}]},
+      {"source": "/releases/**", "headers": [{"key": "Cache-Control", "value": "public,max-age=31536000,immutable"}]},
+      {"source": "/vendor/**", "headers": [{"key": "Cache-Control", "value": "public,max-age=86400"}]},
+      {"source": "/models/**", "headers": [{"key": "Cache-Control", "value": "public,max-age=86400"}]},
+      {"source": "/naac/firebase-config.json", "headers": [{"key": "Cache-Control", "value": "no-store"}]},
+      {"source": "**", "headers": [{"key": "X-Content-Type-Options", "value": "nosniff"}, {"key": "Referrer-Policy", "value": "no-referrer"}]}
+    ]
+  }, {
+    "target": "naac",
+    "public": "naac",
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "headers": [
+      {"source": "/firebase-config.json", "headers": [{"key": "Cache-Control", "value": "no-store"}]},
+      {"source": "/index.html", "headers": [{"key": "Cache-Control", "value": "no-cache"}]},
+      {"source": "**", "headers": [{"key": "X-Content-Type-Options", "value": "nosniff"}, {"key": "Referrer-Policy", "value": "no-referrer"}]}
+    ]
+  }],
+  "database": {"rules": "firebase.database.rules.json"},
+  "auth": {"providers": {"anonymous": true}}
+}
