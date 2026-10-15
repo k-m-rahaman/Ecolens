@@ -6,7 +6,7 @@ A free, multilingual campus waste-sorting web app with local AI, optional online
 
 The public app works on laptop and phone browsers. Profiles and progress stay on the visitor's device. Photos stay local in Offline mode; Online mode can send a scan photo to Google only after separate permission in Settings. Only anonymous institution totals are shared with the public NAAC report after opting in. Prepare offline once while connected to use the local scanner without internet. The first model download is approximately 45 MB.
 
-This Firebase build includes optional Google Gemini vision through Firebase AI Logic, protected by Firebase App Check. It uses the Gemini Developer API on a project with billing disabled, alongside the on-device scanner. It needs no user-supplied AI key. The public website's deployed version determines whether this connection is available; a configured status alone does not prove a successful cloud scan.
+This Firebase build includes optional Google Gemini vision through Firebase AI Logic, protected by Firebase App Check. It uses the Gemini Developer API on a project with billing disabled, alongside the on-device scanner. It needs no user-supplied AI key. The hosted connection is ready after you opt in to Google photo checks; an Online result badge confirms that a particular scan used cloud AI.
 
 ## Start
 
@@ -138,7 +138,7 @@ npm test
 
 The saved tests cover the event ledger, streaks, duplicate rewards, legacy XP, image preprocessing/decoding, uncertainty, cloud request contracts, Firebase photo permission, cancellation and timeouts, safe server paths, origin checks, error sanitization and persistent gateway quotas. Additional implementation QA exercised the translated interface and upcycling journey in a DOM harness, and ran the real FP32 model through the bundled WebAssembly runtime.
 
-Automated tests do not prove that a deployed provider connection is healthy. Confirm a real cloud response on the hosted site, including the **Cloud vision** result source, before presenting. No accuracy percentage has been measured on a held-out campus photo set. Check actual camera operation, phone performance, ambiguous materials and a full service-worker disconnect/reload on the presentation devices.
+Automated tests do not prove that a deployed provider connection is healthy. Confirm a real cloud response on the hosted site, including the **Online** result badge, before presenting. No accuracy percentage has been measured on a held-out campus photo set. Check actual camera operation, phone performance, ambiguous materials and a full service-worker disconnect/reload on the presentation devices.
 
 ## Project layout
 
