@@ -1,5 +1,7 @@
 # Bundled dependencies
 
+Firebase JavaScript SDK 13.0.0 (App, AI Logic and App Check) is bundled from Google's official versioned CDN under Apache License 2.0. Its Firebase App import points to the bundled local file. [Source and license](https://github.com/firebase/firebase-js-sdk). The full license is in `vendor/LICENSE-firebase.txt`.
+
 The application bundles these dependencies to support local inference and offline operation. Their upstream licenses apply to their respective files.
 
 - ONNX Runtime Web 1.20.1 — Microsoft, MIT license. [Source and license](https://github.com/microsoft/onnxruntime/blob/v1.20.1/LICENSE).

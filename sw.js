@@ -1,10 +1,10 @@
-const RELEASE='naac-v10';
+const RELEASE='naac-v17';
 const SHELL_CACHE=`ecolens-shell-${RELEASE}`;
 const MODEL_CACHE='ecolens-models-ort120-fp32-v1';
 const NETWORK_WAIT_MS=2500;
 // Install the immutable release graph together; model weights keep their stable cache.
-const RELEASE_FILES=['app.js','core.js','data.js','inference.js','scan-flow.js','media.js','report.js','public-sync.js','public-config.js','firebase-sync.js','styles.css'];
-const SHELL=['./index.html','./bootstrap.js',...RELEASE_FILES.map(name=>`./releases/${RELEASE}/${name}`),'./assets/ecolens-mark.svg','./manifest.webmanifest','./assets/icon.svg','./assets/images/Mascot.webp'];
+const RELEASE_FILES=['app.js','core.js','data.js','inference.js','scan-flow.js','media.js','report.js','public-sync.js','public-config.js','firebase-sync.js','firebase-ai.js','firebase-ai-config.js','styles.css'];
+const SHELL=['./index.html','./bootstrap.js',...RELEASE_FILES.map(name=>`./releases/${RELEASE}/${name}`),'./assets/ecolens-mark.svg','./manifest.webmanifest','./assets/icon.svg','./assets/images/Mascot.webp','./vendor/firebase-ai-sdk.js','./vendor/firebase-app-13.0.0.js','./vendor/firebase-ai-13.0.0.js','./vendor/firebase-app-check-13.0.0.js'];
 const MODELS=['./vendor/ort.min.js','./vendor/ort-wasm-simd-threaded.mjs','./vendor/ort-wasm-simd-threaded.wasm','./vendor/tf.min.js','./vendor/coco-ssd.min.js','./models/custom-yolo/GarbageDetector.onnx','./models/coco/model.json',...Array.from({length:5},(_,i)=>`./models/coco/group1-shard${i+1}of5`)];
 const absolute=path=>new URL(path,self.registration.scope).href;
 const markerUrl=absolute(`./.ecolens-shell-${RELEASE}-complete`);

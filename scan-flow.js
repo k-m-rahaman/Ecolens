@@ -1,16 +1,29 @@
 import {analyzeOffline,analyzeOnline} from './inference.js';
+import {analyzeFirebaseOnline,hasFirebaseAI} from './firebase-ai.js';
+
+export const FIREBASE_ONLINE_ENDPOINT='firebase:gemini';
+export const FIREBASE_PHOTO_CONSENT_KEY='ecolens-firebase-photo-consent-v1';
 
 const cooldowns=new Map();
 const cooldownCodes=new Set(['NOT_CONFIGURED','FREE_TIER_REQUIRED','QUOTA_STORAGE_REQUIRED','RATE_LIMIT','DAILY_LIMIT','PROVIDER_QUOTA','PROVIDER_TIMEOUT','ONLINE_TIMEOUT','ONLINE_UNAVAILABLE','PROVIDER_UNAVAILABLE']);
 export function resetOnlineCooldown(endpoint){if(endpoint)cooldowns.delete(endpoint);else cooldowns.clear();}
 // Firebase's free static hosting has no same-origin Node vision gateway.
 // A custom HTTPS service remains optional; local Node launches keep their default.
-export function resolveOnlineEndpoint(endpoint='', page=globalThis.location){
+export function resolveOnlineEndpoint(endpoint='', page=globalThis.location,{firebaseReady=hasFirebaseAI()}={}){
  const configured=typeof endpoint==='string'?endpoint.trim():'';
  if(configured)return configured;
- if(/^[a-z0-9-]+\.(?:web\.app|firebaseapp\.com)$/i.test(page?.hostname||''))return '';
+ if(/^[a-z0-9-]+\.(?:web\.app|firebaseapp\.com)$/i.test(page?.hostname||''))return firebaseReady?FIREBASE_ONLINE_ENDPOINT:'';
  return './api/analyze';
 }
+export function cloudConsentAllowed(settings,{storage=globalThis.localStorage,endpoint=resolveOnlineEndpoint(settings?.endpoint)}={}){
+ if(settings?.cloudConsent!==true)return false;
+ if(endpoint!==FIREBASE_ONLINE_ENDPOINT)return true;
+ try{return storage?.getItem(FIREBASE_PHOTO_CONSENT_KEY)==='1';}catch{return false;}
+}
+export function rememberFirebasePhotoConsent(enabled,storage=globalThis.localStorage){
+ try{if(!storage?.setItem)return false;storage.setItem(FIREBASE_PHOTO_CONSENT_KEY,enabled?'1':'0');return true;}catch{return false;}
+}
+export function analyzeCloud(canvas,options){return options.endpoint===FIREBASE_ONLINE_ENDPOINT?analyzeFirebaseOnline(canvas,options):analyzeOnline(canvas,options);}
 function abortError(){return new DOMException('Scan cancelled.','AbortError');}
 function childController(signal){const controller=new AbortController();const abort=()=>controller.abort();if(signal?.aborted)abort();else signal?.addEventListener('abort',abort,{once:true});return {controller,clean:()=>signal?.removeEventListener('abort',abort)};}
 function bounded(task,{controller,signal,timeoutMs,code}){
@@ -23,7 +36,7 @@ function bounded(task,{controller,signal,timeoutMs,code}){
 export async function runScan(canvas,{
  mode='offline',consent=false,online=true,endpoint='',language='en',scene='single',signal,
  onStatus=()=>{},onProgress=()=>{},onResult=()=>{},acceptLocal,
- localAnalyze=analyzeOffline,cloudAnalyze=analyzeOnline,localTimeoutMs=25000,onlineTimeoutMs=12000,now=()=>Date.now()
+ localAnalyze=analyzeOffline,cloudAnalyze=analyzeCloud,localTimeoutMs=25000,onlineTimeoutMs=12000,now=()=>Date.now()
 }={}){
  if(signal?.aborted)throw abortError();
  endpoint=resolveOnlineEndpoint(endpoint);

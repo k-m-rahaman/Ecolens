@@ -4,9 +4,9 @@ A free, multilingual campus waste-sorting web app with local AI, optional online
 
 **Use EcoLens:** https://ecolens-live.web.app/ · **Public NAAC report:** https://ecolens-live-naac.web.app/
 
-The public app works on laptop and phone browsers. Profiles, photos and progress stay on the visitor's device. Only anonymous institution totals are shared after opting in. Prepare offline once while connected to use the local scanner without internet. The first model download is approximately 45 MB.
+The public app works on laptop and phone browsers. Profiles and progress stay on the visitor's device. Photos stay local in Offline mode; Online mode can send a scan photo to Google only after separate permission in Settings. Only anonymous institution totals are shared with the public NAAC report after opting in. Prepare offline once while connected to use the local scanner without internet. The first model download is approximately 45 MB.
 
-The Firebase-hosted app uses on-device detection in both modes until a separate HTTPS cloud vision gateway is connected. It skips unavailable cloud requests immediately. Firebase Spark serves the website and public NAAC data without running a paid server; cloud refinement has not been deployed.
+This Firebase build includes optional Google Gemini vision through Firebase AI Logic, protected by Firebase App Check. It uses the Gemini Developer API on a project with billing disabled, alongside the on-device scanner. It needs no user-supplied AI key. The public website's deployed version determines whether this connection is available; a configured status alone does not prove a successful cloud scan.
 
 ## Start
 
@@ -28,7 +28,7 @@ For a photo-upload preview on a phone connected to the same Wi-Fi, run:
 npm start -- --lan
 ```
 
-Open the private-network URL printed by the server on your phone. This opt-in preview listens on the local network and accepts private IPv4 hosts only; `LAN_PREVIEW=1` enables the same behavior and optional `LAN_HOSTS` adds private IPv4 addresses. Keep it for a trusted local network. Online AI remains disabled without the separate key/free-tier configuration below.
+Open the private-network URL printed by the server on your phone. This opt-in preview listens on the local network and accepts private IPv4 hosts only; `LAN_PREVIEW=1` enables the same behavior and optional `LAN_HOSTS` adds private IPv4 addresses. Keep it for a trusted local network. Local development uses the optional server gateway described below; the Firebase cloud connection is restricted to its configured hosted domains.
 
 Phone browsers require **HTTPS** for live camera access and service-worker offline preparation. The plain HTTP LAN preview supports uploaded photos and on-device analysis while the phone can reach the laptop, but does not provide a reliable disconnected reload. Use an HTTPS deployment to test the phone camera and **Prepare offline** flow. Localhost on the laptop also supports those features. Each browser origin has its own stored profiles and offline files.
 
@@ -52,11 +52,17 @@ The waste model classes are bag, cardboard, furniture, glass, metal, paper, plas
 
 ## Online mode and keeping it free
 
-Online mode runs local analysis alongside the protected `/api/analyze` request for richer item/material/separation guidance from Gemini. It uploads an image only after cloud-image consent is enabled in Settings. If the gateway is unavailable, the wait expires, quota is reached, or internet is absent, the app clearly reports local fallback. Online requests are disabled by default; the local scanner needs no AI key or subscription.
+On the Firebase-hosted app, open **Settings**, read the Google photo-sharing notice, enable **Allow my scan photos to be sent to Google Gemini when I choose Online mode**, and save. Then select **Online** on the scanner. Leave the optional custom scanner address empty to use the built-in Firebase connection. Photo permission starts off and can be withdrawn at any time. Changing the destination requires fresh permission; restoring a progress backup does not grant Google photo permission.
 
-Google currently lists a free tier for Gemini 2.5 Flash. A fresh key must belong to a project without billing enabled to keep provider usage free. A server flag cannot determine the provider account's billing state. No subscription or paid service is required by the app, and no paid backup provider is used. Provider quotas and availability can change. [Pricing](https://ai.google.dev/gemini-api/docs/pricing), [rate limits](https://ai.google.dev/gemini-api/docs/rate-limits).
+Online mode starts local analysis and a Firebase AI Logic image request together. The default model is the fast `gemini-3.5-flash-lite`; the client configuration also permits `gemini-3.8-flash`. It does not automatically switch to a paid provider or model. The whole cloud attempt has an approximately 12-second limit, including SDK preparation and attestation. When the connection fails, the limit expires, the free quota is unavailable, or the device is offline, the app uses local analysis when available. **Use this result** lets you accept a completed local result while cloud refinement is pending. The local scanner needs no AI key or subscription.
 
-The old key embedded in the previous frontend should be replaced. Do not put a replacement in webpage code, Git commits, screenshots, or chat. Configure it as a server environment variable or deployment secret.
+Google's free Gemini service may use submitted photos to improve its products. Scan requests include the photo and sorting instructions, not student names, profiles, XP or personal history. This photo permission is separate from public NAAC sharing, which never publishes photos or personal records. Firebase App Check uses a restricted reCAPTCHA Enterprise website key to attest cloud requests. The Firebase web configuration and site key are public identifiers, not administrator credentials or a private Gemini API key.
+
+Keep the Firebase project on **Spark** with billing disabled. Free quotas and model availability can change; reaching a quota can make cloud scanning unavailable, while the local scanner remains available. This build does not enable billing, Cloud Functions or a paid fallback. See [Firebase AI Logic pricing](https://firebase.google.com/docs/ai-logic/pricing), [Gemini API pricing](https://ai.google.dev/gemini-api/docs/pricing) and [Firebase App Check](https://firebase.google.com/docs/ai-logic/app-check).
+
+### Optional local or custom gateway
+
+`npm start` on localhost uses the included `/api/analyze` server rather than the hosted Firebase connection. An optional **Use a different scanner** setting accepts a custom HTTPS gateway. Those services have their own configuration and limits; they are not needed to use the Firebase-hosted app.
 
 For local cloud scanning, copy `.env.example` to `.env`, set the fresh server key and explicitly set `FREE_TIER_ONLY=1` only after checking the project has no billing. Start with:
 
@@ -64,9 +70,9 @@ For local cloud scanning, copy `.env.example` to `.env`, set the fresh server ke
 node --env-file=.env server.mjs
 ```
 
-In the app's Settings, enable image-upload consent and save. An empty endpoint uses the server's `/api/analyze`. When using Go Live or GitHub Pages instead, enter the deployed HTTPS gateway URL and configure its allowed origin to exactly match the website.
+In the local app's Settings, enable image-upload consent and save. An empty endpoint uses the server's `/api/analyze`. When using Go Live or GitHub Pages instead, enter the deployed HTTPS gateway URL and configure its allowed origin to exactly match the website. Never put a private Gemini key in webpage code, Git commits, screenshots or chat; use a server environment variable or deployment secret. Check the gateway's supported models against current provider availability before using it.
 
-Defaults cap the gateway at 20 requests per UTC day and three per minute, with a per-client cooldown. Local caps persist in ignored `.ecolens/quota.json`. The included Cloudflare Worker requires its `EcoLensQuota` Durable Object binding, configured in `wrangler.toml`, for a cap shared across worker instances. Worker/cloud hosting is not deployed by this local update. Verify the hosting plan's included limits separately.
+Defaults cap the optional gateway at 20 requests per UTC day and three per minute, with a per-client cooldown. These gateway limits do not apply to Firebase AI Logic, which uses Google's service quotas. Local gateway caps persist in ignored `.ecolens/quota.json`. The included Cloudflare Worker requires its `EcoLensQuota` Durable Object binding, configured in `wrangler.toml`, for a cap shared across worker instances. It is an alternative deployment and is not required for the Firebase setup.
 
 ## What changed
 
@@ -88,7 +94,7 @@ Choose **Mixed waste** above the camera to analyse a group of items. Camera capt
 
 Bottle, flask, cup and bowl shapes cannot establish material reliably. The scanner asks for actual material confirmation rather than presenting a confident metal/glass/plastic guess. Select the material, check the campus collection stream and choose **Confirm material & campus bin**. The material stays editable after confirmation. A container may be reusable: choose **Keep / reuse this item** to exclude it from disposal impact, or explicitly confirm disposal. An undecided container cannot silently disappear from a mixed-scene quest.
 
-Local group inference includes smaller peripheral items without lowering model score requirements. Conflicting, heavily overlapping class boxes are merged as one unresolved item; separate visible objects remain separate. Online group photos preserve detail up to a 1024-pixel edge, versus 768 pixels for a single item. No learned weights were retrained and no recognition accuracy percentage is claimed.
+Local group inference includes smaller peripheral items without lowering model score requirements. Conflicting, heavily overlapping class boxes are merged as one unresolved item; separate visible objects remain separate. Firebase cloud requests preserve the full photo's proportions and resize it to a maximum edge of 960 pixels. The optional server gateway uses a 1024-pixel edge for groups and 768 pixels for a single item. No learned weights were retrained and no recognition accuracy percentage is claimed.
 
 Open **NAAC Reports** in the main navigation, or its shortcut on the Impact page. The directory lists every university, college and school in the 34-institution catalog, plus saved custom institutions, regardless of the current student profile. Search by name/area, filter the institution type, then choose **Open NAAC report** or use the populated institution selector. First-time visitors can browse reports before creating a student profile.
 
@@ -100,7 +106,7 @@ EcoLens now uses its own leaf/lens/orbit symbol across the sidebar, mobile heade
 
 Public report: [EcoLens NAAC Reports](https://ecolens-live-naac.web.app/).
 
-The standalone `naac/` website is the public report view. Its separate Firebase Hosting site publishes only that folder. It reads shared institution totals from the public `ecolensNaacV1/publicInstitutions` node in Firebase Realtime Database. Student names, local profile IDs, photos, XP, corrections, image fingerprints and personal events are never uploaded. Named student rows in the local EcoLens report remain private in that browser.
+The standalone `naac/` website is the public report view. Its separate Firebase Hosting site publishes only that folder. It reads shared institution totals from the public `ecolensNaacV1/publicInstitutions` node in Firebase Realtime Database. Student names, local profile IDs, photos, XP, corrections, image fingerprints and personal events are never uploaded to that report. Named student rows in the local EcoLens report remain private in that browser. Optional Google scan-photo sharing is a separate setting and does not publish the photo in NAAC reports.
 
 Settings includes a separate **Public NAAC sharing** section. Enter the public service address, enable **Share anonymous institution totals only**, and save. Only totals for catalog institutions are transmitted. Custom institutions stay private. Offline records remain local and can sync after reconnection. The public page can be read without a student profile or publishing token.
 
@@ -108,7 +114,7 @@ A Firebase anonymous sharing identity and increasing request revision stay under
 
 Public values remain self-reported estimates. Contributing-profile counts are not verified unique students across devices, and this is reporting support rather than a certified NAAC waste audit.
 
-The Firebase integration uses the **Spark** plan, Firebase Hosting, Realtime Database and anonymous Authentication. It has no Cloud Functions, Cloud Run, App Hosting, Cloud Storage or billing setup. No payment method is needed on Spark. If free limits are reached, the affected service can become unavailable; this build never enables paid billing. [Firebase pricing plans](https://firebase.google.com/docs/projects/billing/firebase-pricing-plans), [Firebase pricing](https://firebase.google.com/pricing).
+The Firebase integration uses the **Spark** plan, Firebase Hosting, Realtime Database, anonymous Authentication, AI Logic and App Check. It has no Cloud Functions, Cloud Run, App Hosting, Cloud Storage or billing setup. No payment method is needed on Spark. If free limits are reached, the affected service can become unavailable; this build never enables paid billing. [Firebase pricing plans](https://firebase.google.com/docs/projects/billing/firebase-pricing-plans), [Firebase pricing](https://firebase.google.com/pricing).
 
 `firebase.json` uses two Hosting targets: `app` serves the generated `dist/` frontend on `ecolens-live`, and `naac` serves the standalone report on `ecolens-live-naac`. `npm run build:static` prepares only the reviewed public asset list; it excludes server code, tests, database rules, `.env`, Git metadata and local student data. Deploy the app with `firebase deploy --only hosting:app --project ecolens-live` after building. Deploy the report separately with `--only hosting:naac`. Neither command changes database rules or enables billing.
 
@@ -130,17 +136,17 @@ Previous BWU/JU/TIU XP can be preserved when a matching profile is opened on the
 npm test
 ```
 
-The saved tests cover the event ledger, streaks, duplicate rewards, legacy XP, image preprocessing/decoding, uncertainty, cloud request contract, safe server paths, origin checks, error sanitization and persistent quotas. Additional implementation QA exercised the translated interface and upcycling journey in a DOM harness, and ran the real FP32 model through the bundled WebAssembly runtime.
+The saved tests cover the event ledger, streaks, duplicate rewards, legacy XP, image preprocessing/decoding, uncertainty, cloud request contracts, Firebase photo permission, cancellation and timeouts, safe server paths, origin checks, error sanitization and persistent gateway quotas. Additional implementation QA exercised the translated interface and upcycling journey in a DOM harness, and ran the real FP32 model through the bundled WebAssembly runtime.
 
-No accuracy percentage has been measured on a held-out campus photo set, and live cloud analysis needs a fresh configured key. Graphical browser, actual camera, phone performance and full service-worker disconnect/reload checks should be run on the presentation device; the in-app preview could not reach the local test server in this environment.
+Automated tests do not prove that a deployed provider connection is healthy. Confirm a real cloud response on the hosted site, including the **Cloud vision** result source, before presenting. No accuracy percentage has been measured on a held-out campus photo set. Check actual camera operation, phone performance, ambiguous materials and a full service-worker disconnect/reload on the presentation devices.
 
 ## Project layout
 
-The HTML loads `bootstrap.js` and the complete generated interface under `releases/naac-v10/`. New release paths bypass older service-worker caches that could otherwise mix a new page with old translations/scripts. The worker downloads a complete interface before activating it; online interface files are refreshed, while unchanged model weights keep their existing cache. Saved profiles and progress are not cleared. Offline readiness requires both the interface and model pack.
+The HTML loads `bootstrap.js` and the complete generated interface from its versioned `releases/` directory. New release paths bypass older service-worker caches that could otherwise mix a new page with old translations/scripts. The worker downloads a complete interface before activating it; online interface files are refreshed, while unchanged model weights keep their existing cache. Saved profiles and progress are not cleared. Offline readiness requires both the interface and model pack.
 
 `npm start` prepares the generated interface automatically before serving. After editing source files for a static preview, run `npm run build`; the generated release files are also included in this source archive. When shipping a later interface release, use a new release directory/version consistently in the builder, bootstrap, HTML and worker.
 
-`index.html`, `styles.css`, `app.js` form the interface. `data.js` contains translations, routes, institutions and tutorials. `core.js` owns the ledger. `inference.js` owns model processing; `scan-flow.js` coordinates cancellation, previews and online fallback; `media.js` handles camera preferences and photo decoding; `report.js` builds campus contribution CSV files. `sw.js` caches the offline app. `server.mjs` and `cloudflare-worker.mjs` provide optional protected online analysis. `vendor/` and `models/` contain local runtime assets. Original branding and design contributions are retained in `assets/` and `design/`.
+`index.html`, `styles.css`, `app.js` form the interface. `data.js` contains translations, routes, institutions and tutorials. `core.js` owns the ledger. `inference.js` owns model processing; `scan-flow.js` coordinates cancellation, previews and online fallback; `firebase-ai.js` connects the optional Google scan using public settings in `firebase-ai-config.js`; `media.js` handles camera preferences and photo decoding; `report.js` builds campus contribution CSV files. `sw.js` caches the offline app. `server.mjs` and `cloudflare-worker.mjs` provide alternative protected online gateways. `vendor/` and `models/` contain local runtime assets. Original branding and design contributions are retained in `assets/` and `design/`.
 
 Original project lead: Kazi Mustafijur Rahaman. Original UI/UX design: Anisha Aktar. Original systems/flowchart design: Koyel Basu.
 

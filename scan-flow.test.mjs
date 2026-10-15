@@ -1,5 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';
-import {runScan,resetOnlineCooldown,resolveOnlineEndpoint} from './scan-flow.js';
+import {runScan,resetOnlineCooldown,resolveOnlineEndpoint,FIREBASE_ONLINE_ENDPOINT,FIREBASE_PHOTO_CONSENT_KEY,cloudConsentAllowed,rememberFirebasePhotoConsent} from './scan-flow.js';
 import {cameraConstraints,decodePhoto} from './media.js';
 const deferred=()=>{let resolve,reject;const promise=new Promise((a,b)=>{resolve=a;reject=b});return{promise,resolve,reject}};
 const local={source:'offline',components:[{name:'paper',route:'recycle',confidence:.9}]},cloud={source:'online',components:[{name:'Paper',route:'recycle',confidence:.95}]};
@@ -10,16 +10,38 @@ test('use local now cancels cloud and finalizes existing local preview',async()=
 test('cloud timeout gives local fallback without waiting 35 seconds',async()=>{let timer;const start=performance.now();const result=await runScan({}, {mode:'online',consent:true,onlineTimeoutMs:15,localAnalyze:async()=>local,cloudAnalyze:()=>new Promise(()=>{}),onStatus:s=>{timer=s.error?.code}});assert.equal(result.source,'offline');assert.equal(timer,'ONLINE_TIMEOUT');assert.ok(performance.now()-start<1000);resetOnlineCooldown();});
 test('unconfigured gateway cooldown avoids repeated slow cloud attempts',async()=>{resetOnlineCooldown();let calls=0;const options={mode:'online',consent:true,endpoint:'https://test.invalid/api/analyze',localAnalyze:async()=>local,cloudAnalyze:async()=>{calls++;throw Object.assign(new Error(),{code:'NOT_CONFIGURED'})}};await runScan({},options);await runScan({},options);assert.equal(calls,1);resetOnlineCooldown();await runScan({},options);assert.equal(calls,2);resetOnlineCooldown();});
 test('offline/no consent never transmits images',async()=>{let calls=0;await runScan({}, {mode:'online',consent:false,localAnalyze:async()=>local,cloudAnalyze:async()=>{calls++;return cloud}});assert.equal(calls,0);});
-test('Firebase static hosting without a gateway never starts an image upload',async()=>{
+test('inherited cloud permission cannot upload to the newly connected Firebase provider',async()=>{
  const previous=Object.getOwnPropertyDescriptor(globalThis,'location');
  try{
   for(const hostname of ['ecolens-live.web.app','ecolens-live.firebaseapp.com']){
    Object.defineProperty(globalThis,'location',{configurable:true,value:{hostname}});
    let calls=0;const statuses=[];
-   const result=await runScan({}, {mode:'online',consent:true,localAnalyze:async()=>local,cloudAnalyze:async()=>{calls++;return cloud},onStatus:value=>statuses.push(value.stage)});
+   const consent=cloudConsentAllowed({endpoint:'',cloudConsent:true},{storage:{getItem:()=>null}});
+   const result=await runScan({}, {mode:'online',consent,localAnalyze:async()=>local,cloudAnalyze:async()=>{calls++;return cloud},onStatus:value=>statuses.push(value.stage)});
    assert.equal(result.source,'offline');assert.equal(calls,0);assert.deepEqual(statuses,['analyzingLocal']);
   }
  }finally{if(previous)Object.defineProperty(globalThis,'location',previous);else delete globalThis.location;}
+});
+
+test('Firebase photo consent is explicit, revocable and separate from the progress backup',()=>{
+ const records=new Map(),storage={getItem:key=>records.get(key),setItem:(key,value)=>records.set(key,value)};
+ const settings={cloudConsent:true,endpoint:''};
+ assert.equal(cloudConsentAllowed(settings,{storage,endpoint:FIREBASE_ONLINE_ENDPOINT}),false);
+ assert.equal(rememberFirebasePhotoConsent(true,storage),true);
+ assert.equal(storage.getItem(FIREBASE_PHOTO_CONSENT_KEY),'1');
+ assert.equal(cloudConsentAllowed(settings,{storage,endpoint:FIREBASE_ONLINE_ENDPOINT}),true);
+ assert.equal(cloudConsentAllowed({...settings,cloudConsent:false},{storage,endpoint:FIREBASE_ONLINE_ENDPOINT}),false);
+ rememberFirebasePhotoConsent(false,storage);
+ assert.equal(cloudConsentAllowed(settings,{storage,endpoint:FIREBASE_ONLINE_ENDPOINT}),false);
+ assert.equal(cloudConsentAllowed(settings,{storage:{getItem(){throw new Error('blocked')}},endpoint:FIREBASE_ONLINE_ENDPOINT}),false);
+ assert.equal(rememberFirebasePhotoConsent(true,{setItem(){throw new Error('blocked')}}),false);
+ assert.equal(rememberFirebasePhotoConsent(true,null),false);
+ assert.equal(cloudConsentAllowed(settings,{storage,endpoint:'https://custom.example/api/analyze'}),true);
+});
+
+test('a configured free Firebase scanner resolves without exposing an API gateway key',()=>{
+ assert.equal(resolveOnlineEndpoint('',{hostname:'ecolens-live.web.app'},{firebaseReady:true}),FIREBASE_ONLINE_ENDPOINT);
+ assert.equal(resolveOnlineEndpoint('',{hostname:'ecolens-live.web.app'},{firebaseReady:false}),'');
 });
 test('a custom cloud gateway and the local Node default remain available',()=>{
  assert.equal(resolveOnlineEndpoint('https://scanner.example/api/analyze',{hostname:'ecolens-live.web.app'}),'https://scanner.example/api/analyze');

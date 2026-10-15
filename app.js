@@ -1,7 +1,7 @@
 import {INSTITUTIONS,LEVELS,ROUTES,UPCYCLE,t} from './data.js';
 import {loadAppState,persistState,addProfile,activeProfile,normalizeAnalysis,completeQuest,personalStats,campusStats,campusContributions,campusSummaries,exportState,importState} from './core.js';
 import {initOffline,warmupOffline,getOfflineStatus} from './inference.js';
-import {runScan,resetOnlineCooldown,resolveOnlineEndpoint} from './scan-flow.js';
+import {runScan,resetOnlineCooldown,resolveOnlineEndpoint,FIREBASE_ONLINE_ENDPOINT,cloudConsentAllowed,rememberFirebasePhotoConsent} from './scan-flow.js';
 import {cameraConstraints,decodePhoto,captureGeometry} from './media.js';
 import {contributionsCSV,institutionReportDirectory,institutionSummaryCSV} from './report.js';
 import {createPublicSync,validatePublicEndpoint} from './public-sync.js';
@@ -19,6 +19,31 @@ const save=()=>{try{persistState(state);schedulePublicSync();}catch{toast(tr('in
 const uuid=()=>crypto.randomUUID();
 const institutionName=profile=>profile?.customInstitution||INSTITUTIONS.find(x=>x.id===profile?.institutionId)?.name||tr('institution');
 const locale=()=>({en:'en-IN',bn:'bn-IN',hi:'hi-IN'}[language()]);
+const cloudUploadAllowed=()=>cloudConsentAllowed(state.settings);
+let cloudConsentRecipient=resolveOnlineEndpoint(state.settings.endpoint);
+let cloudFallbackKey='';
+function renderCloudFallback(){
+ const notice=$('cloudFallbackNotice');
+ notice.hidden=!cloudFallbackKey||analysis?.source!=='offline';
+ notice.textContent=notice.hidden?'':tr(cloudFallbackKey);
+}
+function cloudFallbackReason(code){
+ if(['PROVIDER_QUOTA','RATE_LIMIT','DAILY_LIMIT'].includes(code))return 'cloudFallbackQuota';
+ if(['ONLINE_TIMEOUT','PROVIDER_TIMEOUT'].includes(code))return 'cloudFallbackTimeout';
+ return 'cloudFallbackUnavailable';
+}
+function renderCloudSettings(endpoint=state.settings.endpoint){
+ const target=resolveOnlineEndpoint(endpoint),firebase=target===FIREBASE_ONLINE_ENDPOINT;
+ cloudConsentRecipient=target;
+ $('cloudStatus').textContent=tr(firebase?'firebaseCloudConnected':target?'cloudPrivacy':'cloudNotConnected');
+ document.querySelector('[data-i18n="endpointHint"]').textContent=tr(firebase?'firebaseCloudHint':target?'endpointHint':'hostedEndpointHint');
+ $('cloudConsentLabel').textContent=tr(firebase?'firebaseUploadConsent':'uploadConsent');
+ $('cloudProviderPrivacy').hidden=!firebase;$('cloudProviderPrivacy').textContent=tr('firebaseCloudPrivacy');
+}
+function revokePhotoConsent(){
+ if(busy){abortScan();analysis=null;quest=null;$('resultCard').hidden=true;$('questCard').hidden=true;}
+ state.settings.cloudConsent=false;rememberFirebasePhotoConsent(false);$('cloudConsent').checked=false;save();
+}
 function toast(message){clearTimeout(toastTimer);$('toast').textContent=message;$('toast').hidden=false;toastTimer=setTimeout(()=>$('toast').hidden=true,4300);}
 function showTab(name){document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.id===`tab-${name}`));document.querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('active',x.dataset.tab===name));history.replaceState(null,'',`#${name}`);window.scrollTo({top:0,behavior:state.settings.reduceMotion?'instant':'smooth'});if(name==='scan')prepareScannerInBackground();}
 function refreshLanguage(){document.documentElement.lang=language();applyTheme();document.querySelectorAll('[data-i18n]').forEach(node=>node.textContent=tr(node.dataset.i18n));document.querySelectorAll('[data-placeholder]').forEach(node=>node.placeholder=tr(node.dataset.placeholder));$('languageSelect').value=language();document.querySelectorAll('[data-tab]').forEach(node=>{const label=tr(node.dataset.tab==='reports'?'naacReports':node.dataset.tab);node.setAttribute('aria-label',label);node.title=label;});refreshScene();document.body.classList.toggle('reduce-motion',state.settings.reduceMotion);renderAll();renderInstitutions();if(analysis)renderAnalysis();if(quest)renderQuest(true);if(currentTutorial)renderTutorial(currentTutorial);updateStatus();}
@@ -32,7 +57,7 @@ function renderAll(){const profile=activeProfile(state);const stats=personalStat
  $('tutorialGrid').replaceChildren();UPCYCLE.forEach(tutorial=>{const button=el('button','tutorial-card');button.append(el('span','',tutorial.icon),el('h3','',local(tutorial.title)),el('p','',`${tr('startQuest')} ↗`));button.addEventListener('click',()=>openTutorial(tutorial));$('tutorialGrid').append(button);});
  const kg=n=>`${n.toFixed(2)} kg`;$('personalMetrics').replaceChildren(metric(tr('estimatedMass'),kg(stats.estimatedKg)),metric(tr('estimatedCo2'),kg(stats.estimatedCo2Kg)),metric(tr('sortingCount'),String(stats.sortCount)));
  renderCampusReport();renderPublicSharing();
- renderHistory('recentHistory',stats.events.slice().reverse().slice(0,3));renderHistory('fullHistory',stats.events.slice().reverse().slice(0,100));$('themeSelect').value=state.settings.theme||'system';$('endpointInput').value=state.settings.endpoint;$('voiceToggle').checked=state.settings.voice;$('motionToggle').checked=state.settings.reduceMotion;$('cloudConsent').checked=state.settings.cloudConsent;$('cloudStatus').textContent=tr('cloudPrivacy');document.querySelectorAll('[data-mode]').forEach(node=>node.classList.toggle('selected',node.dataset.mode===state.settings.mode));
+ renderHistory('recentHistory',stats.events.slice().reverse().slice(0,3));renderHistory('fullHistory',stats.events.slice().reverse().slice(0,100));$('themeSelect').value=state.settings.theme||'system';$('endpointInput').value=state.settings.endpoint;$('voiceToggle').checked=state.settings.voice;$('motionToggle').checked=state.settings.reduceMotion;$('cloudConsent').checked=cloudUploadAllowed();$('cloudStatus').textContent=tr('cloudPrivacy');document.querySelectorAll('[data-mode]').forEach(node=>node.classList.toggle('selected',node.dataset.mode===state.settings.mode));
 }
 function renderHistory(target,events){$(target).replaceChildren();if(!events.length){$(target).append(el('div','empty-state',tr('emptyHistory')));return;}for(const event of events){const node=el('article','history-item');const icon=el('span','history-icon',event.kind==='upcycle'?'✂':ROUTES[event.components[0]?.route]?.icon||'♻');const body=el('div');const names=event.components.map(x=>translatedName(x.name)).join(', ');body.append(el('h3','',event.kind==='upcycle'?local(UPCYCLE.find(x=>x.id===event.tutorialId)?.title)||tr('upcycle'):names),el('p','',`${new Date(event.timestamp).toLocaleString(locale(),{dateStyle:'medium',timeStyle:'short'})} · ${tr('selfReported')}`));node.append(icon,body,el('span','history-xp',`+${event.xp} XP`));$(target).append(node);}}
 const knownNames={plastic:['Plastic','প্লাস্টিক','प्लास्टिक'],paper:['Paper','কাগজ','कागज़'],cardboard:['Cardboard','কার্ডবোর্ড','गत्ता'],glass:['Glass','কাচ','काँच'],metal:['Metal','ধাতু','धातु'],bag:['Bag','ব্যাগ','थैला'],yard:['Garden waste','বাগানের বর্জ্য','बगीचे का कचरा'],banana:['Banana','কলা','केला'],apple:['Apple','আপেল','सेब'],bottle:['Bottle','বোতল','बोतल'],'cell phone':['Phone','ফোন','फ़ोन'],laptop:['Laptop','ল্যাপটপ','लैपटॉप'],unknown:['Unidentified item','অজানা বস্তু','अज्ञात वस्तु']};
@@ -41,11 +66,11 @@ function updateStatus(message){
  $('networkDot').classList.toggle('disconnected',!navigator.onLine);
  $('networkDot').title=tr(navigator.onLine?'connected':'disconnected');
  const endpoint=resolveOnlineEndpoint(state.settings.endpoint);
- const cloudReady=Boolean(endpoint)&&state.settings.mode==='online'&&state.settings.cloudConsent&&navigator.onLine;
+ const firebase=endpoint===FIREBASE_ONLINE_ENDPOINT;
+ const cloudReady=Boolean(endpoint)&&state.settings.mode==='online'&&cloudUploadAllowed()&&navigator.onLine;
  $('engineLabel').textContent=tr(analysis?.source==='online'?'modelCloud':analysis||!cloudReady?'modelLocal':'modelCloud');
- $('cloudStatus').textContent=tr(endpoint?'cloudPrivacy':'cloudNotConnected');
- document.querySelector('[data-i18n="endpointHint"]').textContent=tr(endpoint?'endpointHint':'hostedEndpointHint');
- if(!busy){const scanner=getOfflineStatus();const status=scanner.loading||scanner.warming?'loadingOffline':modelReady||scanner.ready?'readyToScan':'scannerIdle';$('statusTitle').textContent=message||tr(status);$('statusText').textContent=tr(state.settings.mode==='online'?(endpoint?'onlineHint':'cloudNotConnected'):'offlineHint');}
+ renderCloudSettings();
+ if(!busy){const scanner=getOfflineStatus();const status=scanner.loading||scanner.warming?'loadingOffline':modelReady||scanner.ready?'readyToScan':'scannerIdle';$('statusTitle').textContent=message||tr(status);$('statusText').textContent=tr(state.settings.mode==='online'?(firebase?'firebaseCloudHint':endpoint?'onlineHint':'cloudNotConnected'):'offlineHint');}
 }
 async function ensureModel(){
  if(!offlinePromise)offlinePromise=initOffline({onProgress:showScanProgress}).then(result=>{modelReady=result.ready;updateStatus();return result;}).catch(error=>{offlinePromise=null;updateStatus(tr('modelError'));throw error;});
@@ -53,6 +78,7 @@ async function ensureModel(){
 }
 function abortScan(){
  requestId++;request?.abort();request=null;busy=false;pendingOnline=false;pendingLocal=false;acceptLocalAction=null;
+ cloudFallbackKey='';renderCloudFallback();
  clearInterval(scanTicker);scanTicker=null;$('busyOverlay').hidden=true;$('useLocalNow').hidden=true;
  $('imageInput').disabled=false;$('uploadBtn').disabled=false;$('captureBtn').disabled=!stream&&!rawCanvas;
 }
@@ -96,7 +122,7 @@ function snapshot(){
 function displayPhoto(){const canvas=$('photoCanvas');canvas.width=rawCanvas.width;canvas.height=rawCanvas.height;canvas.getContext('2d').drawImage(rawCanvas,0,0);canvas.hidden=false;$('cameraFeed').hidden=true;$('reticle').hidden=true;$('cameraEmpty').hidden=true;}
 async function scan(canvas){
  if(busy)return;if(!activeProfile(state)){openProfiles();return;}if(!canvas){toast(tr('noImage'));return;}
- rawCanvas=canvas;analysis=null;quest=null;pendingOnline=false;pendingLocal=false;displayPhoto();const myId=++requestId;
+ rawCanvas=canvas;analysis=null;quest=null;pendingOnline=false;pendingLocal=false;cloudFallbackKey='';renderCloudFallback();displayPhoto();const myId=++requestId;
  request=new AbortController();const signal=request.signal;busy=true;
  $('captureBtn').disabled=true;$('imageInput').disabled=true;$('uploadBtn').disabled=true;$('resultCard').hidden=true;$('questCard').hidden=true;
  $('busyOverlay').hidden=false;$('useLocalNow').hidden=true;$('scanProgress').value=5;
@@ -106,17 +132,18 @@ async function scan(canvas){
   await new Promise(resolve=>requestAnimationFrame(()=>resolve()));
   if(signal.aborted)return;
   
-  if(state.settings.mode==='online'){if(!resolveOnlineEndpoint(state.settings.endpoint))toast(tr('cloudNotConnected'));else if(!state.settings.cloudConsent)toast(tr('uploadConsent'));}
+  if(state.settings.mode==='online'){if(!resolveOnlineEndpoint(state.settings.endpoint))toast(tr('cloudNotConnected'));else if(!cloudUploadAllowed())toast(tr('uploadConsent'));}
   await runScan(canvas,{
-   mode:state.settings.mode,consent:state.settings.cloudConsent,online:navigator.onLine,endpoint:state.settings.endpoint,language:language(),scene:state.settings.scanScene||'single',signal,acceptLocal,
+   mode:state.settings.mode,consent:cloudUploadAllowed(),online:navigator.onLine,endpoint:state.settings.endpoint,language:language(),scene:state.settings.scanScene||'single',signal,acceptLocal,
    onProgress:value=>{if(myId===requestId)showScanProgress(value);},
    onStatus:value=>{if(myId!==requestId)return;
     $('analysisTitle').textContent=tr(value.stage==='offlineFallback'?'offlineFallback':value.stage);
-    if(value.stage==='offlineFallback')toast(tr('offlineFallback'));
+    if(value.stage==='offlineFallback'){cloudFallbackKey=cloudFallbackReason(value.error?.code);renderCloudFallback();toast(tr(cloudFallbackKey));}
     if(value.stage==='localResultReady')$('scanProgress').removeAttribute('value');
    },
    onResult:(value,meta)=>{if(signal.aborted||myId!==requestId)return;
     analysis=normalizeAnalysis(value);pendingOnline=Boolean(meta.pendingOnline);pendingLocal=Boolean(meta.pendingLocal);
+    if(analysis.source==='online')cloudFallbackKey='';
     if(!analysis.components.length)analysis.components=[{name:'unknown',material:'unknown',route:'unknown'}];
     renderAnalysis();drawBoxes();$('useLocalNow').hidden=!pendingOnline||pendingLocal;
     if(pendingOnline||pendingLocal){$('analysisTitle').textContent=tr(pendingLocal?'verifyingResult':'refiningOnline');$('analysisDetail').textContent=tr('initialResult');$('scanProgress').removeAttribute('value');}
@@ -148,6 +175,7 @@ function renderMixedSummary(){
 }
 function renderAnalysis(){
  analysis=normalizeAnalysis(analysis);$('resultCard').hidden=false;$('resultSource').textContent=tr(analysis.source==='online'?'online':analysis.source==='manual'?'manual':'offline');
+ renderCloudFallback();
  const waste=analysis.components.filter(item=>item.route!=='nonwaste'),waiting=pendingOnline||pendingLocal;
  $('resultTitle').textContent=analysis.mixed||analysis.mixedMaterials?tr('mixedWaste'):analysis.components.some(item=>item.requiresMaterialConfirmation&&!item.materialConfirmedByUser&&item.discardedByUser!==false)?tr('materialCheckTitle'):analysis.uncertain?tr('unknownResult'):waste.length?waste.map(item=>translatedName(item.name)).join(' + '):tr('keepReusable');
  $('resultNote').textContent=pendingLocal?tr('verifyingResult'):pendingOnline?tr('refiningOnline'):!waste.length&&analysis.components.some(item=>item.discardedByUser===false)?tr('reuseSaved'):tr(analysis.components.some(item=>item.requiresMaterialConfirmation&&!item.materialConfirmedByUser&&item.discardedByUser!==false)?'materialCheckNote':analysis.mixed?'separate':analysis.uncertain?'boundaryNote':'allSameStream');
@@ -267,7 +295,7 @@ function renderTutorial(tutorial){$('tutorialIcon').textContent=tutorial.icon;$(
 function openTutorial(tutorial){currentTutorial=tutorial;renderTutorial(tutorial);$('tutorialDialog').showModal();}
 function download(content,name,type='application/json'){const url=URL.createObjectURL(new Blob([content],{type}));const link=el('a');link.href=url;link.download=name;document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),2000);}
 async function prepareOffline(){$('offlineStatus').textContent=tr('offlinePreparing');try{if(!('serviceWorker' in navigator))throw new Error();await Promise.race([navigator.serviceWorker.ready,new Promise((_,reject)=>setTimeout(()=>reject(new Error()),30000))]);const registration=await navigator.serviceWorker.getRegistration();const worker=registration?.active;if(!worker)throw new Error();$('offlineStatus').textContent=tr('offlinePreparing');const channel=new MessageChannel();await new Promise((resolve,reject)=>{const timer=setTimeout(()=>reject(new Error()),90000);channel.port1.onmessage=event=>{clearTimeout(timer);event.data.ok&&event.data.shellReady?resolve():reject(new Error());};worker.postMessage({type:'CACHE_OFFLINE'},[channel.port2]);});$('offlineStatus').textContent=tr('offlineReady');toast(tr('offlineReady'));}catch{$('offlineStatus').textContent=tr('offlineMissing');toast(tr('offlineMissing'));}}
-document.querySelectorAll('[data-tab]').forEach(node=>node.addEventListener('click',()=>showTab(node.dataset.tab)));document.querySelectorAll('[data-go]').forEach(node=>node.addEventListener('click',()=>showTab(node.dataset.go)));document.querySelectorAll('[data-mode]').forEach(node=>node.addEventListener('click',()=>{if(busy){abortScan();analysis=null;quest=null;$('resultCard').hidden=true;$('questCard').hidden=true;}state.settings.mode=node.dataset.mode;save();renderAll();updateStatus();if(state.settings.mode==='online'){if(!resolveOnlineEndpoint(state.settings.endpoint))toast(tr('cloudNotConnected'));else if(!state.settings.cloudConsent)toast(tr('uploadConsent'));}}));
+document.querySelectorAll('[data-tab]').forEach(node=>node.addEventListener('click',()=>showTab(node.dataset.tab)));document.querySelectorAll('[data-go]').forEach(node=>node.addEventListener('click',()=>showTab(node.dataset.go)));document.querySelectorAll('[data-mode]').forEach(node=>node.addEventListener('click',()=>{if(busy){abortScan();analysis=null;quest=null;$('resultCard').hidden=true;$('questCard').hidden=true;}state.settings.mode=node.dataset.mode;save();renderAll();updateStatus();if(state.settings.mode==='online'){if(!resolveOnlineEndpoint(state.settings.endpoint))toast(tr('cloudNotConnected'));else if(!cloudUploadAllowed())toast(tr('uploadConsent'));}}));
 document.querySelectorAll('[data-scene]').forEach(node=>node.addEventListener('click',()=>{abortScan();analysis=null;quest=null;$('resultCard').hidden=true;$('questCard').hidden=true;state.settings.scanScene=node.dataset.scene==='group'?'group':'single';save();refreshScene();}));
 $('addMissingItem').addEventListener('click',()=>{if(!analysis||busy||analysis.components.length>=30)return;analysis.components.push({name:tr('addedItem'),material:'unknown',route:'unknown',requiresMaterialConfirmation:true});renderAnalysis();$('componentsList').lastElementChild?.scrollIntoView({behavior:state.settings.reduceMotion?'instant':'smooth',block:'nearest'});});
 $('reportInstitutionSelect').addEventListener('change',()=>{reportSelection=$('reportInstitutionSelect').value;renderCampusReport();});
@@ -283,7 +311,21 @@ $('imageInput').addEventListener('change',async event=>{
  try{const canvas=await decodePhoto(file);photoWasCamera=false;stopCamera();await scan(canvas);}catch{toast(tr('imageInvalid'));}
 });
 $('questStart').addEventListener('click',()=>startQuest());$('voiceBtn').addEventListener('click',speak);$('questCancel').addEventListener('click',()=>{quest=null;$('questCard').hidden=true;if(analysis)$('resultCard').hidden=false;});$('disposalConfirm').addEventListener('change',checkQuest);$('claimBtn').addEventListener('click',()=>{if(!quest||$('claimBtn').disabled)return;try{$('claimBtn').disabled=true;const old=personalStats(state).xp;const weight=$('weightInput').value;const completion=completeQuest(state,{...quest,profileId:quest.profileId,weightGrams:weight||undefined});save();if(completion.added){celebrate(completion.xpEarned);if(currentLevel({xp:old}).index<currentLevel(personalStats(state)).index)setTimeout(()=>toast(tr('levelUp')),1800);}else toast(tr('alreadyCompleted'));quest=null;analysis=null;$('questCard').hidden=true;$('resultCard').hidden=true;renderAll();}catch(error){toast(tr('categoryRequired'));checkQuest();}});
-$('openTutorials').addEventListener('click',()=>{showTab('journey');$('tutorialGrid').scrollIntoView({behavior:'smooth'});});$('closeTutorial').addEventListener('click',()=>{$('tutorialDialog').close();currentTutorial=null;});$('tutorialQuest').addEventListener('click',()=>{const tutorial=currentTutorial;$('tutorialDialog').close();showTab('scan');startQuest(tutorial);currentTutorial=null;});$('voiceToggle').addEventListener('change',()=>{state.settings.voice=$('voiceToggle').checked;save();});$('motionToggle').addEventListener('change',()=>{state.settings.reduceMotion=$('motionToggle').checked;save();document.body.classList.toggle('reduce-motion',state.settings.reduceMotion);});$('saveEndpoint').addEventListener('click',()=>{const input=$('endpointInput').value.trim();if(input){try{const url=new URL(input);if(url.username||url.password)throw new Error();if(url.protocol!=='https:'&&!(['localhost','127.0.0.1'].includes(url.hostname)&&url.protocol==='http:'))throw new Error();}catch{toast(tr('invalidImport'));return;}}resetOnlineCooldown();state.settings.endpoint=input;state.settings.cloudConsent=$('cloudConsent').checked;save();toast(tr('saved'));updateStatus();});$('prepareOffline').addEventListener('click',prepareOffline);$('installBtn').addEventListener('click',prepareOffline);$('downloadData').addEventListener('click',()=>download(exportState(state),'EcoLens-backup.json'));$('importInput').addEventListener('change',async event=>{const file=event.target.files[0];event.target.value='';if(!file)return;if(file.size>8e6||!confirm(tr('confirmImport'))){if(file.size>8e6)toast(tr('invalidImport'));return;}try{const imported=importState(await file.text());abortScan();stopCamera();state=imported;state.settings.shareInstitutionTotals=false;analysis=null;quest=null;$('resultCard').hidden=true;$('questCard').hidden=true;save();refreshLanguage();toast(tr('dataRestored'));if(!activeProfile(state))openProfiles();}catch{toast(tr('invalidImport'));}});
+$('openTutorials').addEventListener('click',()=>{showTab('journey');$('tutorialGrid').scrollIntoView({behavior:'smooth'});});$('closeTutorial').addEventListener('click',()=>{$('tutorialDialog').close();currentTutorial=null;});$('tutorialQuest').addEventListener('click',()=>{const tutorial=currentTutorial;$('tutorialDialog').close();showTab('scan');startQuest(tutorial);currentTutorial=null;});$('voiceToggle').addEventListener('change',()=>{state.settings.voice=$('voiceToggle').checked;save();});$('motionToggle').addEventListener('change',()=>{state.settings.reduceMotion=$('motionToggle').checked;save();document.body.classList.toggle('reduce-motion',state.settings.reduceMotion);});$('endpointInput').addEventListener('input',()=>{revokePhotoConsent();renderCloudSettings($('endpointInput').value.trim());});
+$('cloudConsent').addEventListener('change',()=>{if(!$('cloudConsent').checked){revokePhotoConsent();updateStatus();}});
+$('saveEndpoint').addEventListener('click',()=>{
+ const input=$('endpointInput').value.trim();
+ if(input){try{const url=new URL(input);if(url.username||url.password)throw new Error();if(url.protocol!=='https:'&&!(['localhost','127.0.0.1'].includes(url.hostname)&&url.protocol==='http:'))throw new Error();}catch{toast(tr('invalidImport'));return;}}
+ const destination=resolveOnlineEndpoint(input);
+ if(cloudConsentRecipient!==destination){revokePhotoConsent();renderCloudSettings(input);toast(tr('uploadConsent'));return;}
+ const enabled=$('cloudConsent').checked;
+ if(!enabled||destination!==resolveOnlineEndpoint(state.settings.endpoint)){if(busy){abortScan();analysis=null;quest=null;$('resultCard').hidden=true;$('questCard').hidden=true;}}
+ resetOnlineCooldown();state.settings.endpoint=input;state.settings.cloudConsent=enabled;
+ if(!enabled)rememberFirebasePhotoConsent(false);
+ else if(destination===FIREBASE_ONLINE_ENDPOINT&&!rememberFirebasePhotoConsent(true))state.settings.cloudConsent=false;
+ save();toast(tr('saved'));updateStatus();
+});
+$('prepareOffline').addEventListener('click',prepareOffline);$('installBtn').addEventListener('click',prepareOffline);$('downloadData').addEventListener('click',()=>download(exportState(state),'EcoLens-backup.json'));$('importInput').addEventListener('change',async event=>{const file=event.target.files[0];event.target.value='';if(!file)return;if(file.size>8e6||!confirm(tr('confirmImport'))){if(file.size>8e6)toast(tr('invalidImport'));return;}try{const imported=importState(await file.text());abortScan();stopCamera();state=imported;state.settings.shareInstitutionTotals=false;state.settings.cloudConsent=false;rememberFirebasePhotoConsent(false);analysis=null;quest=null;$('resultCard').hidden=true;$('questCard').hidden=true;save();refreshLanguage();toast(tr('dataRestored'));if(!activeProfile(state))openProfiles();}catch{toast(tr('invalidImport'));}});
 $('resetProfile').addEventListener('click',()=>{if(!activeProfile(state)||!confirm(tr('confirmReset')))return;const id=state.activeProfileId;activeProfile(state).legacyXP=0;clearSession();state.events=state.events.filter(x=>x.profileId!==id);state.corrections=state.corrections.filter(x=>x.profileId!==id);save();renderAll();toast(tr('done'));});$('exportReport').addEventListener('click',()=>{const profile=activeProfile(state);if(!profile)return;const events=personalStats(state).events;const safeCell=x=>/^[=+@\-\t\r]/.test(String(x??''))?'\u0027'+String(x):x;const quote=x=>`"${String(x??'').replaceAll('"','""')}"`;const header=['Timestamp','Student','Institution','Items','Routes','XP','Weight grams','Weight source','Confirmation','Engine'];const rows=events.map(x=>[x.timestamp,profile.name,institutionName(profile),x.components.map(y=>y.name).join('; '),x.components.map(y=>y.route).join('; '),x.xp,x.weightGrams,x.weightSource,'self-reported',x.source]);download('\ufeff'+[header,...rows].map(row=>row.map(safeCell).map(quote).join(',')).join('\r\n'),'EcoLens-activity-report.csv','text/csv;charset=utf-8');});
 window.addEventListener('online',()=>{updateStatus();schedulePublicSync();});window.addEventListener('offline',()=>updateStatus());window.addEventListener('resize',fitReticle);document.addEventListener('visibilitychange',()=>{if(document.hidden&&stream){stopCamera();$('cameraEmpty').hidden=!$('photoCanvas').hidden;$('captureBtn').disabled=!rawCanvas;}});
 
