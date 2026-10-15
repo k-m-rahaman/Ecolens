@@ -15,7 +15,7 @@
    document.documentElement.style.colorScheme = dark ? 'dark' : 'light';
   })();
  </script>
- <link rel="icon" href="assets/icon.svg" type="image/svg+xml"><link rel="manifest" href="manifest.webmanifest"><link rel="stylesheet" href="releases/naac-v17/styles.css">
+ <link rel="icon" href="assets/icon.svg" type="image/svg+xml"><link rel="manifest" href="manifest.webmanifest"><link rel="stylesheet" href="releases/naac-v18/styles.css">
 </head>
 <body>
  <div class="app-shell">
@@ -36,6 +36,7 @@
    <header class="topbar"><div class="mobile-brand"><img src="assets/ecolens-mark.svg" alt="" width="30" height="30"> EcoLens <small>PRO</small></div><div class="breadcrumb" data-i18n="scanTitle">A better place starts with one item.</div><div class="top-controls"><span class="network-dot" id="networkDot" title="Connection"></span><select id="languageSelect" aria-label="Language"><option value="en">English</option><option value="bn">বাংলা</option><option value="hi">हिन्दी</option></select><button id="themeToggle" class="theme-toggle" type="button" aria-label="Switch to dark theme" aria-pressed="false" title="Appearance"><span id="themeIcon" aria-hidden="true">☾</span><span class="visually-hidden" data-i18n="theme">Appearance</span></button><button class="xp-top" id="xpTop">✦ 0 XP</button></div></header>
    <div class="content">
     <section id="tab-scan" class="tab active">
+     <div class="home-identity" id="homeIdentity" hidden><span class="avatar" id="homeAvatar" aria-hidden="true"></span><div class="home-identity-text"><strong id="homeName"></strong><span id="homeInstitution"></span></div></div>
      <div class="page-heading"><div><div class="eyebrow">ECOLENS PRO <span class="tiny-leaf">🌿</span></div><h1 data-i18n="scanTitle">A better place starts with one item.</h1><p data-i18n="scanSubtitle">Scan, sort, and make your campus a little greener.</p></div><div class="mode-switch" role="group" aria-label="Detection mode"><button data-mode="offline" class="selected"><span>◉</span> <span data-i18n="offline">Offline</span></button><button data-mode="online"><span>✧</span> <span data-i18n="online">Online</span></button></div></div>
      <div class="scan-grid">
       <div class="scan-main">

@@ -3,7 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root=path.dirname(fileURLToPath(import.meta.url));
-export const RELEASE='naac-v17';
+export const RELEASE='naac-v18';
 const target=path.join(root,'releases',RELEASE);
 const files=['app.js','core.js','data.js','inference.js','scan-flow.js','media.js','report.js','public-sync.js','public-config.js','firebase-sync.js','firebase-ai.js','firebase-ai-config.js','styles.css'];
 await fs.mkdir(target,{recursive:true});
