@@ -5,9 +5,16 @@
  <meta name="theme-color" content="#174d3a"><meta name="description" content="EcoLens Pro: free campus waste sorting, local AI, multilingual guidance and eco quests.">
  <meta name="color-scheme" content="light dark">
  <title>EcoLens Pro · Small acts. Lasting impact.</title>
+ <link rel="canonical" href="https://ecolens-live.web.app/">
  <script>
-  // Resolve the saved preference before paint so a returning dark-theme user sees no flash.
   (() => {
+   // The shared GitHub link opens the supported cloud-enabled app.
+   if (location.hostname === 'k-m-rahaman.github.io' && /^\/Ecolens(?:\/|$)/.test(location.pathname)) {
+    const hash = ['#scan', '#journey', '#reports', '#settings'].includes(location.hash) ? location.hash : '#scan';
+    location.replace(`https://ecolens-live.web.app/${hash}`);
+    return;
+   }
+   // Resolve the saved preference before paint so a returning dark-theme user sees no flash.
    let preference = 'system';
    try { const saved = JSON.parse(localStorage.getItem('ecolens-pro-v2')); if (['system', 'light', 'dark'].includes(saved?.settings?.theme)) preference = saved.settings.theme; } catch {}
    const dark = preference === 'dark' || (preference === 'system' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
@@ -15,7 +22,7 @@
    document.documentElement.style.colorScheme = dark ? 'dark' : 'light';
   })();
  </script>
- <link rel="icon" href="assets/icon.svg" type="image/svg+xml"><link rel="manifest" href="manifest.webmanifest"><link rel="stylesheet" href="releases/naac-v18/styles.css">
+ <link rel="icon" href="assets/icon.svg" type="image/svg+xml"><link rel="manifest" href="manifest.webmanifest"><link rel="stylesheet" href="releases/naac-v19/styles.css">
 </head>
 <body>
  <div class="app-shell">

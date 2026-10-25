@@ -1,4 +1,4 @@
-const RELEASE='naac-v18';
+const RELEASE='naac-v19';
 const SHELL_CACHE=`ecolens-shell-${RELEASE}`;
 const MODEL_CACHE='ecolens-models-ort120-fp32-v1';
 const NETWORK_WAIT_MS=2500;
