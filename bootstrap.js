@@ -4,7 +4,7 @@ if (location.hostname === 'k-m-rahaman.github.io' && /^\/Ecolens(?:\/|$)/.test(l
  const hash=['#scan','#journey','#reports','#settings'].includes(location.hash)?location.hash:'#scan';
  location.replace(`https://ecolens-live.web.app/${hash}`);
 } else {
- import('./releases/naac-v19/app.js').catch(() => {
+ import('./releases/naac-v20/app.js').catch(() => {
   const notice=document.getElementById('appLoadError');
   if(notice){notice.hidden=false;notice.textContent='EcoLens could not finish loading. Reconnect and refresh this page. Your saved progress stays in this browser.';}
  });

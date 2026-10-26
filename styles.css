@@ -73,3 +73,42 @@ dialog{max-height:calc(100dvh - 32px);overscroll-behavior:contain}.toast{bottom:
 @media(max-width:720px){.grecaptcha-badge{bottom:calc(88px + env(safe-area-inset-bottom,0px))!important}}
 
 .home-identity{display:flex;align-items:center;gap:13px;padding:15px 18px;margin-bottom:24px;border:1px solid var(--line);border-radius:18px;background:var(--soft)}.home-identity .avatar{flex-shrink:0}.home-identity-text{min-width:0;overflow-wrap:anywhere}.home-identity-text strong{display:block;font-size:18px;color:var(--ink)}.home-identity-text>span{display:block;margin-top:2px;color:var(--muted);font-size:13px}@media(max-width:720px){.home-identity{padding:12px 14px;margin-bottom:20px}.home-identity-text strong{font-size:16px}.home-identity-text>span{font-size:12px}}
+
+/* Short, event-driven motion keeps the existing layout and palette intact. */
+body,.sidebar,.topbar,.card,.component,.status-banner,dialog{transition:background-color 220ms ease,color 220ms ease,border-color 220ms ease}
+.motion-enter{animation:eco-reveal 380ms cubic-bezier(.2,.7,.2,1) both;animation-delay:var(--motion-delay,0ms)}
+.motion-tab{animation:eco-tab 280ms cubic-bezier(.2,.7,.2,1) both}
+.motion-feedback{animation:eco-feedback 260ms ease-out}
+.motion-value{animation:eco-value 380ms cubic-bezier(.2,.7,.2,1)}
+.nav-item>span:first-child{transition:transform 200ms ease}
+.nav-item.motion-feedback>span:first-child{animation:eco-nav 320ms ease-out}
+.button,.theme-toggle,.xp-top,.mode-switch button,.scene-switch button,.text-button{transition:transform 180ms ease,box-shadow 180ms ease,background 180ms ease,color 180ms ease}
+.button:active:not(:disabled),.theme-toggle:active,.xp-top:active,.mode-switch button:active,.scene-switch button:active,.text-button:active:not(:disabled){transform:scale(.98)}
+.metric,.history-item,.home-identity{transition:transform 220ms ease}
+dialog[open]{animation:eco-dialog 320ms cubic-bezier(.2,.7,.2,1) both}
+dialog[open]::backdrop{animation:eco-fade 200ms ease-out}
+.toast:not([hidden]){animation:eco-toast 260ms cubic-bezier(.2,.7,.2,1) both}
+.brand-icon img,.mobile-brand img{animation:eco-brand 480ms cubic-bezier(.2,.7,.2,1)}
+@media(hover:hover) and (pointer:fine){
+ .button:hover:not(:disabled),.theme-toggle:hover,.xp-top:hover{transform:translateY(-2px)}
+ .metric:hover,.history-item:hover{transform:translateY(-2px)}
+ .nav-item:hover>span:first-child,.nav-item:focus-visible>span:first-child{transform:translateY(-1px) rotate(-5deg)}
+}
+@media(hover:none),(pointer:coarse){
+ .button:hover:not(:disabled),.theme-toggle:hover,.xp-top:hover,.tutorial-card:hover,.level-card.unlocked:hover,.campus-overview-card:hover{transform:none;box-shadow:none}
+}
+@keyframes eco-reveal{from{opacity:.25;transform:translateY(9px)}to{opacity:1;transform:translateY(0)}}
+@keyframes eco-tab{from{opacity:.5;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+@keyframes eco-feedback{0%,100%{transform:scale(1)}40%{transform:scale(.97)}}
+@keyframes eco-value{0%,100%{opacity:1;transform:scale(1)}35%{opacity:.7;transform:scale(1.045)}}
+@keyframes eco-nav{0%,100%{transform:rotate(0)}40%{transform:rotate(-8deg) scale(1.1)}}
+@keyframes eco-dialog{from{opacity:.35;transform:translateY(9px) scale(.99)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes eco-fade{from{opacity:0}to{opacity:1}}
+@keyframes eco-toast{from{opacity:0;transform:translate(-50%,7px)}to{opacity:1;transform:translate(-50%,0)}}
+@keyframes eco-brand{from{opacity:.5;transform:rotate(-12deg) scale(.92)}to{opacity:1;transform:rotate(0) scale(1)}}
+@media(prefers-reduced-motion:reduce){
+ .motion-enter,.motion-tab,.motion-feedback,.motion-value,.nav-item>span:first-child,dialog[open],dialog[open]::backdrop,.toast,.brand-icon img,.mobile-brand img{animation:none!important;transition:none!important}
+ .button:hover:not(:disabled),.button:active:not(:disabled),.theme-toggle:hover,.theme-toggle:active,.xp-top:hover,.xp-top:active,.mode-switch button:active,.scene-switch button:active,.text-button:active,.metric:hover,.history-item:hover,.nav-item>span:first-child,.tutorial-card:hover,.level-card.unlocked:hover,.campus-overview-card:hover{transform:none!important}
+}
+body.reduce-motion .motion-enter,body.reduce-motion .motion-tab,body.reduce-motion .motion-feedback,body.reduce-motion .motion-value,body.reduce-motion dialog[open]::backdrop{animation:none!important;transition:none!important}
+body.reduce-motion .button:hover:not(:disabled),body.reduce-motion .button:active:not(:disabled),body.reduce-motion .theme-toggle:hover,body.reduce-motion .theme-toggle:active,body.reduce-motion .xp-top:hover,body.reduce-motion .xp-top:active,body.reduce-motion .mode-switch button:active,body.reduce-motion .scene-switch button:active,body.reduce-motion .text-button:active,body.reduce-motion .metric:hover,body.reduce-motion .history-item:hover,body.reduce-motion .nav-item>span:first-child,body.reduce-motion .tutorial-card:hover,body.reduce-motion .level-card.unlocked:hover,body.reduce-motion .campus-overview-card:hover{transform:none!important}

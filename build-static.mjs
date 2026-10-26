@@ -6,9 +6,10 @@ import { RELEASE } from './build-release.mjs';
 const root=path.dirname(fileURLToPath(import.meta.url));
 const output=path.join(root,'dist');
 const marker='.ecolens-static-build';
-const interfaceFiles=['app.js','core.js','data.js','inference.js','scan-flow.js','media.js','report.js','public-sync.js','public-config.js','firebase-sync.js','firebase-ai.js','firebase-ai-config.js','styles.css'];
+const interfaceFiles=['app.js','core.js','data.js','inference.js','scan-flow.js','media.js','report.js','public-sync.js','public-config.js','firebase-sync.js','firebase-ai.js','firebase-ai-config.js','motion.js','styles.css'];
 // Retain the previously published graph for visitors with an open older tab.
-const interfaces=[{version:RELEASE,files:interfaceFiles},{version:"naac-v18",files:interfaceFiles},{version:"naac-v17",files:interfaceFiles},...['naac-v9','naac-v10'].map(version=>({version,files:interfaceFiles.filter(name=>!name.startsWith('firebase-ai'))}))];
+const priorFiles=interfaceFiles.filter(name=>name!=="motion.js");
+const interfaces=[{version:RELEASE,files:interfaceFiles},...['naac-v19','naac-v18','naac-v17'].map(version=>({version,files:priorFiles})),...['naac-v9','naac-v10'].map(version=>({version,files:priorFiles.filter(name=>!name.startsWith('firebase-ai'))}))];
 // This list is the publication boundary. Never serve the repository itself.
 const files=[
  'index.html','bootstrap.js','sw.js','manifest.webmanifest','THIRD_PARTY_NOTICES.md',
